@@ -36,12 +36,14 @@ import java.util.regex.Pattern;
 
 public class SchoolworkAssist {
 
+    public static final String MESSAGE_ASSIST = "cn.xuhongxu.Assist";
+
     // HEADER: Content-Type
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
     // HEADER: REFERER
-    private static final String HEADER_REFERER = "Referer";
-    private static final String REFERER = "http://zyfw.bnu.edu.cn";
+    public static final String HEADER_REFERER = "Referer";
+    public static final String REFERER = "http://zyfw.bnu.edu.cn";
 
     // URL: Login
     private static final String LOGIN_URL  = "http://cas.bnu.edu.cn/cas/login?service=http%3A%2F%2Fzyfw.bnu.edu.cn%2F" +
@@ -61,11 +63,11 @@ public class SchoolworkAssist {
     // URL: Query Selection Result
     private static final String SELECTION_RESULT_URL = "http://zyfw.bnu.edu.cn/student/wsxk.zxjg10139.jsp?" +
             "menucode=JW130404&random=";
-    // URL: Get Drop List Data
+    // URL: Get Drop ArrayList Data
     private static final String DROPLIST_URL = "http://zyfw.bnu.edu.cn/frame/droplist/getDropLists.action";
     // URL: Get Exam Score
     private static final String EXAM_SCORE_URL = "http://zyfw.bnu.edu.cn/student/xscj.stuckcj_data.jsp";
-    // URL: Get Evaluate List
+    // URL: Get Evaluate ArrayList
     private static final String EVALUATE_LIST_URL = "http://zyfw.bnu.edu.cn/jw/wspjZbpjWjdc/getPjlcInfo.action";
     // URL: Get Evaluate Form
     private static final String EVALUATE_FORM_URL = "http://zyfw.bnu.edu.cn/student/wspj_tjzbpj_wjdcb_pj.jsp?";
@@ -78,17 +80,17 @@ public class SchoolworkAssist {
     private static final String STUDENT_DETAILS_URL = "http://zyfw.bnu.edu.cn/STU_BaseInfoAction.do?" +
             "hidOption=InitData&menucode_current=JW13020101";
 
-    // TABLE_ID: Course List
+    // TABLE_ID: Course ArrayList
     private static final String COURSE_LIST_TABLE_ID = "5327018";
-    // TABLE_ID: Cancel Course List
+    // TABLE_ID: Cancel Course ArrayList
     private static final String CANCEL_LIST_TABLE_ID = "6093";
-    // TABLE_ID: Elective Course List
+    // TABLE_ID: Elective Course ArrayList
     private static final String ELECTIVE_COURSE_LIST_TABLE_ID = "5327095";
-    // TABLE_ID: Planed Course Details List
+    // TABLE_ID: Planed Course Details ArrayList
     private static final String PLAN_COURSE_CLASSES_TABLE_ID = "6142";
-    // TABLE_ID: Exam Arrangement List
+    // TABLE_ID: Exam Arrangement ArrayList
     private static final String EXAM_ARRAGEMENT_TABLE_ID = "2538";
-    // TABLE_ID: Evaluate Course List
+    // TABLE_ID: Evaluate Course ArrayList
     private static final String EVALUATE_COURSE_LIST_TABLE_ID = "50058";
 
     // DROP_LIST: Exam Turn
@@ -140,7 +142,7 @@ public class SchoolworkAssist {
         Connection.Response res = Jsoup.connect(STUDENT_INFO_URL)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .method(Connection.Method.POST).execute();
         if (!isLogin(res.body())) {
             throw new NeedLoginException();
@@ -175,7 +177,7 @@ public class SchoolworkAssist {
 
     private EncryptedParam encryptParams(String params) throws IOException, SecurityException, NeedLoginException {
         Connection.Response res = Jsoup.connect(DESKEY_URL + (int)(Math.random() * 10000000))
-                .cookies(cookies)
+                .cookies(getCookies())
                 .method(Connection.Method.GET).execute();
         if (!isLogin(res.body())) {
             throw new NeedLoginException();
@@ -218,7 +220,7 @@ public class SchoolworkAssist {
         fetchLoginParams();
 
         Document doc = Jsoup.connect(LOGIN_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("username", getUsername())
                 .data("password", getPassword())
@@ -245,9 +247,9 @@ public class SchoolworkAssist {
         everSucceed = false;
     }
 
-    public List<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException {
+    public ArrayList<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(TABLE_URL + COURSE_LIST_TABLE_ID)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
@@ -277,7 +279,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<PlanCourse> courses = new LinkedList<>();
+        ArrayList<PlanCourse> courses = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
             PlanCourse course = new PlanCourse();
@@ -324,14 +326,14 @@ public class SchoolworkAssist {
         return courses;
     }
 
-    public List<PlanChildCourse> getPlanChildCourses(PlanCourse course) throws IOException, NeedLoginException {
+    public ArrayList<PlanChildCourse> getPlanChildCourses(PlanCourse course) throws IOException, NeedLoginException {
         String params = String.format("xn=%s&xq_m=%s&xh=%s&kcdm=%s&skbjdm=&xktype=2&kcfw=zxbnj",
                 getStudentInfo().getAcademicYear(),
                 getStudentInfo().getSchoolTerm(),
                 getStudentInfo().getId(),
                 course.getCode());
         Document doc = Jsoup.connect(TABLE_URL + PLAN_COURSE_CLASSES_TABLE_ID + "&" + params)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
@@ -364,7 +366,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<PlanChildCourse> classes = new LinkedList<>();
+        ArrayList<PlanChildCourse> classes = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
             PlanChildCourse childCourse = new PlanChildCourse();
@@ -415,9 +417,9 @@ public class SchoolworkAssist {
         return classes;
     }
 
-    public List<ElectiveCourse> getElectiveCourses(boolean showAll) throws IOException, NeedLoginException {
+    public ArrayList<ElectiveCourse> getElectiveCourses(boolean showAll) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(TABLE_URL + ELECTIVE_COURSE_LIST_TABLE_ID)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
@@ -449,7 +451,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<ElectiveCourse> courses = new LinkedList<>();
+        ArrayList<ElectiveCourse> courses = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
             ElectiveCourse course = new ElectiveCourse();
@@ -496,9 +498,9 @@ public class SchoolworkAssist {
         return courses;
     }
 
-    public List<CancelCourse> getCancelCourses() throws IOException, NeedLoginException {
+    public ArrayList<CancelCourse> getCancelCourses() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(TABLE_URL + CANCEL_LIST_TABLE_ID)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("xktype", "5")
@@ -517,7 +519,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<CancelCourse> courses = new LinkedList<>();
+        ArrayList<CancelCourse> courses = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
             CancelCourse course = new CancelCourse();
@@ -576,7 +578,7 @@ public class SchoolworkAssist {
                 course.getClassCode());
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(CANCEL_COURSE_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -610,7 +612,7 @@ public class SchoolworkAssist {
 
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -643,7 +645,7 @@ public class SchoolworkAssist {
                 getStudentInfo().getGrade() + "|" + getStudentInfo().getSpecialityCode());
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -657,9 +659,9 @@ public class SchoolworkAssist {
         return new Result(res.body());
     }
 
-    public List<SelectionResult> getSelectionResult() throws IOException, NeedLoginException {
+    public ArrayList<SelectionResult> getSelectionResult() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(SELECTION_RESULT_URL + Math.random() * 1000000)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .get();
@@ -668,7 +670,7 @@ public class SchoolworkAssist {
         }
         Element table = doc.getElementById("reportArea").getElementsByTag("tbody").get(0);
         Elements tr = table.getElementsByTag("tr");
-        List<SelectionResult> selectionResults = new LinkedList<>();
+        ArrayList<SelectionResult> selectionResults = new ArrayList<>();
         for (Element row: tr) {
             SelectionResult selectionResult = new SelectionResult();
             Elements td = row.getElementsByTag("td");
@@ -701,9 +703,9 @@ public class SchoolworkAssist {
         return selectionResults;
     }
 
-    public List<ExamRound> getExamRounds() throws IOException, NeedLoginException, JSONException {
+    public ArrayList<ExamRound> getExamRounds() throws IOException, NeedLoginException, JSONException {
         Connection.Response res = Jsoup.connect(DROPLIST_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("comboBoxName", EXAM_DROP_NAME)
@@ -713,7 +715,7 @@ public class SchoolworkAssist {
             throw new NeedLoginException();
         }
         JSONArray rounds = new JSONArray(res.body());
-        List<ExamRound> examRounds = new LinkedList<>();
+        ArrayList<ExamRound> examRounds = new ArrayList<>();
         for (int i = 0; i < rounds.length(); ++i) {
             JSONObject round = rounds.getJSONObject(i);
             ExamRound examRound = new ExamRound();
@@ -724,9 +726,9 @@ public class SchoolworkAssist {
         return examRounds;
     }
 
-    public List<ExamArrangement> getExamArrangement(ExamRound examRound) throws IOException, NeedLoginException {
+    public ArrayList<ExamArrangement> getExamArrangement(ExamRound examRound) throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(TABLE_URL + EXAM_ARRAGEMENT_TABLE_ID)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("xh", "")
@@ -738,7 +740,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<ExamArrangement> arrangements = new LinkedList<>();
+        ArrayList<ExamArrangement> arrangements = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
             ExamArrangement arrangement = new ExamArrangement();
@@ -760,13 +762,13 @@ public class SchoolworkAssist {
         return arrangements;
     }
 
-    public List<ExamScore> getExamScores() throws IOException, NeedLoginException {
+    public ArrayList<ExamScore> getExamScores() throws IOException, NeedLoginException {
         return getExamScores(0, 0);
     }
 
-    public List<ExamScore> getExamScores(int year, int term) throws IOException, NeedLoginException {
+    public ArrayList<ExamScore> getExamScores(int year, int term) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(EXAM_SCORE_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("ysyx", "yscj")
@@ -787,7 +789,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<ExamScore> examScores = new LinkedList<>();
+        ArrayList<ExamScore> examScores = new ArrayList<>();
         Element table = doc.getElementsByTag("tbody").get(0);
         Elements rows = table.getElementsByTag("tr");
         String lastTerm = "";
@@ -814,10 +816,10 @@ public class SchoolworkAssist {
         return examScores;
     }
 
-    public List<EvaluationItem> getEvaluateList()
+    public ArrayList<EvaluationItem> getEvaluateList()
             throws IOException, NeedLoginException, JSONException {
         Connection.Response res = Jsoup.connect(EVALUATE_LIST_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("pjzt_m", "20")
@@ -828,33 +830,34 @@ public class SchoolworkAssist {
         }
         Pattern pattern = Pattern.compile("<option value='(\\{.*?\\})'>(.*?)</option>");
         Matcher matcher = pattern.matcher(res.body());
-        List<EvaluationItem> evaluationItems = new LinkedList<>();
+        ArrayList<EvaluationItem> evaluationItems = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", new Locale("zh_CN"));
         while (matcher.find()) {
             String json = matcher.group(1);
             String name = matcher.group(2);
             JSONObject evaluateInfo = new JSONObject(json);
             EvaluationItem item = new EvaluationItem();
-                item.setCode(evaluateInfo.getString("lcdm"));
-                item.setStartDate(dateFormat.parse(evaluateInfo.getString("qsrq"), new ParsePosition(0)));
-                item.setEndDate(dateFormat.parse(evaluateInfo.getString("jsrq"), new ParsePosition(0)));
-                item.setYear(evaluateInfo.getInt("xn"));
-                item.setTerm(evaluateInfo.getInt("xq_m"));
-                item.setTermName(evaluateInfo.getString("lcqc"));
-                item.setPhase(evaluateInfo.getString("lcjc"));
-                item.setSfkpsj(evaluateInfo.getString("sfkpsj"));
-                item.setSfwjpj(evaluateInfo.getString("sfwjpj"));
-                item.setSfzbpj(evaluateInfo.getString("sfzbpj"));
-                item.setPjfsbz(evaluateInfo.getString("pjfsbz"));
-                evaluationItems.add(item);
+            item.setName(name);
+            item.setCode(evaluateInfo.getString("lcdm"));
+            item.setStartDate(dateFormat.parse(evaluateInfo.getString("qsrq"), new ParsePosition(0)));
+            item.setEndDate(dateFormat.parse(evaluateInfo.getString("jsrq"), new ParsePosition(0)));
+            item.setYear(evaluateInfo.getInt("xn"));
+            item.setTerm(evaluateInfo.getInt("xq_m"));
+            item.setTermName(evaluateInfo.getString("lcqc"));
+            item.setPhase(evaluateInfo.getString("lcjc"));
+            item.setSfkpsj(evaluateInfo.getString("sfkpsj"));
+            item.setSfwjpj(evaluateInfo.getString("sfwjpj"));
+            item.setSfzbpj(evaluateInfo.getString("sfzbpj"));
+            item.setPjfsbz(evaluateInfo.getString("pjfsbz"));
+            evaluationItems.add(item);
         }
         return evaluationItems;
     }
 
-    public List<EvaluatingCourse> getEvaluatingCourses(EvaluationItem evaluation)
+    public ArrayList<EvaluatingCourse> getEvaluatingCourses(EvaluationItem evaluation)
             throws IOException, NeedLoginException, JSONException {
         Document doc = Jsoup.connect(TABLE_URL + EVALUATE_COURSE_LIST_TABLE_ID)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("xn", String.valueOf(evaluation.getYear()))
@@ -868,7 +871,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        List<EvaluatingCourse> courses = new LinkedList<>();
+        ArrayList<EvaluatingCourse> courses = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
 
@@ -911,7 +914,7 @@ public class SchoolworkAssist {
         }
 
         Document doc = Jsoup.connect(EVALUATE_FORM_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("pjlc", evaluation.getCode())
@@ -952,7 +955,7 @@ public class SchoolworkAssist {
         if (zbSizeEl != null) {
             radioSize = Integer.valueOf(zbSizeEl.val());
         }
-        List<String> radioID = new LinkedList<>();
+        ArrayList<String> radioID = new ArrayList<>();
         for (int i = 0; i < radioSize; ++i) {
             String el = "cj" + i + ">";
             Elements radios = doc.getElementsByAttributeValue("name", el);
@@ -969,7 +972,7 @@ public class SchoolworkAssist {
         if (wjSizeEl != null) {
             textSize = Integer.valueOf(wjSizeEl.val());
         }
-        List<String> textID = new LinkedList<>();
+        ArrayList<String> textID = new ArrayList<>();
         String remark;
 
         if (score < 3) {
@@ -995,7 +998,7 @@ public class SchoolworkAssist {
         commitText = URLEncoder.encode(commitText, "UTF-8");
 
         Connection.Response res = Jsoup.connect(EVALUATE_SAVE_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .data("wspjZbpjWjdcForm.pjlb_m", course.getClassificationCode())
@@ -1023,16 +1026,45 @@ public class SchoolworkAssist {
         return new Result(res.body());
     }
 
-    public void getStudentDetails() throws IOException, NeedLoginException {
+    public StudentDetails getStudentDetails() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(STUDENT_DETAILS_URL)
-                .cookies(cookies)
+                .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .post();
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        doc.getElementsByTag("info").get(0);
+        StudentDetails details = new StudentDetails();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", new Locale("zh_CN"));
+
+        Element info = doc.getElementsByTag("info").get(0);
+        details.setAddress(info.getElementsByTag("txdz").get(0).text());
+        details.setAvatarID(info.getElementsByTag("zpid").get(0).text());
+        details.setBirthday(dateFormat.parse(info.getElementsByTag("csrq").get(0).text(), new ParsePosition(0)));
+        details.setClassName(info.getElementsByTag("bjmc").get(0).text());
+        details.setCollege(info.getElementsByTag("yxb").get(0).text());
+        details.setCollegeWill(info.getElementsByTag("zymc").get(0).text());
+        details.setCultureStandard(info.getElementsByTag("whcd").get(0).text());
+        details.setEducationLevel(info.getElementsByTag("pycc").get(0).text());
+        details.setEmail(info.getElementsByTag("dzyx").get(0).text());
+        details.setGaokaoID(info.getElementsByTag("gkksh").get(0).text());
+        details.setGender(info.getElementsByTag("xb").get(0).text());
+        details.setId(info.getElementsByTag("yhxh").get(0).text());
+        details.setIdNumber(info.getElementsByTag("sfzjh").get(0).text());
+        details.setMiddleSchool(info.getElementsByTag("sydw").get(0).text());
+        details.setMobile(info.getElementsByTag("dh").get(0).text());
+        details.setName(info.getElementsByTag("xm").get(0).text());
+        details.setNationality(info.getElementsByTag("mz").get(0).text());
+        details.setNumber(info.getElementsByTag("xh").get(0).text());
+        details.setPinyin(info.getElementsByTag("xmpy").get(0).text());
+        details.setRegistrationGrade(info.getElementsByTag("rxnj").get(0).text());
+        details.setRegistrationTime(info.getElementsByTag("bdtime").get(0).text());
+        details.setSchoolSystem(info.getElementsByTag("xz").get(0).text());
+        details.setSpeciality(info.getElementsByTag("lqzy").get(0).text());
+
+        return details;
     }
 
     public boolean isEverSucceed() {
@@ -1045,5 +1077,9 @@ public class SchoolworkAssist {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
     }
 }

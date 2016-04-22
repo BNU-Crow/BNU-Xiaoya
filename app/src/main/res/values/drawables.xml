@@ -1,8 +1,11 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <item name="ic_menu_camera" type="drawable">@android:drawable/ic_menu_camera</item>
-    <item name="ic_menu_gallery" type="drawable">@android:drawable/ic_menu_gallery</item>
-    <item name="ic_menu_slideshow" type="drawable">@android:drawable/ic_menu_slideshow</item>
-    <item name="ic_menu_manage" type="drawable">@android:drawable/ic_menu_manage</item>
-    <item name="ic_menu_share" type="drawable">@android:drawable/ic_menu_share</item>
-    <item name="ic_menu_send" type="drawable">@android:drawable/ic_menu_send</item>
+    <item name="ic_autorenew_white" type="drawable">@mipmap/ic_autorenew_white_48dp</item>
+    <item name="ic_check_circle_black" type="drawable">@mipmap/ic_check_circle_black_48dp</item>
+    <item name="ic_exit_to_app_black" type="drawable">@mipmap/ic_exit_to_app_black_48dp</item>
+    <item name="ic_home_black" type="drawable">@mipmap/ic_home_black_48dp</item>
+    <item name="ic_plus_one_black" type="drawable">@mipmap/ic_plus_one_black_48dp</item>
+    <item name="ic_school_black" type="drawable">@mipmap/ic_school_black_48dp</item>
+    <item name="ic_done_black" type="drawable">@mipmap/ic_done_black_48dp</item>
+    <item name="ic_done_all_white" type="drawable">@mipmap/ic_done_all_white_48dp</item>
+    <item name="ic_plus_one_white" type="drawable">@mipmap/ic_plus_one_white_48dp</item>
 </resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stars">
+        <item>五星好评</item>
+        <item>四星良好</item>
+        <item>三星一般</item>
+        <item>两星较差</item>
+        <item>一星差评</item>
+    </string-array>
+</resources>

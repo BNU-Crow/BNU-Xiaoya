@@ -1,6 +1,9 @@
 package cn.xuhongxu.Assist;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
@@ -11,7 +14,8 @@ import java.util.Date;
  * @author Hongxu Xu
  * @version 0.1
  */
-public class EvaluationItem {
+public class EvaluationItem implements Parcelable {
+    private String name = "";
     // 评教轮次阶段 lcjc
     private String phase = "";
     // 学年 xn
@@ -34,6 +38,14 @@ public class EvaluationItem {
     private String sfzbpj = "";
     // pjfsbz
     private String pjfsbz = "";
+
+    public String getName() {
+        return name;
+    }
+
+    void setName(String name) {
+        this.name = name;
+    }
 
     public String getPhase() {
         return phase;
@@ -64,7 +76,7 @@ public class EvaluationItem {
     }
 
     void setTermName(String termName) {
-        this.termName = termName;
+        this.termName = termName.substring(termName.indexOf("季学期") - 1);
     }
 
     public Date getStartDate() {
@@ -139,4 +151,57 @@ public class EvaluationItem {
                 ", pjfsbz='" + pjfsbz + '\'' +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.name);
+        dest.writeString(this.phase);
+        dest.writeInt(this.year);
+        dest.writeInt(this.term);
+        dest.writeString(this.termName);
+        dest.writeLong(startDate != null ? startDate.getTime() : -1);
+        dest.writeLong(endDate != null ? endDate.getTime() : -1);
+        dest.writeString(this.code);
+        dest.writeString(this.sfwjpj);
+        dest.writeString(this.sfkpsj);
+        dest.writeString(this.sfzbpj);
+        dest.writeString(this.pjfsbz);
+    }
+
+    public EvaluationItem() {
+    }
+
+    protected EvaluationItem(Parcel in) {
+        this.name = in.readString();
+        this.phase = in.readString();
+        this.year = in.readInt();
+        this.term = in.readInt();
+        this.termName = in.readString();
+        long tmpStartDate = in.readLong();
+        this.startDate = tmpStartDate == -1 ? null : new Date(tmpStartDate);
+        long tmpEndDate = in.readLong();
+        this.endDate = tmpEndDate == -1 ? null : new Date(tmpEndDate);
+        this.code = in.readString();
+        this.sfwjpj = in.readString();
+        this.sfkpsj = in.readString();
+        this.sfzbpj = in.readString();
+        this.pjfsbz = in.readString();
+    }
+
+    public static final Parcelable.Creator<EvaluationItem> CREATOR = new Parcelable.Creator<EvaluationItem>() {
+        @Override
+        public EvaluationItem createFromParcel(Parcel source) {
+            return new EvaluationItem(source);
+        }
+
+        @Override
+        public EvaluationItem[] newArray(int size) {
+            return new EvaluationItem[size];
+        }
+    };
 }
