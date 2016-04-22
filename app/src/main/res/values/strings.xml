@@ -56,5 +56,7 @@
     <string name="choose_evaluation_level">评分</string>
     <string name="evaluate_tip">请客观进行评教, 文字性评论小鸦会为您自动填写!</string>
     <string name="action_evaluate_all">一键评教</string>
+    <string name="donate_me">捐赠我</string>
+    <string name="welcome_to_use">欢迎使用北师小鸦!</string>
 
 </resources>

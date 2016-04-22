@@ -29,6 +29,10 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
     private class GetEvaluationTask extends AsyncTask<Boolean, Void, Integer> {
         private boolean updated = false;
 
+        GetEvaluationTask() {
+            setRefreshing(true);
+        }
+
         @Override
         protected Integer doInBackground(Boolean... params) {
             if (params.length > 0) {
@@ -51,10 +55,10 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPostExecute(Integer result) {
+            setRefreshing(false);
             if (result == 0) {
                 updateItems(updated);
             } else if (result == R.string.login_timeout || result == R.string.network_error) {
-                setRefreshing(false);
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
                 mListener.onReLogin(false);
             }
@@ -93,7 +97,6 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
                 snackbar.show();
             }
         }
-        setRefreshing(false);
     }
 
     @Override
@@ -109,7 +112,6 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
         app = (YaApplication) getActivity().getApplication();
 
         if (app.getEvaluationItemList() == null) {
-            setRefreshing(true);
             new GetEvaluationTask().execute(false);
         } else {
             updateItems();
@@ -134,7 +136,6 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            setRefreshing(true);
             new GetEvaluationTask().execute(true);
         }
 

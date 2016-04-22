@@ -42,6 +42,10 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         private boolean updated = false;
 
+        GetEvaluatingCoursesTask() {
+            setRefreshing(true);
+        }
+
         @Override
         protected Integer doInBackground(Boolean... params) {
             if (params.length > 0) {
@@ -68,6 +72,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPostExecute(Integer result) {
+            setRefreshing(false);
             if (result == 0) {
                 updateItems(updated);
             } else if (result == R.string.login_timeout || result == R.string.network_error) {
@@ -105,7 +110,6 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
                 snackbar.show();
             }
         }
-        setRefreshing(false);
     }
 
     /**
@@ -130,7 +134,6 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         app = (YaApplication) getActivity().getApplication();
 
-        setRefreshing(true);
         new GetEvaluatingCoursesTask().execute(false);
 
         setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -174,11 +177,9 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            setRefreshing(true);
             new GetEvaluatingCoursesTask().execute(true);
         } else if (id == R.id.action_evaluate_all) {
-            setRefreshing(true);
-            showEvaluateDialog(-1, new DialogInterface.OnClickListener() {
+            showEvaluateDialog(EVALUATE_ALL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     for (int pos = 0; pos < app.getEvaluatingCourses().size(); ++pos) {
@@ -212,9 +213,8 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
     @Override
     public void onListItemClick(ListView l, View v, final int position, long id) {
         if (isRefreshing()) return;
-        showEvaluateDialog(EVALUATE_ALL, new DialogInterface.OnClickListener() {
+        showEvaluateDialog(position, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                setRefreshing(true);
                 new EvaluateTask().execute(position, 5 - which, EVALUATE_ALL);
             }
         });
@@ -224,6 +224,10 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         private boolean all = false;
         private int pos = 0;
+
+        EvaluateTask() {
+            setRefreshing(true);
+        }
 
         @Override
         protected Integer doInBackground(Integer... params) {
@@ -252,6 +256,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPostExecute(Integer result) {
+            setRefreshing(false);
             if (result == 0) {
                 View view = getView();
                 assert view != null;
