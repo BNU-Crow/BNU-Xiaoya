@@ -56,11 +56,21 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             progressDialog.dismiss();
 
+            View view = findViewById(android.R.id.content);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("username", editUsername.getText().toString());
+            editor.remove("password");
+            editor.putBoolean("remember", false);
+            editor.apply();
             if (getString(R.string.succeed_login).contentEquals(result)) {
+                if (switchRemember.isChecked()) {
+                    editor.putString("password", editPassword.getText().toString());
+                    editor.putBoolean("remember", true);
+                    editor.apply();
+                }
                 loginSucceed();
             } else {
                 // 登录失败
-                View view = findViewById(android.R.id.content);
                 if (view == null) {
                     Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
                 } else {
@@ -81,16 +91,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // 记住我
         SharedPreferences.Editor editor = preferences.edit();
-        if (switchRemember.isChecked()) {
-            editor.putString("username", editUsername.getText().toString());
-            editor.putString("password", editPassword.getText().toString());
-            editor.putBoolean("remember", true);
-        } else {
-            editor.remove("username");
-            editor.remove("password");
-            editor.putBoolean("remember", false);
-        }
-        editor.apply();
 
         // 启动主活动
         Intent intent = new Intent(this, MainActivity.class);
@@ -114,12 +114,16 @@ public class LoginActivity extends AppCompatActivity {
         preferences =
                 getSharedPreferences(getString(R.string.preference_key), Context.MODE_PRIVATE);
 
+        editUsername.setText(preferences.getString("username", ""));
         if (preferences.getBoolean("remember", false)) {
-            switchRemember.setChecked(true);
-            editUsername.setText(preferences.getString("username", ""));
             editPassword.setText(preferences.getString("password", ""));
             Intent intent = getIntent();
-            if (!intent.getBooleanExtra(MESSAGE_LOGOUT, false)) {
+            if (intent.getBooleanExtra(MESSAGE_LOGOUT, false)) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("remember", false);
+                editor.apply();
+            } else {
+                switchRemember.setChecked(true);
                 login(null);
             }
         }
@@ -148,8 +152,6 @@ public class LoginActivity extends AppCompatActivity {
 
         hideKeyboard(this);
 
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.apply();
         progressDialog = ProgressDialog.show(this, "登录中", "正在登录统一身份认证平台...", true);
         new LoginTask().execute(editUsername.getText().toString(),
                 editPassword.getText().toString());

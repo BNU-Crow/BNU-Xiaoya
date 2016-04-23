@@ -54,9 +54,11 @@
 
     <!-- Evaluate Dialog -->
     <string name="choose_evaluation_level">评分</string>
-    <string name="evaluate_tip">请客观进行评教, 文字性评论小鸦会为您自动填写!</string>
+    <string name="choose_all_evaluation_level">一键评分</string>
+    <string name="evaluate_tip">请选择课程客观评教\n小鸦会自动生成文字评价</string>
     <string name="action_evaluate_all">一键评教</string>
     <string name="donate_me">捐赠我</string>
     <string name="welcome_to_use">欢迎使用北师小鸦!</string>
+    <string name="upward_behavior">cn.xuhongxu.xiaoya.MoveUpwardBehavior</string>
 
 </resources>

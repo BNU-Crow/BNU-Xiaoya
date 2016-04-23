@@ -92,11 +92,11 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
                     getActivity().getSharedPreferences(getString(R.string.preference_key),
                             Context.MODE_PRIVATE);
             if (preferences.getBoolean("showEvaluationCourseTip", true)) {
-                int showTextId = R.string.select_evaluation_course;
+                int showTextId = R.string.evaluate_tip;
                 if (updated) {
                     showTextId = R.string.updated;
                 }
-                Snackbar snackbar = Snackbar.make(view, showTextId, Snackbar.LENGTH_SHORT);
+                Snackbar snackbar = Snackbar.make(view, showTextId, Snackbar.LENGTH_LONG);
                 if (!updated) {
                     snackbar.setAction(R.string.do_not_show_again, new View.OnClickListener() {
                         @Override
@@ -287,7 +287,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
     public void showEvaluateDialog(final int pos, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (pos == EVALUATE_ALL) {
-            builder.setTitle(getString(R.string.choose_evaluation_level));
+            builder.setTitle(getString(R.string.choose_all_evaluation_level));
         } else {
             EvaluatingCourse course = app.getEvaluatingCourses().get(pos);
             builder.setTitle(

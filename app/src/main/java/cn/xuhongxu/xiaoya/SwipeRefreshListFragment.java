@@ -111,7 +111,7 @@ public class SwipeRefreshListFragment extends ListFragment {
      * override the default behavior and properly signal when a gesture is possible. This is done by
      * overriding {@link #canChildScrollUp()}.
      */
-    private class ListFragmentSwipeRefreshLayout extends SwipeRefreshLayout {
+    public class ListFragmentSwipeRefreshLayout extends SwipeRefreshLayout {
 
         public ListFragmentSwipeRefreshLayout(Context context) {
             super(context);
@@ -127,6 +127,10 @@ public class SwipeRefreshListFragment extends ListFragment {
         public boolean canChildScrollUp() {
             final ListView listView = getListView();
             return listView.getVisibility() == View.VISIBLE && canListViewScrollUp(listView);
+        }
+
+        ListView getMyListView() {
+            return getListView();
         }
 
     }
