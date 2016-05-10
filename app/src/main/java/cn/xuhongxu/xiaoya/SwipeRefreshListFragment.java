@@ -17,8 +17,6 @@
 package cn.xuhongxu.xiaoya;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewCompat;
@@ -38,6 +36,18 @@ public class SwipeRefreshListFragment extends ListFragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
+    public void onPause() {
+        super.onPause();
+        setRefreshing(false);
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -51,6 +61,7 @@ public class SwipeRefreshListFragment extends ListFragment {
         // the SwipeRefreshLayout
         mSwipeRefreshLayout.addView(listFragmentView,
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
         // Make sure that the SwipeRefreshLayout will fill the fragment
         mSwipeRefreshLayout.setLayoutParams(
                 new ViewGroup.LayoutParams(
@@ -92,6 +103,15 @@ public class SwipeRefreshListFragment extends ListFragment {
     }
 
     /**
+     * Set the color scheme for the {@link android.support.v4.widget.SwipeRefreshLayout}.
+     *
+     * @see android.support.v4.widget.SwipeRefreshLayout#setColorScheme(int, int, int, int)
+     */
+    public void setColorScheme(int colorRes1, int colorRes2, int colorRes3, int colorRes4) {
+        mSwipeRefreshLayout.setColorScheme(colorRes1, colorRes2, colorRes3, colorRes4);
+    }
+
+    /**
      * @return the fragment's {@link android.support.v4.widget.SwipeRefreshLayout} widget.
      */
     public SwipeRefreshLayout getSwipeRefreshLayout() {
@@ -106,7 +126,7 @@ public class SwipeRefreshListFragment extends ListFragment {
      * view returned from
      * {@link android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)}
      * which is a {@link android.view.ViewGroup}.
-     * <p/>
+     *
      * <p>To enable 'swipe-to-refresh' support via the {@link android.widget.ListView} we need to
      * override the default behavior and properly signal when a gesture is possible. This is done by
      * overriding {@link #canChildScrollUp()}.
@@ -126,15 +146,16 @@ public class SwipeRefreshListFragment extends ListFragment {
         @Override
         public boolean canChildScrollUp() {
             final ListView listView = getListView();
-            return listView.getVisibility() == View.VISIBLE && canListViewScrollUp(listView);
-        }
-
-        ListView getMyListView() {
-            return getListView();
+            if (listView.getVisibility() == View.VISIBLE) {
+                return canListViewScrollUp(listView);
+            } else {
+                return false;
+            }
         }
 
     }
 
+    // BEGIN_INCLUDE (check_list_can_scroll)
     /**
      * Utility method to check whether a {@link ListView} can scroll up from it's current position.
      * Handles platform version differences, providing backwards compatible functionality where
@@ -152,15 +173,6 @@ public class SwipeRefreshListFragment extends ListFragment {
                             || listView.getChildAt(0).getTop() < listView.getPaddingTop());
         }
     }
+    // END_INCLUDE (check_list_can_scroll)
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mSwipeRefreshLayout != null) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            mSwipeRefreshLayout.destroyDrawingCache();
-            mSwipeRefreshLayout.clearAnimation();
-        }
-    }
 }

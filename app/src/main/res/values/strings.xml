@@ -59,6 +59,5 @@
     <string name="action_evaluate_all">一键评教</string>
     <string name="donate_me">捐赠我</string>
     <string name="welcome_to_use">欢迎使用北师小鸦!</string>
-    <string name="upward_behavior">cn.xuhongxu.xiaoya.MoveUpwardBehavior</string>
 
 </resources>

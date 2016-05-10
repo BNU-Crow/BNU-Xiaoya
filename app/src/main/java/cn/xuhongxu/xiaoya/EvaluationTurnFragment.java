@@ -10,11 +10,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Objects;
 
+import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.NeedLoginException;
 
 
@@ -24,55 +27,60 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
     private OnFragmentInteractionListener mListener;
 
     private static final String LOG_TAG = EvaluationTurnFragment.class.getSimpleName();
+    private GetEvaluationTask task;
 
+    private class GetEvaluationTask extends AsyncTask<Boolean, Void, String> {
+        private boolean first = false;
 
-    private class GetEvaluationTask extends AsyncTask<Boolean, Void, Integer> {
-        private boolean updated = false;
-
-        GetEvaluationTask() {
+        @Override
+        protected void onPreExecute() {
             setRefreshing(true);
         }
 
         @Override
-        protected Integer doInBackground(Boolean... params) {
+        protected String doInBackground(Boolean... params) {
             if (params.length > 0) {
-                updated = params[0];
+                first = params[0];
             }
             View view = getView();
             assert view != null;
             try {
                 app.setEvaluationItemList(app.getAssist().getEvaluateList());
-                return 0;
             } catch (NeedLoginException needLogin) {
-                return R.string.login_timeout;
+                return getString(R.string.login_timeout);
             } catch (IOException e) {
-                return R.string.network_error;
+                return getString(R.string.network_error);
             } catch (Exception e) {
-                Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                return e.getMessage();
             }
-            return -1;
+            return "";
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
-            setRefreshing(false);
-            if (result == 0) {
-                updateItems(updated);
-            } else if (result == R.string.login_timeout || result == R.string.network_error) {
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result.equals("")) {
+                updateItems(true, first);
+            } else if (result.equals(getString(R.string.login_timeout)) || result.equals(getString(R.string.network_error))) {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
                 mListener.onReLogin(false);
+                setRefreshing(false);
+            } else {
+                Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
+                setRefreshing(false);
             }
         }
     }
 
-    private void updateItems() {
-        updateItems(false);
-    }
+    private void updateItems(boolean updated, boolean first) {
+        if (updated) {
+            EvaluationListAdapter adapter = (EvaluationListAdapter) getListAdapter();
+            adapter.clear();
+            for (EvaluationItem item : app.getEvaluationItemList()) {
+                adapter.add(item);
+            }
+        }
 
-    private void updateItems(boolean updated) {
-        EvaluationListAdapter adapter =
-                new EvaluationListAdapter(getActivity(), app.getEvaluationItemList());
-        setListAdapter(adapter);
         View view = getView();
         if (view != null) {
             final SharedPreferences preferences =
@@ -80,11 +88,11 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
                             Context.MODE_PRIVATE);
             if (preferences.getBoolean("showEvaluationTip", true)) {
                 int showTextId = R.string.select_evaluation_turn;
-                if (updated) {
+                if (!first) {
                     showTextId = R.string.updated;
                 }
                 Snackbar snackbar = Snackbar.make(view, showTextId, Snackbar.LENGTH_SHORT);
-                if (!updated) {
+                if (first) {
                     snackbar.setAction(R.string.do_not_show_again, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -97,6 +105,7 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
                 snackbar.show();
             }
         }
+        setRefreshing(false);
     }
 
     @Override
@@ -106,21 +115,28 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         app = (YaApplication) getActivity().getApplication();
 
-        if (app.getEvaluationItemList() == null) {
-            new GetEvaluationTask().execute(false);
+
+        EvaluationListAdapter adapter =
+                new EvaluationListAdapter(getActivity(), app.getEvaluationItemList());
+        setListAdapter(adapter);
+
+        if (app.getEvaluationItemList().isEmpty()) {
+            task = new GetEvaluationTask();
+            task.execute(true);
         } else {
-            updateItems();
+            updateItems(false, true);
         }
 
         setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new GetEvaluationTask().execute(true);
+                task = new GetEvaluationTask();
+                task.execute(false);
             }
         });
     }
@@ -136,7 +152,8 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            new GetEvaluationTask().execute(true);
+            task = new GetEvaluationTask();
+            task.execute(false);
         }
 
         return super.onOptionsItemSelected(item);
@@ -163,6 +180,9 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        if (task != null) {
+            task.cancel(true);
+        }
     }
 
     public interface OnFragmentInteractionListener {
@@ -170,11 +190,4 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
         void onEvaluateCourse(int pos);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        getSwipeRefreshLayout().setRefreshing(false);
-        getSwipeRefreshLayout().destroyDrawingCache();
-        getSwipeRefreshLayout().clearAnimation();
-    }
 }

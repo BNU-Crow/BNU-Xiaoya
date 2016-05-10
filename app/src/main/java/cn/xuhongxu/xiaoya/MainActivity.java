@@ -1,5 +1,8 @@
 package cn.xuhongxu.xiaoya;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -20,11 +23,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
@@ -53,7 +60,9 @@ public class MainActivity extends AppCompatActivity
 
     FragmentManager fragmentManager;
     Fragment fragment;
-    private ActionBarDrawerToggle mDrawerToggle;
+    ActionBarDrawerToggle mDrawerToggle;
+    DrawerLayout mDrawer;
+    int fragmentId;
     private boolean isBack = false;
 
     @Override
@@ -69,11 +78,11 @@ public class MainActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        assert drawer != null;
-        drawer.addDrawerListener(mDrawerToggle);
+                this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        assert mDrawer != null;
+        mDrawer.addDrawerListener(mDrawerToggle);
         mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,7 +102,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onBackStackChanged() {
                 isBack = fragmentManager.getBackStackEntryCount() > 0;
-                mDrawerToggle.setDrawerIndicatorEnabled(!isBack);
+                showBackToolbarArrow(isBack);
             }
         });
 
@@ -106,8 +115,51 @@ public class MainActivity extends AppCompatActivity
         usernameView = (TextView) navHeader.findViewById(R.id.textUsername);
         userIDView = (TextView) navHeader.findViewById(R.id.textUserID);
 
-        changeFragment(R.id.nav_home);
+        if (savedInstanceState == null) {
+            changeFragment(R.id.nav_home);
+        }
 
+    }
+
+    public void showBackToolbarArrow(boolean enabled) {
+
+        ValueAnimator valueAnimator;
+
+        if (enabled) {
+            valueAnimator = ValueAnimator.ofFloat(0, 1);
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+            valueAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    if (getSupportActionBar() != null) {
+                        mDrawerToggle.setDrawerIndicatorEnabled(false);
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    }
+                }
+            });
+        } else {
+            valueAnimator = ValueAnimator.ofFloat(1, 0);
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
+            }
+        }
+
+        // Play the hamburger icon/back arrow animation based on the ValueAnimator.ofFloat.
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float animationOffset = (float) animation.getAnimatedValue();
+                mDrawerToggle.onDrawerSlide(mDrawer, animationOffset);
+            }
+        });
+        valueAnimator.setDuration(500);
+        valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        valueAnimator.start();
     }
 
     @Override
@@ -137,6 +189,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
+                dumpFragment();
                 return true;
         }
 
@@ -174,11 +227,15 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            fragmentManager.popBackStack();
-            fragmentManager
+
+
+            if (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStack(fragmentId, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+            fragmentId = fragmentManager
                     .beginTransaction()
                     .replace(R.id.flContent, fragment)
-                    .commit();
+                    .commitAllowingStateLoss();
 
         }
     }
@@ -213,6 +270,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String result) {
+            super.onPostExecute(result);
             if (!getString(R.string.succeed_login).contentEquals(result)) {
                 // 登录失败
                 reLogin(true);
@@ -250,7 +308,18 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .addToBackStack(null)
                 .replace(R.id.flContent, EvaluationCourseFragment.newInstance(pos))
-                .commit();
+                .commitAllowingStateLoss();
+    }
+
+    public void dumpFragment() {
+        try {
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fragmentManager.dump("", null, new PrintWriter(outputStream, true), null);
+            final String s = new String(outputStream.toByteArray(), "UTF-8");
+            Log.i("HI", s);
+        } catch (Exception e) {
+            Log.e("HI", e.getLocalizedMessage());
+        }
     }
 
     private class StudentDetailsTask extends AsyncTask<Void, Void, Integer> {
@@ -275,6 +344,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
             if (result == 0) {
                 loadAvatar();
                 usernameView.setText(studentDetails.getName());
@@ -309,6 +379,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Drawable result) {
+            super.onPostExecute(result);
             if (result != null) {
                 assert avatarView != null;
                 avatarView.setImageDrawable(result);

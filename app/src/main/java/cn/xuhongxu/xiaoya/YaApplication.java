@@ -28,10 +28,8 @@ public class YaApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        /*
         evaluationItemList = new ArrayList<>();
         evaluatingCourses = new ArrayList<>();
-        */
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

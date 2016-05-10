@@ -54,13 +54,12 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            super.onPostExecute(result);
             progressDialog.dismiss();
 
             View view = findViewById(android.R.id.content);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("username", editUsername.getText().toString());
-            editor.remove("password");
-            editor.putBoolean("remember", false);
             editor.apply();
             if (getString(R.string.succeed_login).contentEquals(result)) {
                 if (switchRemember.isChecked()) {
@@ -116,13 +115,14 @@ public class LoginActivity extends AppCompatActivity {
 
         editUsername.setText(preferences.getString("username", ""));
         if (preferences.getBoolean("remember", false)) {
-            editPassword.setText(preferences.getString("password", ""));
             Intent intent = getIntent();
             if (intent.getBooleanExtra(MESSAGE_LOGOUT, false)) {
                 SharedPreferences.Editor editor = preferences.edit();
+                editor.remove("password");
                 editor.putBoolean("remember", false);
                 editor.apply();
             } else {
+                editPassword.setText(preferences.getString("password", ""));
                 switchRemember.setChecked(true);
                 login(null);
             }
