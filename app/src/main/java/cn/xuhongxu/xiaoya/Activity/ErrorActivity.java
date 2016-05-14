@@ -1,4 +1,4 @@
-package cn.xuhongxu.xiaoya;
+package cn.xuhongxu.xiaoya.Activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import cn.xuhongxu.xiaoya.R;
 
 public class ErrorActivity extends Activity {
 

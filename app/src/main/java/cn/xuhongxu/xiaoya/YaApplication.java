@@ -1,14 +1,14 @@
 package cn.xuhongxu.xiaoya;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 
 import java.util.ArrayList;
 
-import cn.xuhongxu.Assist.EvaluatingCourse;
+import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.SchoolworkAssist;
+import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
 
 /**
  * Created by xuhongxu on 16/4/12.
@@ -22,14 +22,14 @@ public class YaApplication extends Application {
 
     private SchoolworkAssist assist;
     private ArrayList<EvaluationItem> evaluationItemList;
-    private ArrayList<EvaluatingCourse> evaluatingCourses;
+    private ArrayList<EvaluationCourse> evaluationCourses;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         evaluationItemList = new ArrayList<>();
-        evaluatingCourses = new ArrayList<>();
+        evaluationCourses = new ArrayList<>();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -73,11 +73,11 @@ public class YaApplication extends Application {
         this.evaluationItemList = evaluationItemList;
     }
 
-    public ArrayList<EvaluatingCourse> getEvaluatingCourses() {
-        return evaluatingCourses;
+    public ArrayList<EvaluationCourse> getEvaluationCourses() {
+        return evaluationCourses;
     }
 
-    public void setEvaluatingCourses(ArrayList<EvaluatingCourse> evaluatingCourses) {
-        this.evaluatingCourses = evaluatingCourses;
+    public void setEvaluationCourses(ArrayList<EvaluationCourse> evaluationCourses) {
+        this.evaluationCourses = evaluationCourses;
     }
 }

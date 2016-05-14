@@ -1,4 +1,4 @@
-package cn.xuhongxu.xiaoya;
+package cn.xuhongxu.xiaoya.Activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -24,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,20 +34,22 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
-import cn.xuhongxu.Assist.EvaluatingCourse;
-import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.LoginException;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
+import cn.xuhongxu.xiaoya.Fragment.EvaluationCourseFragment;
+import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
+import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
+import cn.xuhongxu.xiaoya.R;
+import cn.xuhongxu.xiaoya.YaApplication;
 
 public class MainActivity extends AppCompatActivity
         implements
         NavigationView.OnNavigationItemSelectedListener,
-        EvaluationTurnFragment.OnFragmentInteractionListener,
         HomeFragment.OnFragmentInteractionListener,
+        EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener {
 
     YaApplication app;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity
     Fragment fragment;
     ActionBarDrawerToggle mDrawerToggle;
     DrawerLayout mDrawer;
+    int currentFragmentId = -1;
     int fragmentId;
     private boolean isBack = false;
 
@@ -157,7 +159,7 @@ public class MainActivity extends AppCompatActivity
                 mDrawerToggle.onDrawerSlide(mDrawer, animationOffset);
             }
         });
-        valueAnimator.setDuration(500);
+        valueAnimator.setDuration(400);
         valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         valueAnimator.start();
     }
@@ -196,7 +198,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     void changeFragment(int id) {
 
         Class fragmentClass = null;
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_evaluate) {
             // 评教
             titleId = R.string.Evaluate;
-            fragmentClass = EvaluationTurnFragment.class;
+            fragmentClass = EvaluationFragment.class;
         } else if (id == R.id.nav_logout) {
             reLogin(true);
         }
@@ -222,20 +223,23 @@ public class MainActivity extends AppCompatActivity
 
         if (fragmentClass != null) {
 
-            try {
-                fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
             if (fragmentManager.getBackStackEntryCount() > 0) {
                 fragmentManager.popBackStack(fragmentId, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
-            fragmentId = fragmentManager
-                    .beginTransaction()
-                    .replace(R.id.flContent, fragment)
-                    .commitAllowingStateLoss();
+            if (currentFragmentId != id) {
+                currentFragmentId = id;
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                fragmentId = fragmentManager
+                        .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.flContent, fragment)
+                        .commitAllowingStateLoss();
+            }
 
         }
     }
@@ -307,6 +311,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager
                 .beginTransaction()
                 .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, EvaluationCourseFragment.newInstance(pos))
                 .commitAllowingStateLoss();
     }

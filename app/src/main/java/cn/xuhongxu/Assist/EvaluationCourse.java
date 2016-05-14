@@ -3,12 +3,12 @@ package cn.xuhongxu.Assist;
 /**
  * Created by xuhongxu on 16/4/8.
  *
- * EvaluatingCourse
+ * EvaluationCourse
  *
  * @author Hongxu Xu
  * @version 0.1
  */
-public class EvaluatingCourse {
+public class EvaluationCourse {
     // 评教状态代码 pjzt_m
     private String statusCode = "";
     // 评教类别代码 pjlb_m
@@ -142,7 +142,7 @@ public class EvaluatingCourse {
 
     @Override
     public String toString() {
-        return "EvaluatingCourse{" +
+        return "EvaluationCourse{" +
                 "statusCode='" + statusCode + '\'' +
                 ", classificationCode='" + classificationCode + '\'' +
                 ", classification='" + classification + '\'' +

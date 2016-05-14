@@ -1,40 +1,67 @@
-package cn.xuhongxu.xiaoya;
+package cn.xuhongxu.xiaoya.Fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.Objects;
 
-import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.NeedLoginException;
+import cn.xuhongxu.xiaoya.Adapter.EvaluationRecycleAdapter;
+import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
+import cn.xuhongxu.xiaoya.R;
+import cn.xuhongxu.xiaoya.YaApplication;
 
 
-public class EvaluationTurnFragment extends SwipeRefreshListFragment {
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link EvaluationFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link EvaluationFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class EvaluationFragment extends Fragment {
 
-    private YaApplication app;
     private OnFragmentInteractionListener mListener;
+    private YaApplication app;
 
-    private static final String LOG_TAG = EvaluationTurnFragment.class.getSimpleName();
     private GetEvaluationTask task;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerView;
+    ProgressBar progressBar;
+
+    public EvaluationFragment() {
+        // Required empty public constructor
+    }
+
+    public static EvaluationFragment newInstance() {
+        return new EvaluationFragment();
+    }
 
     private class GetEvaluationTask extends AsyncTask<Boolean, Void, String> {
         private boolean first = false;
 
         @Override
         protected void onPreExecute() {
-            setRefreshing(true);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -59,26 +86,26 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            progressBar.setIndeterminate(false);
+            progressBar.setVisibility(View.GONE);
             if (result.equals("")) {
                 updateItems(true, first);
             } else if (result.equals(getString(R.string.login_timeout)) || result.equals(getString(R.string.network_error))) {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
                 mListener.onReLogin(false);
-                setRefreshing(false);
+                swipeRefreshLayout.setRefreshing(false);
             } else {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
-                setRefreshing(false);
+                swipeRefreshLayout.setRefreshing(false);
             }
         }
     }
 
     private void updateItems(boolean updated, boolean first) {
         if (updated) {
-            EvaluationListAdapter adapter = (EvaluationListAdapter) getListAdapter();
-            adapter.clear();
-            for (EvaluationItem item : app.getEvaluationItemList()) {
-                adapter.add(item);
-            }
+            EvaluationRecycleAdapter adapter =
+                    new EvaluationRecycleAdapter(getActivity(), app.getEvaluationItemList());
+            recyclerView.setAdapter(adapter);
         }
 
         View view = getView();
@@ -105,64 +132,59 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
                 snackbar.show();
             }
         }
-        setRefreshing(false);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_evaluation, container, false);
 
         app = (YaApplication) getActivity().getApplication();
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.evaluation_swipe_refresh_layout);
+        recyclerView = (RecyclerView) v.findViewById(R.id.evaluation_recycler_view);
 
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.scrollToPosition(0);
+        recyclerView.setLayoutManager(layoutManager);
+        EvaluationRecycleAdapter adapter =
+                new EvaluationRecycleAdapter(getActivity(), app.getEvaluationItemList());
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(),
+                recyclerView,
+                new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        mListener.onEvaluateCourse(position);
+                    }
 
-        EvaluationListAdapter adapter =
-                new EvaluationListAdapter(getActivity(), app.getEvaluationItemList());
-        setListAdapter(adapter);
+                    @Override
+                    public void onItemLongClick(View view, int position) {
 
+                    }
+
+                }));
+        progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         if (app.getEvaluationItemList().isEmpty()) {
+            progressBar.setIndeterminate(true);
             task = new GetEvaluationTask();
             task.execute(true);
         } else {
+            progressBar.setVisibility(View.GONE);
             updateItems(false, true);
         }
-
-        setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 task = new GetEvaluationTask();
                 task.execute(false);
             }
         });
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.evaluation_item_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_refresh) {
-            task = new GetEvaluationTask();
-            task.execute(false);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        if (isRefreshing()) return;
-        mListener.onEvaluateCourse(position);
+        return v;
     }
 
     @Override
@@ -187,7 +209,31 @@ public class EvaluationTurnFragment extends SwipeRefreshListFragment {
 
     public interface OnFragmentInteractionListener {
         void onReLogin(boolean logout);
+
         void onEvaluateCourse(int pos);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.evaluation_item_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_refresh) {
+            task = new GetEvaluationTask();
+            task.execute(false);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

@@ -1,4 +1,4 @@
-package cn.xuhongxu.xiaoya;
+package cn.xuhongxu.xiaoya.Activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -19,14 +19,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-
-import cn.xuhongxu.Assist.LoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
+import cn.xuhongxu.xiaoya.R;
+import cn.xuhongxu.xiaoya.YaApplication;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final String MESSAGE_LOGOUT = "cn.xuhongxu.xiaoya.LoginActivity.logout";
+    public static final String MESSAGE_LOGOUT = "cn.xuhongxu.xiaoya.Activity.LoginActivity.logout";
 
     private SharedPreferences preferences;
 

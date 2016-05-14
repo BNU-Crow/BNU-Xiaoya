@@ -1,25 +1,36 @@
-package cn.xuhongxu.xiaoya;
+package cn.xuhongxu.xiaoya.Fragment;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.IOException;
 
-import cn.xuhongxu.Assist.EvaluatingCourse;
+import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.NeedLoginException;
+import cn.xuhongxu.xiaoya.Adapter.EvaluationCourseRecycleAdapter;
+import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
+import cn.xuhongxu.xiaoya.R;
+import cn.xuhongxu.xiaoya.YaApplication;
 
 /**
  * A fragment representing a list of Items.
@@ -27,10 +38,9 @@ import cn.xuhongxu.Assist.NeedLoginException;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class EvaluationCourseFragment extends SwipeRefreshListFragment {
+public class EvaluationCourseFragment extends Fragment {
 
     private static final String ARG_POSITION = "position";
-    private static final String LOG_TAG = EvaluationCourseFragment.class.getSimpleName();
     private static final int EVALUATE_ALL = -1;
     private OnListFragmentInteractionListener mListener;
 
@@ -39,6 +49,9 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
     private GetEvaluatingCoursesTask getTask;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerView;
+    ProgressBar progressBar;
 
     private class GetEvaluatingCoursesTask extends AsyncTask<Boolean, Void, Integer> {
 
@@ -46,7 +59,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPreExecute() {
-            setRefreshing(true);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -57,7 +70,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
             View view = getView();
             assert view != null;
             try {
-                app.setEvaluatingCourses(
+                app.setEvaluationCourses(
                         app.getAssist().getEvaluatingCourses(
                                 app.getEvaluationItemList().get(itemPosition)
                         )
@@ -76,29 +89,23 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
+            progressBar.setIndeterminate(false);
+            progressBar.setVisibility(View.GONE);
             if (result == 0) {
                 updateItems(true, first);
             } else if (result == R.string.login_timeout || result == R.string.network_error) {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
                 mListener.onReLogin(false);
-                setRefreshing(false);
+                swipeRefreshLayout.setRefreshing(false);
             }
         }
     }
 
     private void updateItems(boolean updated, boolean first) {
         if (updated) {
-            if (getListAdapter() instanceof EvaluationCourseListAdapter) {
-                EvaluationCourseListAdapter adapter = (EvaluationCourseListAdapter) getListAdapter();
-                adapter.clear();
-                for (EvaluatingCourse item : app.getEvaluatingCourses()) {
-                    adapter.add(item);
-                }
-            } else {
-                EvaluationCourseListAdapter adapter =
-                        new EvaluationCourseListAdapter(getActivity(), app.getEvaluatingCourses());
-                setListAdapter(adapter);
-            }
+            EvaluationCourseRecycleAdapter adapter =
+                    new EvaluationCourseRecycleAdapter(getActivity(), app.getEvaluationCourses());
+            recyclerView.setAdapter(adapter);
         }
         View view = getView();
         if (view != null) {
@@ -107,11 +114,11 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
                             Context.MODE_PRIVATE);
             if (preferences.getBoolean("showEvaluationCourseTip", true)) {
                 int showTextId = R.string.evaluate_tip;
-                if (first) {
+                if (!first) {
                     showTextId = R.string.updated;
                 }
-                Snackbar snackbar = Snackbar.make(view, showTextId, Snackbar.LENGTH_LONG);
-                if (!first) {
+                Snackbar snackbar = Snackbar.make(view, showTextId, Snackbar.LENGTH_SHORT);
+                if (first) {
                     snackbar.setAction(R.string.do_not_show_again, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -124,7 +131,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
                 snackbar.show();
             }
         }
-        setRefreshing(false);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
@@ -144,15 +151,50 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_evaluation, container, false);
 
         app = (YaApplication) getActivity().getApplication();
 
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.evaluation_swipe_refresh_layout);
+        recyclerView = (RecyclerView) v.findViewById(R.id.evaluation_recycler_view);
+
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.scrollToPosition(0);
+        recyclerView.setLayoutManager(layoutManager);
+
+        app.getEvaluationCourses().clear();
+        EvaluationCourseRecycleAdapter adapter =
+                new EvaluationCourseRecycleAdapter(getActivity(), app.getEvaluationCourses());
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(),
+                recyclerView,
+                new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, final int position) {
+                        showEvaluateDialog(position, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                new EvaluateTask().execute(position, 5 - which, EVALUATE_ALL);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+
+                    }
+                }));
+
+        progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+        progressBar.setIndeterminate(true);
         getTask = new GetEvaluatingCoursesTask();
         getTask.execute(true);
 
-        setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 getTask = new GetEvaluatingCoursesTask();
@@ -160,6 +202,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
             }
 
         });
+        return v;
     }
 
     @Override
@@ -196,12 +239,12 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         if (id == R.id.action_refresh) {
             getTask = new GetEvaluatingCoursesTask();
-            getTask.execute(true);
+            getTask.execute(false);
         } else if (id == R.id.action_evaluate_all) {
             showEvaluateDialog(EVALUATE_ALL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    for (int pos = 0; pos < app.getEvaluatingCourses().size(); ++pos) {
+                    for (int pos = 0; pos < app.getEvaluationCourses().size(); ++pos) {
                         new EvaluateTask().execute(pos, 5 - which, -1);
                     }
                 }
@@ -224,16 +267,6 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
         void onReLogin(boolean logout);
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, final int position, long id) {
-        if (isRefreshing()) return;
-        showEvaluateDialog(position, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                new EvaluateTask().execute(position, 5 - which, EVALUATE_ALL);
-            }
-        });
-    }
-
     private class EvaluateTask extends AsyncTask<Integer, Void, Integer> {
 
         private boolean all = false;
@@ -241,7 +274,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPreExecute() {
-            setRefreshing(true);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -255,7 +288,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
             try {
                 app.getAssist().evaluateCourse(
                         app.getEvaluationItemList().get(itemPosition),
-                        app.getEvaluatingCourses().get(params[0]),
+                        app.getEvaluationCourses().get(params[0]),
                         params[1]
                 );
                 return 0;
@@ -272,22 +305,22 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
-            setRefreshing(false);
+            swipeRefreshLayout.setRefreshing(false);
             if (result == 0) {
                 View view = getView();
                 assert view != null;
                 if (all) {
-                        EvaluatingCourse course = app.getEvaluatingCourses().get(pos);
-                        Snackbar.make(view,
-                                getString(R.string.succeed_evaluate)
-                                        + ": "
-                                        + course.getName()
-                                        + "("
-                                        + course.getTeacherName()
-                                        + ")",
-                                Snackbar.LENGTH_SHORT
-                        ).show();
-                    if (pos != app.getEvaluatingCourses().size() - 1) {
+                    EvaluationCourse course = app.getEvaluationCourses().get(pos);
+                    Snackbar.make(view,
+                            getString(R.string.succeed_evaluate)
+                                    + ": "
+                                    + course.getName()
+                                    + "("
+                                    + course.getTeacherName()
+                                    + ")",
+                            Snackbar.LENGTH_SHORT
+                    ).show();
+                    if (pos != app.getEvaluationCourses().size() - 1) {
                         return;
                     }
                 }
@@ -306,7 +339,7 @@ public class EvaluationCourseFragment extends SwipeRefreshListFragment {
         if (pos == EVALUATE_ALL) {
             builder.setTitle(getString(R.string.choose_all_evaluation_level));
         } else {
-            EvaluatingCourse course = app.getEvaluatingCourses().get(pos);
+            EvaluationCourse course = app.getEvaluationCourses().get(pos);
             builder.setTitle(
                     getString(R.string.choose_evaluation_level) + ": "
                             + course.getName()

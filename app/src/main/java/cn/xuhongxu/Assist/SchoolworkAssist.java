@@ -2,7 +2,6 @@ package cn.xuhongxu.Assist;
 
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -854,7 +853,7 @@ public class SchoolworkAssist {
         return evaluationItems;
     }
 
-    public ArrayList<EvaluatingCourse> getEvaluatingCourses(EvaluationItem evaluation)
+    public ArrayList<EvaluationCourse> getEvaluatingCourses(EvaluationItem evaluation)
             throws IOException, NeedLoginException, JSONException {
         Document doc = Jsoup.connect(TABLE_URL + EVALUATE_COURSE_LIST_TABLE_ID)
                 .cookies(getCookies())
@@ -871,7 +870,7 @@ public class SchoolworkAssist {
         if (!isLogin(doc.outerHtml())) {
             throw new NeedLoginException();
         }
-        ArrayList<EvaluatingCourse> courses = new ArrayList<>();
+        ArrayList<EvaluationCourse> courses = new ArrayList<>();
         for (int i = 0; ; ++i) {
             String prefix = "tr" + i + "_";
 
@@ -882,7 +881,7 @@ public class SchoolworkAssist {
 
             String json = evaluateEl.child(0).attr("onclick");
             json = json.substring(13, json.length() - 6).replace("\\\"", "\"");
-            EvaluatingCourse course = new EvaluatingCourse();
+            EvaluationCourse course = new EvaluationCourse();
                 JSONObject courseInfo = new JSONObject(json);
                 course.setCode(courseInfo.getString("kcdm"));
                 course.setStatusCode(courseInfo.getString("pjzt_m"));
@@ -904,7 +903,7 @@ public class SchoolworkAssist {
         return courses;
     }
 
-    public Result evaluateCourse(EvaluationItem evaluation, EvaluatingCourse course, int score)
+    public Result evaluateCourse(EvaluationItem evaluation, EvaluationCourse course, int score)
             throws IOException, NeedLoginException, JSONException {
 
         if (score > 5) {

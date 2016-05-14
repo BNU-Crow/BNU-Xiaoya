@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="4dp"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:layout_margin="2dp"
+    card_view:cardCornerRadius="4dp">
 
-    <ImageView
-        android:id="@+id/statusImage"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:padding="8dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/status" />
-
-
-    <TextView
-        android:id="@+id/evalCourseName"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@id/statusImage"
-        android:paddingBottom="8dp"
-        android:textAppearance="@android:style/TextAppearance.Medium" />
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:selectableItemBackground"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingStart="4dp"
+        android:paddingTop="@dimen/activity_vertical_margin">
 
+        <ImageView
+            android:id="@+id/statusImage"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/status"
+            android:padding="8dp" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/evalCourseName"
-        android:layout_toEndOf="@id/statusImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/evalCourseTeacherName"
-            android:layout_weight="1"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content" />
+            android:id="@+id/evalCourseName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/statusImage"
+            android:paddingBottom="8dp"
+            android:textAppearance="@android:style/TextAppearance.Medium" />
 
-        <TextView
-            android:id="@+id/evalCourseCredit"
-            android:layout_weight="1"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content" />
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/evalCourseName"
+            android:layout_toEndOf="@id/statusImage"
+            android:orientation="horizontal">
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/evalCourseTeacherName"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/evalCourseCredit"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
