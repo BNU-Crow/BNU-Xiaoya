@@ -41,6 +41,7 @@
     <string name="Home">主页</string>
     <string name="Select">选课</string>
     <string name="Test">考试</string>
+    <string name="Score">成绩</string>
     <string name="Evaluate">评教</string>
 
     <!-- List Label Caption -->
@@ -53,14 +54,22 @@
     <string name="status">状态</string>
 
     <!-- Evaluate Dialog -->
+    <string name="evaluating">评教中…</string>
     <string name="choose_evaluation_level">评分</string>
     <string name="choose_all_evaluation_level">一键评分</string>
     <string name="evaluate_tip">请选择课程客观评教\n小鸦会自动生成文字评价</string>
     <string name="action_evaluate_all">一键评教</string>
+
+    <!-- Home -->
     <string name="donate_me">捐赠我</string>
     <string name="welcome_to_use">欢迎使用北师小鸦!</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Exam -->
+    <string name="select_exam_round">请选择考试轮次</string>
+    <string name="type">类型</string>
+    <string name="seatNumber">座号</string>
+    <string name="location">地点</string>
+    <string name="time">时间</string>
+
 
 </resources>

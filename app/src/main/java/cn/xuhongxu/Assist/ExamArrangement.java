@@ -10,7 +10,7 @@ package cn.xuhongxu.Assist;
  */
 public class ExamArrangement {
     // 课程名称 kc
-    private String courseName;
+    private String course;
     // 学分 xf
     private String credit;
     // 类别 lb
@@ -23,13 +23,19 @@ public class ExamArrangement {
     private String location;
     // 座位号 zwh
     private String seat;
+    private String courseName;
+
+    public String getCourse() {
+        return course;
+    }
+
+    void setCourse(String course) {
+        this.course = course.trim();
+        courseName = course.substring(course.indexOf("]") + 1);
+    }
 
     public String getCourseName() {
         return courseName;
-    }
-
-    void setCourseName(String courseName) {
-        this.courseName = courseName.trim();
     }
 
     public String getCredit() {
@@ -83,7 +89,7 @@ public class ExamArrangement {
     @Override
     public String toString() {
         return "ExamArrangement{" +
-                "courseName='" + courseName + '\'' +
+                "course='" + course + '\'' +
                 ", credit='" + credit + '\'' +
                 ", classification='" + classification + '\'' +
                 ", examType='" + examType + '\'' +

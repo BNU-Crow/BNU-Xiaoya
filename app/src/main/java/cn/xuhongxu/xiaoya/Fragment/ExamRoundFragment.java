@@ -22,7 +22,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import cn.xuhongxu.Assist.NeedLoginException;
-import cn.xuhongxu.xiaoya.Adapter.EvaluationRecycleAdapter;
+import cn.xuhongxu.xiaoya.Adapter.ExamRoundRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -31,30 +31,30 @@ import cn.xuhongxu.xiaoya.YaApplication;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link EvaluationFragment.OnFragmentInteractionListener} interface
+ * {@link ExamRoundFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link EvaluationFragment#newInstance} factory method to
+ * Use the {@link ExamRoundFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EvaluationFragment extends Fragment {
+public class ExamRoundFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private YaApplication app;
 
-    private GetEvaluationTask task;
+    private GetExamRoundTask task;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     ProgressBar progressBar;
 
-    public EvaluationFragment() {
+    public ExamRoundFragment() {
         // Required empty public constructor
     }
 
-    public static EvaluationFragment newInstance() {
-        return new EvaluationFragment();
+    public static ExamRoundFragment newInstance() {
+        return new ExamRoundFragment();
     }
 
-    private class GetEvaluationTask extends AsyncTask<Boolean, Void, String> {
+    private class GetExamRoundTask extends AsyncTask<Boolean, Void, String> {
         private boolean first = false;
 
         @Override
@@ -70,7 +70,7 @@ public class EvaluationFragment extends Fragment {
             View view = getView();
             assert view != null;
             try {
-                app.setEvaluationItemList(app.getAssist().getEvaluateList());
+                app.setExamRounds(app.getAssist().getExamRounds());
             } catch (NeedLoginException needLogin) {
                 return getString(R.string.login_timeout);
             } catch (IOException e) {
@@ -101,8 +101,8 @@ public class EvaluationFragment extends Fragment {
 
     private void updateItems(boolean updated, boolean first) {
         if (updated) {
-            EvaluationRecycleAdapter adapter =
-                    new EvaluationRecycleAdapter(getActivity(), app.getEvaluationItemList());
+            ExamRoundRecycleAdapter adapter =
+                    new ExamRoundRecycleAdapter(getActivity(), app.getExamRounds());
             recyclerView.setAdapter(adapter);
         }
 
@@ -111,8 +111,8 @@ public class EvaluationFragment extends Fragment {
             final SharedPreferences preferences =
                     getActivity().getSharedPreferences(getString(R.string.preference_key),
                             Context.MODE_PRIVATE);
-            if (preferences.getBoolean("showEvaluationTip", true)) {
-                int showTextId = R.string.select_evaluation_turn;
+            if (preferences.getBoolean("showExamRoundTip", true)) {
+                int showTextId = R.string.select_exam_round;
                 if (!first) {
                     showTextId = R.string.updated;
                 }
@@ -122,7 +122,7 @@ public class EvaluationFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.putBoolean("showEvaluationTip", false);
+                            editor.putBoolean("showExamRoundTip", false);
                             editor.apply();
                         }
                     });
@@ -137,11 +137,11 @@ public class EvaluationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_evaluation, container, false);
+        View v = inflater.inflate(R.layout.fragment_exam_round, container, false);
 
         app = (YaApplication) getActivity().getApplication();
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.evaluation_swipe_refresh_layout);
-        recyclerView = (RecyclerView) v.findViewById(R.id.evaluation_recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.exam_round_swipe_refresh_layout);
+        recyclerView = (RecyclerView) v.findViewById(R.id.exam_round_recycler_view);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
@@ -149,15 +149,15 @@ public class EvaluationFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         layoutManager.scrollToPosition(0);
         recyclerView.setLayoutManager(layoutManager);
-        EvaluationRecycleAdapter adapter =
-                new EvaluationRecycleAdapter(getActivity(), app.getEvaluationItemList());
+        ExamRoundRecycleAdapter adapter =
+                new ExamRoundRecycleAdapter(getActivity(), app.getExamRounds());
         recyclerView.setAdapter(adapter);
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(),
                 recyclerView,
                 new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        mListener.onEvaluateCourse(position);
+                        mListener.onExamRoundSelected(position);
                     }
 
                     @Override
@@ -167,9 +167,9 @@ public class EvaluationFragment extends Fragment {
 
                 }));
         progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
-        if (app.getEvaluationItemList().isEmpty()) {
+        if (app.getExamRounds().isEmpty()) {
             progressBar.setIndeterminate(true);
-            task = new GetEvaluationTask();
+            task = new GetExamRoundTask();
             task.execute(true);
         } else {
             progressBar.setVisibility(View.GONE);
@@ -178,7 +178,7 @@ public class EvaluationFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                task = new GetEvaluationTask();
+                task = new GetExamRoundTask();
                 task.execute(false);
             }
         });
@@ -209,7 +209,7 @@ public class EvaluationFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onReLogin(boolean back);
 
-        void onEvaluateCourse(int pos);
+        void onExamRoundSelected(int pos);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class EvaluationFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            task = new GetEvaluationTask();
+            task = new GetExamRoundTask();
             task.execute(false);
         }
 

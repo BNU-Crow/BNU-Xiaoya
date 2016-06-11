@@ -1,6 +1,7 @@
 package cn.xuhongxu.xiaoya.Fragment;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -52,6 +54,7 @@ public class EvaluationCourseFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     ProgressBar progressBar;
+    ProgressDialog progressDialog;
 
     private class GetEvaluatingCoursesTask extends AsyncTask<Boolean, Void, Integer> {
 
@@ -161,6 +164,7 @@ public class EvaluationCourseFragment extends Fragment {
         swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.evaluation_swipe_refresh_layout);
         recyclerView = (RecyclerView) v.findViewById(R.id.evaluation_recycler_view);
 
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -178,7 +182,10 @@ public class EvaluationCourseFragment extends Fragment {
                     public void onItemClick(View view, final int position) {
                         showEvaluateDialog(position, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                new EvaluateTask().execute(position, 5 - which, EVALUATE_ALL);
+                                progressDialog = ProgressDialog.show(getContext(),
+                                        getString(R.string.evaluating),
+                                        app.getEvaluationCourses().get(position).getName(), true);
+                                new EvaluateTask().execute(position, 5 - which, 0);
                             }
                         });
                     }
@@ -244,6 +251,12 @@ public class EvaluationCourseFragment extends Fragment {
             showEvaluateDialog(EVALUATE_ALL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    progressDialog = new ProgressDialog(getContext());
+                    progressDialog.setTitle(getString(R.string.evaluating));
+                    progressDialog.setMessage(getString(R.string.action_evaluate_all));
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    progressDialog.setMax(app.getEvaluationCourses().size());
+                    progressDialog.show();
                     for (int pos = 0; pos < app.getEvaluationCourses().size(); ++pos) {
                         new EvaluateTask().execute(pos, 5 - which, -1);
                     }
@@ -264,18 +277,13 @@ public class EvaluationCourseFragment extends Fragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onReLogin(boolean logout);
+        void onReLogin(boolean back);
     }
 
     private class EvaluateTask extends AsyncTask<Integer, Void, Integer> {
 
         private boolean all = false;
         private int pos = 0;
-
-        @Override
-        protected void onPreExecute() {
-            swipeRefreshLayout.setRefreshing(true);
-        }
 
         @Override
         protected Integer doInBackground(Integer... params) {
@@ -311,23 +319,23 @@ public class EvaluationCourseFragment extends Fragment {
                 assert view != null;
                 if (all) {
                     EvaluationCourse course = app.getEvaluationCourses().get(pos);
-                    Snackbar.make(view,
-                            getString(R.string.succeed_evaluate)
+                    progressDialog.incrementProgressBy(1);
+                    progressDialog.setMessage(getString(R.string.succeed_evaluate)
                                     + ": "
                                     + course.getName()
                                     + "("
                                     + course.getTeacherName()
-                                    + ")",
-                            Snackbar.LENGTH_SHORT
-                    ).show();
+                                    + ")");
                     if (pos != app.getEvaluationCourses().size() - 1) {
                         return;
                     }
                 }
+                progressDialog.dismiss();
                 Snackbar.make(view, R.string.succeed_evaluate, Snackbar.LENGTH_SHORT).show();
                 getTask = new GetEvaluatingCoursesTask();
                 getTask.execute(true);
             } else if (result == R.string.login_timeout || result == R.string.network_error) {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
                 mListener.onReLogin(false);
             }

@@ -35,12 +35,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
+import cn.xuhongxu.Assist.ExamRound;
 import cn.xuhongxu.Assist.LoginException;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
+import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
+import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity
         implements
         NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnFragmentInteractionListener,
+        ExamRoundFragment.OnFragmentInteractionListener,
+        ExamArrangementFragment.OnListFragmentInteractionListener,
         EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener {
 
@@ -208,15 +213,22 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             fragmentClass = HomeFragment.class;
         } else if (id == R.id.nav_select) {
+            // TODO: 选课
+            
 
         } else if (id == R.id.nav_test) {
+            // 考试
+            titleId = R.string.Test;
+            fragmentClass = ExamRoundFragment.class;
+        } else if (id == R.id.nav_score) {
+            // TODO: 成绩
 
         } else if (id == R.id.nav_evaluate) {
             // 评教
             titleId = R.string.Evaluate;
             fragmentClass = EvaluationFragment.class;
         } else if (id == R.id.nav_logout) {
-            reLogin(true);
+            reLogin(true, true);
         }
 
         setTitle(titleId);
@@ -263,9 +275,7 @@ public class MainActivity extends AppCompatActivity
         protected String doInBackground(Void... params) {
             try {
                 app.getAssist().login();
-            } catch (LoginException e) {
-                return e.getMessage();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 return e.getMessage();
             }
 
@@ -275,6 +285,9 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            if (result == null) {
+                result = "网络错误";
+            }
             if (!getString(R.string.succeed_login).contentEquals(result)) {
                 // 登录失败
                 reLogin(true);
@@ -283,15 +296,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void reLogin() {
-        reLogin(false);
+        reLogin(false, false);
     }
 
-    private void reLogin(boolean logout) {
-        if (!logout) {
+    private void reLogin(boolean back) {
+        reLogin(back, false);
+    }
+
+    private void reLogin(boolean back, boolean logout) {
+        if (!back && app.getAssist() != null) {
             new LoginTask().execute();
+            return;
         }
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        intent.putExtra(LoginActivity.MESSAGE_LOGOUT, logout);
+        if (logout) {
+            intent.putExtra(LoginActivity.MESSAGE_LOGOUT, true);
+        }
         startActivity(intent);
         finish();
     }
@@ -302,8 +322,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onReLogin(boolean logout) {
-        reLogin(logout);
+    public void onReLogin(boolean back) {
+        reLogin(back);
+    }
+
+    @Override
+    public void onExamRoundSelected(int pos) {
+        fragmentManager
+                .beginTransaction()
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.flContent, ExamArrangementFragment.newInstance(pos))
+                .commitAllowingStateLoss();
     }
 
     @Override
@@ -401,15 +431,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-
-        if (app.getAssist() == null) {
-            // 确保登录
-            View view = findViewById(android.R.id.content);
-            assert view != null;
-            Toast.makeText(getApplicationContext(), R.string.please_login_first, Toast.LENGTH_LONG).show();
-            reLogin(true);
-            return;
-        }
 
         // 获取用户详细信息
         getStudentDetails();

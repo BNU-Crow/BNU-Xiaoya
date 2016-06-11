@@ -14,9 +14,20 @@ public class ExamRound {
     private int year = 0;
     private int term = 0;
     private int round = 0;
+    private String yearName = "";
+    private String termName = "";
+    private String roundName = "";
 
     public String getCode() {
         return code;
+    }
+
+    private void getItemName() {
+        int p1 = name.indexOf("学年");
+        int p2 = name.indexOf("学期");
+        yearName = name.substring(0, p1);
+        termName = name.substring(p1 + 2, p2);
+        roundName = name.substring(p2 + 2);
     }
 
     void setCode(String code) {
@@ -33,6 +44,7 @@ public class ExamRound {
 
     void setName(String name) {
         this.name = name.trim();
+        getItemName();
     }
 
     public int getYear() {
@@ -45,6 +57,18 @@ public class ExamRound {
 
     public int getRound() {
         return round;
+    }
+
+    public String getYearName() {
+        return yearName;
+    }
+
+    public String getRoundName() {
+        return roundName;
+    }
+
+    public String getTermName() {
+        return termName;
     }
 
     @Override

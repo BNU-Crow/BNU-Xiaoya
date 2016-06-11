@@ -748,7 +748,7 @@ public class SchoolworkAssist {
             if (courseNameEl == null) {
                 break;
             }
-            arrangement.setCourseName(courseNameEl.text());
+            arrangement.setCourse(courseNameEl.text());
             arrangement.setCredit(doc.getElementById(prefix + "xf").text());
             arrangement.setClassification(doc.getElementById(prefix + "lb").text());
             arrangement.setExamType(doc.getElementById(prefix + "khfs").text());

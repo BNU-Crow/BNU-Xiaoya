@@ -60,6 +60,9 @@ public class LoginActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("username", editUsername.getText().toString());
             editor.apply();
+            if (result == null) {
+                result = "网络错误";
+            }
             if (getString(R.string.succeed_login).contentEquals(result)) {
                 if (switchRemember.isChecked()) {
                     editor.putString("password", editPassword.getText().toString());

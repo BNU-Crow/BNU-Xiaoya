@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.EvaluationItem;
+import cn.xuhongxu.Assist.ExamArrangement;
+import cn.xuhongxu.Assist.ExamRound;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
 
@@ -23,6 +25,8 @@ public class YaApplication extends Application {
     private SchoolworkAssist assist;
     private ArrayList<EvaluationItem> evaluationItemList;
     private ArrayList<EvaluationCourse> evaluationCourses;
+    private ArrayList<ExamRound> examRounds;
+    private ArrayList<ExamArrangement> examArrangement;
 
     @Override
     public void onCreate() {
@@ -30,13 +34,17 @@ public class YaApplication extends Application {
 
         evaluationItemList = new ArrayList<>();
         evaluationCourses = new ArrayList<>();
+        examRounds = new ArrayList<>();
+        examArrangement = new ArrayList<>();
 
+        /*
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
                 handleUncaughtException(thread, e);
             }
         });
+        */
 
     }
 
@@ -80,4 +88,21 @@ public class YaApplication extends Application {
     public void setEvaluationCourses(ArrayList<EvaluationCourse> evaluationCourses) {
         this.evaluationCourses = evaluationCourses;
     }
+
+    public ArrayList<ExamRound> getExamRounds() {
+        return examRounds;
+    }
+
+    public void setExamRounds(ArrayList<ExamRound> examRounds) {
+        this.examRounds = examRounds;
+    }
+
+    public ArrayList<ExamArrangement> getExamArrangement() {
+        return examArrangement;
+    }
+
+    public void setExamArrangement(ArrayList<ExamArrangement> examArrangement) {
+        this.examArrangement = examArrangement;
+    }
+
 }

@@ -5,6 +5,7 @@
     <item name="ic_home_black" type="drawable">@mipmap/ic_home_black_48dp</item>
     <item name="ic_plus_one_black" type="drawable">@mipmap/ic_plus_one_black_48dp</item>
     <item name="ic_school_black" type="drawable">@mipmap/ic_school_black_48dp</item>
+    <item name="ic_assessment_black" type="drawable">@mipmap/ic_assessment_black_48dp</item>
     <item name="ic_done_black" type="drawable">@mipmap/ic_done_black_48dp</item>
     <item name="ic_done_all_white" type="drawable">@mipmap/ic_done_all_white_48dp</item>
     <item name="ic_plus_one_white" type="drawable">@mipmap/ic_plus_one_white_48dp</item>
