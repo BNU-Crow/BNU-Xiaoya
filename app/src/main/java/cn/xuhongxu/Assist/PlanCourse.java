@@ -11,6 +11,7 @@ package cn.xuhongxu.Assist;
 public class PlanCourse {
     // 名称 kc
     private String name = "";
+    private String courseName = "";
     // 学分 xf
     private String credit = "";
     // 总学时 zxs
@@ -39,6 +40,10 @@ public class PlanCourse {
 
     public String getName() {
         return name;
+    }
+
+    public String getCourseName() {
+        return courseName;
     }
 
     public String getCredit() {
@@ -91,6 +96,7 @@ public class PlanCourse {
 
     void setName(String name) {
         this.name = name.trim();
+        courseName = name.substring(name.indexOf("]") + 1);
     }
 
     void setCredit(String credit) {

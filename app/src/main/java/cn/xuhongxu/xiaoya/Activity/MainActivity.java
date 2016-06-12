@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,7 +20,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,15 +28,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-import cn.xuhongxu.Assist.ExamRound;
-import cn.xuhongxu.Assist.LoginException;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
@@ -45,6 +41,7 @@ import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
+import cn.xuhongxu.xiaoya.Fragment.SelectCourseFragment;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
 
@@ -52,24 +49,24 @@ public class MainActivity extends AppCompatActivity
         implements
         NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnFragmentInteractionListener,
+        SelectCourseFragment.OnFragmentInteractionListener,
         ExamRoundFragment.OnFragmentInteractionListener,
         ExamArrangementFragment.OnListFragmentInteractionListener,
         EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener {
 
-    YaApplication app;
-    StudentDetails studentDetails;
+    private YaApplication app;
+    private StudentDetails studentDetails;
 
-    ImageView avatarView;
-    TextView usernameView;
-    TextView userIDView;
+    private ImageView avatarView;
+    private TextView usernameView;
+    private TextView userIDView;
 
-    FragmentManager fragmentManager;
-    Fragment fragment;
-    ActionBarDrawerToggle mDrawerToggle;
-    DrawerLayout mDrawer;
-    int currentFragmentId = -1;
-    int fragmentId;
+    private FragmentManager fragmentManager;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerLayout mDrawer;
+    private int currentFragmentId = -1;
+    private int fragmentId;
     private boolean isBack = false;
 
     @Override
@@ -128,7 +125,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void showBackToolbarArrow(boolean enabled) {
+    private void showBackToolbarArrow(boolean enabled) {
 
         ValueAnimator valueAnimator;
 
@@ -196,17 +193,16 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-                dumpFragment();
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    void changeFragment(int id) {
+    private void changeFragment(int id) {
 
         Class fragmentClass = null;
-        fragment = null;
+        Fragment fragment = null;
 
         int titleId = R.string.app_name;
 
@@ -214,7 +210,8 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = HomeFragment.class;
         } else if (id == R.id.nav_select) {
             // TODO: 选课
-            
+            titleId = R.string.Select;
+            fragmentClass = SelectCourseFragment.class;
 
         } else if (id == R.id.nav_test) {
             // 考试
@@ -344,17 +341,6 @@ public class MainActivity extends AppCompatActivity
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, EvaluationCourseFragment.newInstance(pos))
                 .commitAllowingStateLoss();
-    }
-
-    public void dumpFragment() {
-        try {
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            fragmentManager.dump("", null, new PrintWriter(outputStream, true), null);
-            final String s = new String(outputStream.toByteArray(), "UTF-8");
-            Log.i("HI", s);
-        } catch (Exception e) {
-            Log.e("HI", e.getLocalizedMessage());
-        }
     }
 
     private class StudentDetailsTask extends AsyncTask<Void, Void, Integer> {
