@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
 
+import cn.xuhongxu.xiaoya.Activity.MainActivity;
 import cn.xuhongxu.xiaoya.Adapter.ViewPagerFragmentAdapter;
 import cn.xuhongxu.xiaoya.R;
 
@@ -23,11 +24,25 @@ import cn.xuhongxu.xiaoya.R;
 public class SelectCourseFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private TabLayout tabLayout;
     private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     public SelectCourseFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        tabLayout.setupWithViewPager(null);
+        tabLayout.setVisibility(View.GONE);
     }
 
 
@@ -36,13 +51,14 @@ public class SelectCourseFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_select_course, container, false);
-        tabLayout = (TabLayout) v.findViewById(R.id.tabLayout);
+        MainActivity activity = (MainActivity) getActivity();
+        tabLayout = activity.getTabLayout();
         viewPager = (ViewPager) v.findViewById(R.id.viewPager);
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getChildFragmentManager());
-        adapter.add(HomeFragment.class, "Tab 1");
-        adapter.add(HomeFragment.class, "Tab 2");
+        adapter.add(HomeFragment.class, getString(R.string.plan_course));
+        adapter.add(HomeFragment.class, getString(R.string.elective_course));
+        adapter.add(HomeFragment.class, getString(R.string.select_result));
         viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
         return v;
     }
 

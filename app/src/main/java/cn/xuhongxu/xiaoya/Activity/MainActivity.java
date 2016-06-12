@@ -69,6 +69,12 @@ public class MainActivity extends AppCompatActivity
     private int fragmentId;
     private boolean isBack = false;
 
+    private TabLayout tabLayout;
+
+    public TabLayout getTabLayout() {
+        return tabLayout;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +87,8 @@ public class MainActivity extends AppCompatActivity
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
         mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
