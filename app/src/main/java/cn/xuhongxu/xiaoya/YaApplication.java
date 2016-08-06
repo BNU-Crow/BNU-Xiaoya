@@ -9,6 +9,8 @@ import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.ExamArrangement;
 import cn.xuhongxu.Assist.ExamRound;
+import cn.xuhongxu.Assist.PlanChildCourse;
+import cn.xuhongxu.Assist.PlanCourse;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
 
@@ -27,6 +29,9 @@ public class YaApplication extends Application {
     private ArrayList<EvaluationCourse> evaluationCourses;
     private ArrayList<ExamRound> examRounds;
     private ArrayList<ExamArrangement> examArrangement;
+    private ArrayList<PlanCourse> planCourses;
+    private ArrayList<PlanChildCourse> planChildCourses;
+
 
     @Override
     public void onCreate() {
@@ -36,6 +41,8 @@ public class YaApplication extends Application {
         evaluationCourses = new ArrayList<>();
         examRounds = new ArrayList<>();
         examArrangement = new ArrayList<>();
+        planCourses = new ArrayList<>();
+        planChildCourses = new ArrayList<>();
 
         /*
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -105,4 +112,19 @@ public class YaApplication extends Application {
         this.examArrangement = examArrangement;
     }
 
+    public ArrayList<PlanCourse> getPlanCourses() {
+        return planCourses;
+    }
+
+    public void setPlanCourses(ArrayList<PlanCourse> planCourses) {
+        this.planCourses = planCourses;
+    }
+
+    public ArrayList<PlanChildCourse> getPlanChildCourses() {
+        return planChildCourses;
+    }
+
+    public void setPlanChildCourses(ArrayList<PlanChildCourse> planChildCourses) {
+        this.planChildCourses = planChildCourses;
+    }
 }

@@ -34,14 +34,13 @@ public class SelectCourseFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        tabLayout.setupWithViewPager(viewPager);
+        getActivity().setTitle(R.string.Select);
         tabLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        tabLayout.setupWithViewPager(null);
         tabLayout.setVisibility(View.GONE);
     }
 
@@ -55,10 +54,11 @@ public class SelectCourseFragment extends Fragment {
         tabLayout = activity.getTabLayout();
         viewPager = (ViewPager) v.findViewById(R.id.viewPager);
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getChildFragmentManager());
-        adapter.add(HomeFragment.class, getString(R.string.plan_course));
-        adapter.add(HomeFragment.class, getString(R.string.elective_course));
-        adapter.add(HomeFragment.class, getString(R.string.select_result));
+        adapter.add(PlanCourseFragment.class, getString(R.string.plan_course));
+        adapter.add(PlanCourseFragment.class, getString(R.string.elective_course));
+        adapter.add(PlanCourseFragment.class, getString(R.string.select_result));
         viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
         return v;
     }
 

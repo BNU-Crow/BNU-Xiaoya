@@ -53,8 +53,14 @@ public class EvaluationCourseFragment extends Fragment {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
-    ProgressBar progressBar;
-    ProgressDialog progressDialog;
+    private ProgressBar progressBar;
+    private ProgressDialog progressDialog;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().setTitle(R.string.Evaluate);
+    }
 
     private class GetEvaluatingCoursesTask extends AsyncTask<Boolean, Void, Integer> {
 
@@ -313,7 +319,6 @@ public class EvaluationCourseFragment extends Fragment {
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
-            swipeRefreshLayout.setRefreshing(false);
             if (result == 0) {
                 View view = getView();
                 assert view != null;

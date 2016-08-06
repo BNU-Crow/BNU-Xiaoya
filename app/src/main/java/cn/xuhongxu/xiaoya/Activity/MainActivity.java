@@ -41,6 +41,8 @@ import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
+import cn.xuhongxu.xiaoya.Fragment.PlanChildCourseFragment;
+import cn.xuhongxu.xiaoya.Fragment.PlanCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.SelectCourseFragment;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnFragmentInteractionListener,
         SelectCourseFragment.OnFragmentInteractionListener,
+        PlanCourseFragment.OnFragmentInteractionListener,
+        PlanChildCourseFragment.OnListFragmentInteractionListener,
         ExamRoundFragment.OnFragmentInteractionListener,
         ExamArrangementFragment.OnListFragmentInteractionListener,
         EvaluationFragment.OnFragmentInteractionListener,
@@ -212,31 +216,24 @@ public class MainActivity extends AppCompatActivity
         Class fragmentClass = null;
         Fragment fragment = null;
 
-        int titleId = R.string.app_name;
-
         if (id == R.id.nav_home) {
             fragmentClass = HomeFragment.class;
         } else if (id == R.id.nav_select) {
             // TODO: 选课
-            titleId = R.string.Select;
             fragmentClass = SelectCourseFragment.class;
 
         } else if (id == R.id.nav_test) {
             // 考试
-            titleId = R.string.Test;
             fragmentClass = ExamRoundFragment.class;
         } else if (id == R.id.nav_score) {
             // TODO: 成绩
 
         } else if (id == R.id.nav_evaluate) {
             // 评教
-            titleId = R.string.Evaluate;
             fragmentClass = EvaluationFragment.class;
         } else if (id == R.id.nav_logout) {
             reLogin(true, true);
         }
-
-        setTitle(titleId);
 
         if (fragmentClass != null) {
 
@@ -332,13 +329,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onPlanCourseSelected(int pos) {
+        fragmentManager
+                .beginTransaction()
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.flContent, PlanChildCourseFragment.newInstance(pos))
+                .commit();
+    }
+
+    @Override
     public void onExamRoundSelected(int pos) {
         fragmentManager
                 .beginTransaction()
                 .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, ExamArrangementFragment.newInstance(pos))
-                .commitAllowingStateLoss();
+                .commit();
     }
 
     @Override
@@ -348,7 +355,7 @@ public class MainActivity extends AppCompatActivity
                 .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, EvaluationCourseFragment.newInstance(pos))
-                .commitAllowingStateLoss();
+                .commit();
     }
 
     private class StudentDetailsTask extends AsyncTask<Void, Void, Integer> {

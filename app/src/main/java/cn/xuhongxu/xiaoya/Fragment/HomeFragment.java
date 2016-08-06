@@ -35,6 +35,11 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().setTitle(R.string.app_name);
+    }
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.

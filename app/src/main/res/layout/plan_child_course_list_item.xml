@@ -9,7 +9,7 @@
     card_view:cardCornerRadius="4dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/plan_course_item"
+        android:id="@+id/child_course_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground"
@@ -22,12 +22,11 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <TextView
-            android:id="@+id/courseName"
+            android:id="@+id/childCourseTeacher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            />
+            android:textAppearance="@android:style/TextAppearance.Medium" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,49 +35,57 @@
             android:weightSum="2">
 
             <TextView
-                android:id="@+id/coursePeriod"
+                android:id="@+id/childCourseTime"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/courseCredit"
+                android:id="@+id/childCourseLocation"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingEnd="16dp"
                 android:paddingStart="16dp" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/childCourseRemain"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/childCourseID"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp" />
 
         </LinearLayout>
 
         <TextView
-            android:id="@+id/courseType"
+            android:id="@+id/childCourseCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/childCourseChosen"
+            android:text="@string/chosen"
+            android:textColor="@color/colorBlack"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:id="@+id/chosen_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:text="@string/chosen"
-                android:textColor="@color/colorBlack"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/courseTeacher"
-                android:textColor="@color/colorBlack"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-
-        </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
+
 
