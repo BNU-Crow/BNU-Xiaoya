@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final String MESSAGE_LOGOUT = "cn.xuhongxu.xiaoya.Activity.LoginActivity.logout";
 
+    YaApplication app;
     private SharedPreferences preferences;
 
     private TextInputEditText editUsername;
@@ -43,6 +44,9 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 assist.login();
+                if (app.getStudentInfo() == null) {
+                    app.setStudentInfo(assist.getStudentInfo());
+                }
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -103,6 +107,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        app = (YaApplication) getApplication();
 
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

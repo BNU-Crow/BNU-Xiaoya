@@ -1,5 +1,7 @@
 package cn.xuhongxu.Assist;
 
+import java.util.Calendar;
+
 /**
  * Created by xuhongxu on 16/4/7.
  *
@@ -18,13 +20,20 @@ public class ExamArrangement {
     // 考核方式 khfs
     private String examType;
     // 考试时间 kssj
-    private String time;
+    private String timeString;
     // 考试地点 ksdd
     private String location;
     // 座位号 zwh
     private String seat;
     private String courseName;
 
+    private Calendar beginTime;
+    private Calendar endTime;
+
+    ExamArrangement() {
+        beginTime = Calendar.getInstance();
+        endTime = Calendar.getInstance();
+    }
     public String getCourse() {
         return course;
     }
@@ -62,12 +71,19 @@ public class ExamArrangement {
         this.examType = examType.trim();
     }
 
-    public String getTime() {
-        return time;
+    public String getTimeString() {
+        return timeString;
     }
 
-    void setTime(String time) {
-        this.time = time.trim();
+    void setTimeString(String timeString) {
+        this.timeString = timeString.trim();
+        String []datePart = this.timeString.substring(0, this.timeString.indexOf("(")).split("-");
+        String []timePart = this.timeString.substring(this.timeString.indexOf(")") + 1).split("-");
+        String []begin = timePart[0].split(":");
+        String []end = timePart[1].split(":");
+
+        beginTime.set(Integer.valueOf(datePart[0]), Integer.valueOf(datePart[1]) - 1, Integer.valueOf(datePart[2]), Integer.valueOf(begin[0]), Integer.valueOf(begin[1]));
+        endTime.set(Integer.valueOf(datePart[0]), Integer.valueOf(datePart[1]) - 1, Integer.valueOf(datePart[2]), Integer.valueOf(end[0]), Integer.valueOf(end[1]));
     }
 
     public String getLocation() {
@@ -93,9 +109,17 @@ public class ExamArrangement {
                 ", credit='" + credit + '\'' +
                 ", classification='" + classification + '\'' +
                 ", examType='" + examType + '\'' +
-                ", time='" + time + '\'' +
+                ", timeString='" + timeString + '\'' +
                 ", location='" + location + '\'' +
                 ", seat='" + seat + '\'' +
                 '}';
+    }
+
+    public Calendar getBeginTime() {
+        return beginTime;
+    }
+
+    public Calendar getEndTime() {
+        return endTime;
     }
 }

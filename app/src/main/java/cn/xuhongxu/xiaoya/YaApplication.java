@@ -9,7 +9,10 @@ import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.ExamArrangement;
 import cn.xuhongxu.Assist.ExamRound;
+import cn.xuhongxu.Assist.ExamScore;
 import cn.xuhongxu.Assist.SchoolworkAssist;
+import cn.xuhongxu.Assist.StudentDetails;
+import cn.xuhongxu.Assist.StudentInfo;
 import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
 
 /**
@@ -27,6 +30,9 @@ public class YaApplication extends Application {
     private ArrayList<EvaluationCourse> evaluationCourses;
     private ArrayList<ExamRound> examRounds;
     private ArrayList<ExamArrangement> examArrangement;
+    private ArrayList<ExamScore> examScores;
+    private StudentDetails studentDetails;
+    private StudentInfo studentInfo;
 
     @Override
     public void onCreate() {
@@ -36,6 +42,8 @@ public class YaApplication extends Application {
         evaluationCourses = new ArrayList<>();
         examRounds = new ArrayList<>();
         examArrangement = new ArrayList<>();
+        examScores = new ArrayList<>();
+
 
         /*
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -105,4 +113,27 @@ public class YaApplication extends Application {
         this.examArrangement = examArrangement;
     }
 
+    public ArrayList<ExamScore> getExamScores() {
+        return examScores;
+    }
+
+    public void setExamScores(ArrayList<ExamScore> examScores) {
+        this.examScores = examScores;
+    }
+
+    public StudentDetails getStudentDetails() {
+        return studentDetails;
+    }
+
+    public void setStudentDetails(StudentDetails studentDetails) {
+        this.studentDetails = studentDetails;
+    }
+
+    public StudentInfo getStudentInfo() {
+        return studentInfo;
+    }
+
+    public void setStudentInfo(StudentInfo studentInfo) {
+        this.studentInfo = studentInfo;
+    }
 }

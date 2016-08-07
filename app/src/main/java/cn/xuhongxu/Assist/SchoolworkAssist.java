@@ -98,6 +98,7 @@ public class SchoolworkAssist {
     private String username;
     private String password;
 
+    private int timeout = 30000;
     private boolean everSucceed = false;
 
     private Map<String, String> cookies;
@@ -110,10 +111,15 @@ public class SchoolworkAssist {
     }
 
     private void fetchLoginParams() throws IOException {
-        Connection.Response res = Jsoup.connect(LOGIN_URL).method(Connection.Method.GET).execute();
+        lt = "LT-NeusoftAlwaysValidTicket";
+        excution = "e1s1";
+
+        Connection.Response res = Jsoup.connect(LOGIN_URL).timeout(getTimeout()).method(Connection.Method.GET).execute();
         if (res.statusCode() != 200) {
             throw new ConnectException("Failed to get login params");
         }
+        cookies = res.cookies();
+        /*
         String text = res.body();
 
         Pattern pattern = Pattern.compile("input type=\"hidden\" name=\"lt\" value=\"(.*)\"");
@@ -121,8 +127,7 @@ public class SchoolworkAssist {
         if (matcher.find() && matcher.groupCount() > 0) {
             lt = matcher.group(1);
         } else {
-            //throw new ConnectException("Failed to get login param 'lt'");
-            lt = "LT-NeusoftAlwaysValidTicket";
+            throw new ConnectException("Failed to get login param 'lt'");
         }
 
         pattern = Pattern.compile("input type=\"hidden\" name=\"execution\" value=\"(.*)\"");
@@ -130,15 +135,15 @@ public class SchoolworkAssist {
         if (matcher.find() && matcher.groupCount() > 0) {
             excution = matcher.group(1);
         } else {
-            //throw new ConnectException("Failed to get login param 'execution'");
-            excution = "e1s1";
+            throw new ConnectException("Failed to get login param 'execution'");
         }
 
-        cookies = res.cookies();
+         */
     }
 
     private void fetchStudentInfo() throws IOException, NeedLoginException {
         Connection.Response res = Jsoup.connect(STUDENT_INFO_URL)
+                .timeout(getTimeout())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .cookies(getCookies())
@@ -176,6 +181,7 @@ public class SchoolworkAssist {
 
     private EncryptedParam encryptParams(String params) throws IOException, SecurityException, NeedLoginException {
         Connection.Response res = Jsoup.connect(DESKEY_URL + (int)(Math.random() * 10000000))
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .method(Connection.Method.GET).execute();
         if (!isLogin(res.body())) {
@@ -219,7 +225,9 @@ public class SchoolworkAssist {
         fetchLoginParams();
 
         Document doc = Jsoup.connect(LOGIN_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
+                .header("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1")
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("username", getUsername())
                 .data("password", getPassword())
@@ -248,6 +256,7 @@ public class SchoolworkAssist {
 
     public ArrayList<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(TABLE_URL + COURSE_LIST_TABLE_ID)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -332,6 +341,7 @@ public class SchoolworkAssist {
                 getStudentInfo().getId(),
                 course.getCode());
         Document doc = Jsoup.connect(TABLE_URL + PLAN_COURSE_CLASSES_TABLE_ID + "&" + params)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -418,6 +428,7 @@ public class SchoolworkAssist {
 
     public ArrayList<ElectiveCourse> getElectiveCourses(boolean showAll) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(TABLE_URL + ELECTIVE_COURSE_LIST_TABLE_ID)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -499,6 +510,7 @@ public class SchoolworkAssist {
 
     public ArrayList<CancelCourse> getCancelCourses() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(TABLE_URL + CANCEL_LIST_TABLE_ID)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -577,6 +589,7 @@ public class SchoolworkAssist {
                 course.getClassCode());
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(CANCEL_COURSE_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -611,6 +624,7 @@ public class SchoolworkAssist {
 
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -644,6 +658,7 @@ public class SchoolworkAssist {
                 getStudentInfo().getGrade() + "|" + getStudentInfo().getSpecialityCode());
         EncryptedParam encryptedParams = encryptParams(params);
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
@@ -704,6 +719,7 @@ public class SchoolworkAssist {
 
     public ArrayList<ExamRound> getExamRounds() throws IOException, NeedLoginException, JSONException {
         Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -722,11 +738,28 @@ public class SchoolworkAssist {
             examRound.setName(round.getString("name"));
             examRounds.add(examRound);
         }
+
+        Collections.sort(examRounds, new Comparator<ExamRound>() {
+            @Override
+            public int compare(ExamRound e1, ExamRound e2) {
+                return e2.getCode().compareTo(e1.getCode());
+                /*
+                int cmp = -Integer.valueOf(e1.getYear()).compareTo(e2.getYear());
+                if (cmp == 0) {
+                    cmp = -Integer.valueOf(e1.getTerm()).compareTo(e2.getTerm());
+                }
+                if (cmp == 0) {
+                    cmp = Integer.valueOf(e1.getRound()).compareTo(e2.getRound());
+                }
+                return cmp;*/
+            }
+        });
         return examRounds;
     }
 
     public ArrayList<ExamArrangement> getExamArrangement(ExamRound examRound) throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(TABLE_URL + EXAM_ARRAGEMENT_TABLE_ID)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -752,11 +785,28 @@ public class SchoolworkAssist {
             arrangement.setCredit(doc.getElementById(prefix + "xf").text());
             arrangement.setClassification(doc.getElementById(prefix + "lb").text());
             arrangement.setExamType(doc.getElementById(prefix + "khfs").text());
-            arrangement.setTime(doc.getElementById(prefix + "kssj").text());
+            arrangement.setTimeString(doc.getElementById(prefix + "kssj").text());
             arrangement.setLocation(doc.getElementById(prefix + "ksdd").text());
             arrangement.setSeat(doc.getElementById(prefix + "zwh").text());
             arrangements.add(arrangement);
         }
+
+        Collections.sort(arrangements, new Comparator<ExamArrangement>() {
+            @Override
+            public int compare(ExamArrangement e1, ExamArrangement e2) {
+                boolean late1 = e1.getEndTime().before(Calendar.getInstance());
+                boolean late2 = e2.getEndTime().before(Calendar.getInstance());
+                if (late1 && late2) {
+                    return e2.getEndTime().compareTo(e1.getEndTime());
+                } else if (!late1 && !late2) {
+                    return e1.getBeginTime().compareTo(e1.getBeginTime());
+                } else if(late1 && !late2) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
 
         return arrangements;
     }
@@ -767,6 +817,7 @@ public class SchoolworkAssist {
 
     public ArrayList<ExamScore> getExamScores(int year, int term) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(EXAM_SCORE_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -812,12 +863,19 @@ public class SchoolworkAssist {
             examScore.setMajor("主修".equals(columns.get(8).text().trim()));
             examScores.add(examScore);
         }
+        Collections.sort(examScores, new Comparator<ExamScore>() {
+            @Override
+            public int compare(ExamScore e1, ExamScore e2) {
+                return e1.getScore().compareTo(e2.getScore());
+            }
+        });
         return examScores;
     }
 
     public ArrayList<EvaluationItem> getEvaluateList()
             throws IOException, NeedLoginException, JSONException {
         Connection.Response res = Jsoup.connect(EVALUATE_LIST_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -856,6 +914,7 @@ public class SchoolworkAssist {
     public ArrayList<EvaluationCourse> getEvaluatingCourses(EvaluationItem evaluation)
             throws IOException, NeedLoginException, JSONException {
         Document doc = Jsoup.connect(TABLE_URL + EVALUATE_COURSE_LIST_TABLE_ID)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -913,6 +972,7 @@ public class SchoolworkAssist {
         }
 
         Document doc = Jsoup.connect(EVALUATE_FORM_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -997,6 +1057,7 @@ public class SchoolworkAssist {
         commitText = URLEncoder.encode(commitText, "UTF-8");
 
         Connection.Response res = Jsoup.connect(EVALUATE_SAVE_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -1027,6 +1088,7 @@ public class SchoolworkAssist {
 
     public StudentDetails getStudentDetails() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(STUDENT_DETAILS_URL)
+                .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
@@ -1080,5 +1142,13 @@ public class SchoolworkAssist {
 
     public Map<String, String> getCookies() {
         return cookies;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 }

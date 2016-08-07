@@ -70,6 +70,14 @@
     <string name="seatNumber">座号</string>
     <string name="location">地点</string>
     <string name="time">时间</string>
+    <string name="ended">[已结束] </string>
+    <string name="testing">[考试中] </string>
+    <string name="current_test">点击选择考次</string>
+    <string name="usual_score">平时分</string>
+    <string name="exam_score">期末分</string>
+    <string name="choose_year">选择考次</string>
+    <string name="spring_term">春季学期</string>
+    <string name="fall_term">秋季学期</string>
 
 
 </resources>

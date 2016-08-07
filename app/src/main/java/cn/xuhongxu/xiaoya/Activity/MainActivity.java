@@ -45,6 +45,7 @@ import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
+import cn.xuhongxu.xiaoya.Fragment.ScoreFragment;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
 
@@ -55,10 +56,10 @@ public class MainActivity extends AppCompatActivity
         ExamRoundFragment.OnFragmentInteractionListener,
         ExamArrangementFragment.OnListFragmentInteractionListener,
         EvaluationFragment.OnFragmentInteractionListener,
-        EvaluationCourseFragment.OnListFragmentInteractionListener {
+        EvaluationCourseFragment.OnListFragmentInteractionListener,
+        ScoreFragment.OnFragmentInteractionListener {
 
     YaApplication app;
-    StudentDetails studentDetails;
 
     ImageView avatarView;
     TextView usernameView;
@@ -222,7 +223,8 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = ExamRoundFragment.class;
         } else if (id == R.id.nav_score) {
             // TODO: 成绩
-
+            titleId = R.string.Score;
+            fragmentClass = ScoreFragment.class;
         } else if (id == R.id.nav_evaluate) {
             // 评教
             titleId = R.string.Evaluate;
@@ -363,8 +365,8 @@ public class MainActivity extends AppCompatActivity
             View view = findViewById(android.R.id.content);
             assert view != null;
             try {
-                if (studentDetails == null) {
-                    studentDetails = app.getAssist().getStudentDetails();
+                if (app.getStudentDetails() == null) {
+                    app.setStudentDetails(app.getAssist().getStudentDetails());
                     return 0;
                 }
             } catch (NeedLoginException needLogin) {
@@ -382,8 +384,8 @@ public class MainActivity extends AppCompatActivity
             super.onPostExecute(result);
             if (result == 0) {
                 loadAvatar();
-                usernameView.setText(studentDetails.getName());
-                userIDView.setText(studentDetails.getId());
+                usernameView.setText(app.getStudentDetails().getName());
+                userIDView.setText(app.getStudentDetails().getId());
             } else if (result == R.string.login_timeout || result == R.string.network_error) {
                 Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
                 reLogin();
@@ -424,7 +426,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadAvatar() {
-        String avatarURL = "http://zyfw.bnu.edu.cn/share/showphoto.jsp?zpid=" + studentDetails.getAvatarID();
+        String avatarURL = "http://zyfw.bnu.edu.cn/share/showphoto.jsp?zpid=" + app.getStudentDetails().getAvatarID();
         new LoadAvatarTask().execute(avatarURL, getString(R.string.avatar_desp));
     }
 

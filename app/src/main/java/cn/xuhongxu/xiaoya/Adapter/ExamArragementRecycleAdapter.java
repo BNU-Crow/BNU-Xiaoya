@@ -1,14 +1,14 @@
 package cn.xuhongxu.xiaoya.Adapter;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.List;
 
 import cn.xuhongxu.Assist.ExamArrangement;
@@ -46,9 +46,25 @@ public class ExamArragementRecycleAdapter
 
         ExamArrangement item = values.get(position);
 
-        holder.courseName.setText(item.getCourseName());
+        long days = (item.getBeginTime().getTimeInMillis() - Calendar.getInstance().getTimeInMillis()) / 86400000;
+        if (item.getEndTime().before(Calendar.getInstance())) {
+            holder.days.setTextColor(Color.BLACK);
+            holder.courseName.setText(context.getString(R.string.ended) + item.getCourseName());
+        } else if (item.getBeginTime().before(Calendar.getInstance())) {
+            holder.days.setTextColor(Color.RED);
+            holder.courseName.setText(context.getString(R.string.testing) + item.getCourseName());
+        } else {
+            if (days > 3) {
+                holder.days.setTextColor(Color.GREEN);
+            } else {
+                holder.days.setTextColor(Color.YELLOW);
+            }
+            holder.courseName.setText(item.getCourseName());
+        }
+
+        holder.days.setText("" + days);
         holder.location.setText(context.getString(R.string.location) + ": " + item.getLocation());
-        holder.time.setText(context.getString(R.string.time) + ": " + item.getTime());
+        holder.time.setText(context.getString(R.string.time) + ": " + item.getTimeString());
         holder.seat.setText(context.getString(R.string.seatNumber) + ": " + item.getSeat());
     }
 
@@ -58,7 +74,7 @@ public class ExamArragementRecycleAdapter
     }
 
     public final static class ExamArrangementViewHolder extends RecyclerView.ViewHolder {
-        public TextView courseName, time, location, seat;
+        public TextView courseName, time, location, seat, days;
 
         public ExamArrangementViewHolder(View itemView) {
             super(itemView);
@@ -67,6 +83,7 @@ public class ExamArragementRecycleAdapter
             time = (TextView) itemView.findViewById(R.id.examTime);
             location = (TextView) itemView.findViewById(R.id.examLocation);
             seat = (TextView) itemView.findViewById(R.id.examSeat);
+            days = (TextView) itemView.findViewById(R.id.examDays);
         }
     }
 }

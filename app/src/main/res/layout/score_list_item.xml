@@ -21,7 +21,7 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <TextView
-            android:id="@+id/examDays"
+            android:id="@+id/scoreFinal"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:textAppearance="@android:style/TextAppearance.Large"
@@ -36,14 +36,14 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/examCourseName"
+                android:id="@+id/scoreName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="8dp"
                 android:textAppearance="@android:style/TextAppearance.Medium" />
 
             <TextView
-                android:id="@+id/examTime"
+                android:id="@+id/scoreClassification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -55,13 +55,32 @@
                 android:weightSum="4">
 
                 <TextView
-                    android:id="@+id/examLocation"
+                    android:id="@+id/scoreCredit"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="3" />
 
                 <TextView
-                    android:id="@+id/examSeat"
+                    android:id="@+id/scoreMajor"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <TextView
+                    android:id="@+id/scoreUsual"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3" />
+
+                <TextView
+                    android:id="@+id/scoreExam"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />

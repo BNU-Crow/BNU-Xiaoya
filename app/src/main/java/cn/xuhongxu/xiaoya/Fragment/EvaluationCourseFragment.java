@@ -345,7 +345,7 @@ public class EvaluationCourseFragment extends Fragment {
     public void showEvaluateDialog(final int pos, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (pos == EVALUATE_ALL) {
-            builder.setTitle(getString(R.string.choose_all_evaluation_level));
+            builder.setTitle(R.string.choose_all_evaluation_level);
         } else {
             EvaluationCourse course = app.getEvaluationCourses().get(pos);
             builder.setTitle(
