@@ -15,6 +15,7 @@ import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.Assist.StudentInfo;
 import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
+import cn.xuhongxu.xiaoya.Model.Student;
 
 /**
  * Created by xuhongxu on 16/4/12.
@@ -34,6 +35,7 @@ public class YaApplication extends Application {
     private ArrayList<ExamScore> examScores;
     private StudentDetails studentDetails;
     private StudentInfo studentInfo;
+    public Student student;
 
     @Override
     public void onCreate() {
