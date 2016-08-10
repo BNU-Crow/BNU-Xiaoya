@@ -2,6 +2,7 @@ package cn.xuhongxu.xiaoya;
 
 import android.app.Application;
 import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.ArrayList;
 

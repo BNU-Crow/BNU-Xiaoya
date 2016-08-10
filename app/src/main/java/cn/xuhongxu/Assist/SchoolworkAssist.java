@@ -1,5 +1,8 @@
 package cn.xuhongxu.Assist;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -33,7 +36,7 @@ import java.util.regex.Pattern;
  * @version 0.1
  */
 
-public class SchoolworkAssist {
+public class SchoolworkAssist implements Parcelable {
 
     public static final String MESSAGE_ASSIST = "cn.xuhongxu.Assist";
 
@@ -105,6 +108,33 @@ public class SchoolworkAssist {
     private String lt, excution;
     private StudentInfo studentInfo;
 
+    protected SchoolworkAssist(Parcel in) {
+        username = in.readString();
+        password = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(username);
+        dest.writeString(password);
+    }
+
+    public static final Parcelable.Creator<SchoolworkAssist> CREATOR = new Parcelable.Creator<SchoolworkAssist>() {
+        @Override
+        public SchoolworkAssist createFromParcel(Parcel in) {
+            return new SchoolworkAssist(in);
+        }
+
+        @Override
+        public SchoolworkAssist[] newArray(int size) {
+            return new SchoolworkAssist[size];
+        }
+    };
     public SchoolworkAssist(String username, String password) {
         this.setUsername(username);
         this.setPassword(password);

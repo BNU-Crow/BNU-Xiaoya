@@ -439,4 +439,19 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("assist", app.getAssist());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (app.getAssist() == null) {
+            app.setAssist((SchoolworkAssist) savedInstanceState.getParcelable("assist"));
+            reLogin();
+        }
+    }
 }
