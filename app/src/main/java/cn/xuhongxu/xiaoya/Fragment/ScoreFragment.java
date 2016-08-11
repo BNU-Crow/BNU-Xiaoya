@@ -21,15 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.NeedLoginException;
-import cn.xuhongxu.xiaoya.Adapter.ExamRoundRecycleAdapter;
 import cn.xuhongxu.xiaoya.Adapter.ScoreRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
 import cn.xuhongxu.xiaoya.R;
@@ -174,7 +171,7 @@ public class ScoreFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.choose_year);
+                builder.setTitle(R.string.choose_term);
                 CharSequence[] items = new CharSequence[years.size()];
                 years.toArray(items);
                 builder.setItems(items, new DialogInterface.OnClickListener() {

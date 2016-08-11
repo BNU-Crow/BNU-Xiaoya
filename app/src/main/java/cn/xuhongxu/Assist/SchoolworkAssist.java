@@ -81,6 +81,9 @@ public class SchoolworkAssist implements Parcelable {
     // URL: Get Student Details
     private static final String STUDENT_DETAILS_URL = "http://zyfw.bnu.edu.cn/STU_BaseInfoAction.do?" +
             "hidOption=InitData&menucode_current=JW13020101";
+    // URL: Get Timetable
+    private static final String TIMETABLE_URL
+            = "http://zyfw.bnu.edu.cn/wsxk/xkjg.ckdgxsxdkchj_data10319.jsp?params=";
 
     // TABLE_ID: Course ArrayList
     private static final String COURSE_LIST_TABLE_ID = "5327018";
@@ -1128,12 +1131,10 @@ public class SchoolworkAssist implements Parcelable {
         }
         StudentDetails details = new StudentDetails();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", new Locale("zh_CN"));
-
         Element info = doc.getElementsByTag("info").get(0);
         details.setAddress(info.getElementsByTag("txdz").get(0).text());
         details.setAvatarID(info.getElementsByTag("zpid").get(0).text());
-        details.setBirthday(dateFormat.parse(info.getElementsByTag("csrq").get(0).text(), new ParsePosition(0)));
+        details.setBirthday(info.getElementsByTag("csrq").get(0).text());
         details.setClassName(info.getElementsByTag("bjmc").get(0).text());
         details.setCollege(info.getElementsByTag("yxb").get(0).text());
         details.setCollegeWill(info.getElementsByTag("zymc").get(0).text());
@@ -1156,6 +1157,61 @@ public class SchoolworkAssist implements Parcelable {
         details.setSpeciality(info.getElementsByTag("lqzy").get(0).text());
 
         return details;
+    }
+
+    public List<Semester> getSemesters() throws IOException, NeedLoginException, JSONException {
+        Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, REFERER)
+                .data("comboBoxName", "Ms_KBBP_FBXQLLJXAP")
+                .method(Connection.Method.POST)
+                .execute();
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+        ArrayList<Semester> semesters = new ArrayList<>();
+        JSONArray list = new JSONArray(res.body());
+        for (int i = 0; i < list.length(); ++i) {
+            JSONObject obj = list.getJSONObject(i);
+            Semester semester = new Semester();
+            semester.setCode(obj.getString("code"));
+            semester.setName(obj.getString("name"));
+            semesters.add(semester);
+        }
+        return semesters;
+    }
+
+    public List<TableCourse> getTableCourses(Semester semester) throws IOException, NeedLoginException {
+        String params = "xn=" + semester.getYear()
+                + "&xq=" + semester.getTerm()
+                + "&xh=" + getStudentInfo().getId();
+        params = Base64.encodeToString(params.getBytes(), Base64.DEFAULT).trim();
+
+        Document doc = Jsoup.connect(TIMETABLE_URL + params)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/xkjg.wdkb.jsp?menucode=JW130418")
+                .get();
+        if (!isLogin(doc.html())) {
+            throw new NeedLoginException();
+        }
+
+        ArrayList<TableCourse> tableCourses = new ArrayList<>();
+        Element table = doc.getElementsByTag("tbody").get(0);
+        Elements rows = table.getElementsByTag("tr");
+        for (Element tr : rows) {
+            TableCourse course = new TableCourse();
+            Elements columns = tr.getElementsByTag("td");
+            course.setCode(columns.get(13).text());
+            course.setCredit(columns.get(2).text());
+            course.setLocationTime(columns.get(5).text());
+            course.setName(columns.get(0).text());
+            course.setTeacher(columns.get(4).text());
+            tableCourses.add(course);
+        }
+        return tableCourses;
     }
 
     public boolean isEverSucceed() {

@@ -56,7 +56,7 @@ public class StudentDetails {
     // rxnj 入学年级
     private String registrationGrade = "";
     // csrq 出生日期
-    private Date birthday;
+    private String birthday;
 
     public String getRegistrationTime() {
         return registrationTime;
@@ -234,11 +234,11 @@ public class StudentDetails {
         this.registrationGrade = registrationGrade;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
-    void setBirthday(Date birthday) {
+    void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 }

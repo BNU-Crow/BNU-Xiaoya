@@ -60,7 +60,7 @@ public class Student extends BmobUser{
     // rxnj 入学年级
     private String registrationGrade = "";
     // csrq 出生日期
-    private Date birthday;
+    private String birthday;
 
     public String getGrade() {
         return grade;
@@ -254,11 +254,40 @@ public class Student extends BmobUser{
         this.registrationGrade = registrationGrade;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(String birthday) {
         this.birthday = birthday;
+    }
+
+    public boolean isChanged(Student obj) {
+        return !(grade.equals(obj.grade) &&
+                specialityCode.equals(obj.specialityCode) &&
+                academicYear.equals(obj.academicYear) &&
+                schoolTerm.equals(obj.schoolTerm) &&
+                registrationTime.equals(obj.registrationTime) &&
+                nationality.equals(obj.nationality) &&
+                speciality.equals(obj.speciality) &&
+                middleSchool.equals(obj.middleSchool) &&
+                className.equals(obj.className) &&
+                studentId.equals(obj.studentId) &&
+                cultureStandard.equals(obj.cultureStandard) &&
+                collegeWill.equals(obj.collegeWill) &&
+                schoolSystem.equals(obj.schoolSystem) &&
+                idNumber.equals(obj.idNumber) &&
+                educationLevel.equals(obj.educationLevel) &&
+                name.equals(obj.name) &&
+                gaokaoID.equals(obj.gaokaoID) &&
+                number.equals(obj.number) &&
+                avatarID.equals(obj.avatarID) &&
+                college.equals(obj.college) &&
+                gender.equals(obj.gender) &&
+                address.equals(obj.address) &&
+                pinyin.equals(obj.pinyin) &&
+                registrationGrade.equals(obj.registrationGrade) &&
+                birthday.equals(obj.birthday)
+        );
     }
 }

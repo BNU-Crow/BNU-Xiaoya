@@ -19,6 +19,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobInstallation;
+import cn.bmob.v3.BmobUser;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -77,6 +81,10 @@ public class LoginActivity extends AppCompatActivity {
                 loginSucceed();
             } else {
                 // 登录失败
+                if (getIntent().getBooleanExtra("justLogin", false)) {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
                 if (view == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.network_error)
                             + ": " + result, Toast.LENGTH_LONG).show();
@@ -97,16 +105,24 @@ public class LoginActivity extends AppCompatActivity {
     // 登录成功
     protected void loginSucceed() {
 
-        // 启动主活动
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        if (getIntent().getBooleanExtra("justLogin", false)) {
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            // 启动主活动
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bmob.initialize(this, "b9ae7e8f85b4a31144bd382619290008");
+        BmobInstallation.getCurrentInstallation().save();
 
         app = (YaApplication) getApplication();
 
@@ -124,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
         editUsername.setText(preferences.getString("username", ""));
         if (preferences.getBoolean("remember", false)) {
+            BmobUser.logOut();
             Intent intent = getIntent();
             if (intent.getBooleanExtra(MESSAGE_LOGOUT, false)) {
                 SharedPreferences.Editor editor = preferences.edit();

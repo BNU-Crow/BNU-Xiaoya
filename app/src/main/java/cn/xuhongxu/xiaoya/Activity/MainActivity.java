@@ -62,8 +62,10 @@ import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
 import cn.xuhongxu.xiaoya.Fragment.ScoreFragment;
 import cn.xuhongxu.xiaoya.Model.Student;
+import cn.xuhongxu.xiaoya.Model.YaBmobInstallation;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
+import rx.Subscription;
 
 public class MainActivity extends AppCompatActivity
         implements
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         Bmob.initialize(this, "b9ae7e8f85b4a31144bd382619290008");
-        BmobInstallation.getCurrentInstallation().save();
+//        BmobInstallation.getCurrentInstallation().save();
         BmobPush.startWork(this);
 
         setContentView(R.layout.activity_main);
@@ -334,6 +336,8 @@ public class MainActivity extends AppCompatActivity
         }
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         if (logout) {
+            BmobUser.logOut();
+            app.student = null;
             intent.putExtra(LoginActivity.MESSAGE_LOGOUT, true);
         }
         startActivity(intent);
@@ -381,71 +385,111 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private class StudentDetailsTask extends AsyncTask<Void, Void, Integer> {
+    private class StudentDetailsTask extends AsyncTask<Void, Void, String> {
         @Override
-        protected Integer doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             View view = findViewById(android.R.id.content);
             assert view != null;
             try {
-                if (app.getStudentDetails() == null) {
-                    app.setStudentDetails(app.getAssist().getStudentDetails());
-                    return 0;
-                }
+                app.setStudentDetails(app.getAssist().getStudentDetails());
+                return null;
             } catch (NeedLoginException needLogin) {
-                return R.string.login_timeout;
+                return getString(R.string.login_timeout);
             } catch (IOException e) {
-                return R.string.network_error;
+                return getString(R.string.network_error);
             } catch (Exception e) {
                 Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                return e.getMessage();
             }
-            return -1;
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if (result == 0) {
+            if (result == null) {
                 loadAvatar();
                 StudentDetails sd = app.getStudentDetails();
                 usernameView.setText(sd.getName());
                 userIDView.setText(sd.getId());
 
-                Student student = new Student();
-                student.setRegistrationTime(sd.getRegistrationTime());
-                student.setNationality(sd.getNationality());
-                student.setSpeciality(sd.getSpeciality());
-                student.setEmail(sd.getEmail());
-                student.setMobilePhoneNumber(sd.getMobile());
-                student.setMiddleSchool(sd.getMiddleSchool());
-                student.setClassName(sd.getClassName());
-                student.setStudentId(sd.getId());
-                student.setCultureStandard(sd.getCultureStandard());
-                student.setCollegeWill(sd.getCollegeWill());
-                student.setSchoolSystem(sd.getSchoolSystem());
-                student.setIdNumber(sd.getIdNumber());
-                student.setEducationLevel(sd.getEducationLevel());
-                student.setName(sd.getName());
-                student.setGaokaoID(sd.getGaokaoID());
-                student.setNumber(sd.getNumber());
-                student.setAvatarID(sd.getAvatarID());
-                student.setCollege(sd.getCollege());
-                student.setGender(sd.getGender());
-                student.setAddress(sd.getAddress());
-                student.setPinyin(sd.getPinyin());
-                student.setRegistrationGrade(sd.getRegistrationGrade());
-                student.setBirthday(sd.getBirthday());
-                student.update(app.student.getObjectId(), new UpdateListener() {
-                    @Override
-                    public void done(BmobException e) {
-                        if (e != null) {
-                            Log.e(TAG, "done: update user info error", e);
-                        }
-                    }
-                });
+                if (app.student != null && !app.student.getObjectId().isEmpty()) {
+                    BmobQuery<YaBmobInstallation> query = new BmobQuery<>();
+                    query.addWhereEqualTo("installationId", BmobInstallation.getInstallationId(getApplicationContext()));
+                    query.findObjects(new FindListener<YaBmobInstallation>() {
 
-            } else if (result == R.string.login_timeout || result == R.string.network_error) {
+                        @Override
+                        public void done(List<YaBmobInstallation> list, BmobException e) {
+                            if (list.size() > 0) {
+                                YaBmobInstallation mbi = list.get(0);
+                                if (mbi.getUid() != null && mbi.getUid().equals(app.student.getObjectId())) {
+                                    return;
+                                }
+                                mbi.setUid(app.student.getObjectId());
+                                mbi.update(mbi.getObjectId(), new UpdateListener() {
+
+                                    @Override
+                                    public void done(BmobException e) {
+                                        if (e == null) {
+                                            Log.i("bmob", "设备信息更新成功");
+                                        } else {
+                                            Log.i("bmob", "设备信息更新失败:" + e.getMessage());
+                                        }
+                                    }
+
+                                });
+                            }
+                        }
+                    });
+                    Student student = new Student();
+                    StudentInfo si = app.getStudentInfo();
+                    student.setStudentId(si.getId());
+                    student.setGrade(si.getGrade());
+                    student.setSpeciality(si.getSpeciality());
+                    student.setSpecialityCode(si.getSpecialityCode());
+                    student.setAcademicYear(si.getAcademicYear());
+                    student.setSchoolTerm(si.getSchoolTerm());
+                    student.setRegistrationTime(sd.getRegistrationTime());
+                    student.setNationality(sd.getNationality());
+                    student.setSpeciality(sd.getSpeciality());
+                    student.setEmail(sd.getEmail());
+                    student.setMobilePhoneNumber(sd.getMobile());
+                    student.setMiddleSchool(sd.getMiddleSchool());
+                    student.setClassName(sd.getClassName());
+                    student.setStudentId(sd.getId());
+                    student.setCultureStandard(sd.getCultureStandard());
+                    student.setCollegeWill(sd.getCollegeWill());
+                    student.setSchoolSystem(sd.getSchoolSystem());
+                    try {
+                        student.setIdNumber(AESCrypt.encrypt(getString(R.string.encryptedMsg), sd.getIdNumber()));
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+                    student.setEducationLevel(sd.getEducationLevel());
+                    student.setName(sd.getName());
+                    student.setGaokaoID(sd.getGaokaoID());
+                    student.setNumber(sd.getNumber());
+                    student.setAvatarID(sd.getAvatarID());
+                    student.setCollege(sd.getCollege());
+                    student.setGender(sd.getGender());
+                    student.setAddress(sd.getAddress());
+                    student.setPinyin(sd.getPinyin());
+                    student.setRegistrationGrade(sd.getRegistrationGrade());
+                    student.setBirthday(sd.getBirthday());
+                    if (student.isChanged(app.student)) {
+                        student.update(app.student.getObjectId(), new UpdateListener() {
+                            @Override
+                            public void done(BmobException e) {
+                                if (e != null) {
+                                    Log.e(TAG, "done: update user info error", e);
+                                }
+                            }
+                        });
+                    }
+                }
+
+            } else if (result.equals(getString(R.string.login_timeout)) || result.equals(getString(R.string.network_error))) {
                 Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
-                reLogin();
+                reLogin(true);
             }
         }
     }
@@ -491,68 +535,74 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
-        // 判断用户存在
-        BmobQuery<Student> query = new BmobQuery<>();
-        query.addWhereEqualTo("username", app.getAssist().getUsername());
-        query.findObjects(new FindListener<Student>() {
-            @Override
-            public void done(List<Student> list, BmobException e) {
-                if (e == null) {
-                    if (list.size() == 0) {
-                        // 用户不存在
-                        app.student = new Student();
-                        app.student.setUsername(app.getAssist().getUsername());
-                        StudentInfo si = app.getStudentInfo();
-                        try {
-                            app.student.setPassword(AESCrypt.encrypt(si.getId(), getString(R.string.encryptedMsg)));
-                        } catch (GeneralSecurityException e1) {
-                            Log.e(TAG, "done: encrypting error", e1);
-                            Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
-                        }
-                        app.student.setStudentId(si.getId());
-                        app.student.setGrade(si.getGrade());
-                        app.student.setSpeciality(si.getSpeciality());
-                        app.student.setSpecialityCode(si.getSpecialityCode());
-                        app.student.setAcademicYear(si.getAcademicYear());
-                        app.student.setSchoolTerm(si.getSchoolTerm());
-                        app.student.signUp(new SaveListener<Student>() {
-                            @Override
-                            public void done(Student student, BmobException e) {
-                                if (e == null) {
-                                    // 获取用户详细信息
-                                    getStudentDetails();
-                                } else {
-                                    Log.e(TAG, "done: signup error", e);
-                                }
+        // app.student = BmobUser.getCurrentUser(Student.class);
+        if (app.student == null) {
+            // 判断用户存在
+            BmobQuery<Student> query = new BmobQuery<>();
+            query.addWhereEqualTo("username", app.getAssist().getUsername());
+            query.findObjects(new FindListener<Student>() {
+                @Override
+                public void done(List<Student> list, BmobException e) {
+                    if (e == null) {
+                        if (list.size() == 0) {
+                            // 用户不存在
+                            app.student = new Student();
+                            app.student.setUsername(app.getAssist().getUsername());
+                            StudentInfo si = app.getStudentInfo();
+                            try {
+                                app.student.setPassword(AESCrypt.encrypt(getString(R.string.encryptedMsg), app.getStudentInfo().getId()));
+                            } catch (GeneralSecurityException e1) {
+                                Log.e(TAG, "done: encrypting error", e1);
+                                Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
                             }
-                        });
-                    } else {
-                        try {
-                            BmobUser.loginByAccount(app.getAssist().getUsername(),
-                                    AESCrypt.encrypt(
-                                            app.getStudentInfo().getId(),
-                                            getString(R.string.encryptedMsg)),
-                                    new LogInListener<Student>() {
-                                        @Override
-                                        public void done(Student student, BmobException e) {
-                                            if (e == null) {
-                                                app.student = student;
-                                                // 获取用户详细信息
+                            app.student.signUp(new SaveListener<Student>() {
+                                @Override
+                                public void done(Student student, BmobException e) {
+                                    if (e == null) {
+                                        app.student.login(new SaveListener<Student>() {
+                                            @Override
+                                            public void done(Student student, BmobException e) {
+                                                if (e == null) {
+                                                    app.student = student;
+                                                    // 获取用户详细信息
+                                                }
                                                 getStudentDetails();
-                                            } else {
-                                                Log.e(TAG, "done: login error", e);
-                                                reLogin(true);
                                             }
-                                        }
-                                    });
-                        } catch (GeneralSecurityException e1) {
-                            Log.e(TAG, "done: encrypting error", e1);
-                            Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
+                                        });
+                                    } else {
+                                        Log.e(TAG, "done: signup error", e);
+                                    }
+                                }
+                            });
+                        } else {
+                            try {
+                                BmobUser.loginByAccount(app.getAssist().getUsername(),
+                                        AESCrypt.encrypt(
+                                                getString(R.string.encryptedMsg),
+                                                app.getStudentInfo().getId()),
+                                        new LogInListener<Student>() {
+                                            @Override
+                                            public void done(Student student, BmobException e) {
+                                                if (e == null) {
+                                                    app.student = student;
+                                                    // 获取用户详细信息
+                                                } else {
+                                                    Log.e(TAG, "done: login error", e);
+                                                }
+                                                getStudentDetails();
+                                            }
+                                        });
+                            } catch (GeneralSecurityException e1) {
+                                Log.e(TAG, "done: encrypting error", e1);
+                                Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            getStudentDetails();
+        }
     }
 
     @Override
