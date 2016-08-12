@@ -6,10 +6,12 @@
     <item name="ic_plus_one_black" type="drawable">@mipmap/ic_plus_one_black_48dp</item>
     <item name="ic_school_black" type="drawable">@mipmap/ic_school_black_48dp</item>
     <item name="ic_assessment_black" type="drawable">@mipmap/ic_assessment_black_48dp</item>
+    <item name="ic_assessment_white" type="drawable">@mipmap/ic_assessment_white_48dp</item>
     <item name="ic_done_black" type="drawable">@mipmap/ic_done_black_48dp</item>
     <item name="ic_done_all_white" type="drawable">@mipmap/ic_done_all_white_48dp</item>
     <item name="ic_plus_one_white" type="drawable">@mipmap/ic_plus_one_white_48dp</item>
     <item name="ic_add_white" type="drawable">@mipmap/ic_add_white_48dp</item>
     <item name="ic_toc_white" type="drawable">@mipmap/ic_toc_white_48dp</item>
     <item name="ic_stars_white" type="drawable">@mipmap/ic_stars_white_48dp</item>
+    <item name="ic_share_white" type="drawable">@mipmap/ic_share_white_48dp</item>
 </resources>

@@ -19,6 +19,8 @@ public class TableCourse implements Serializable {
     private String teacher = "";
     private String locationTime = "";
 
+    private static final long serialVersionUID = -7048272870067608021L;
+
     public String getCode() {
         return code;
     }

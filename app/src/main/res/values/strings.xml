@@ -91,7 +91,7 @@
     <string name="saturday">周六</string>
     <string name="sunday">周日</string>
     <string name="login_error">登录错误</string>
-    <string name="write_error">导入错误</string>
+    <string name="write_error">存储课程表错误</string>
     <string name="please_import_timetable">请导入课程表</string>
     <string name="action_list_week">周数列表</string>
     <string name="action_set_current">设为当前周</string>
@@ -101,6 +101,26 @@
     <string name="prefix_week">第</string>
     <string name="suffix_week">周</string>
     <string name="is_current">(当前)</string>
+    <string name="all">全部</string>
+    <string name="action_gpa">计算GPA</string>
+    <string name="standard_GPA">四分制标准GPA</string>
+    <string name="four_GPA">四分制等级GPA</string>
+    <string name="average_GPA">百分制GPA</string>
+    <string name="all_course">全部成绩</string>
+    <string name="failed_count">不及格科目数</string>
+    <string name="good_count">优秀科目数</string>
+    <string name="out_count">满分科目数</string>
+    <string name="professional_course">专业课程</string>
+    <string name="score_statistics">成绩统计</string>
+    <string name="share">分享</string>
+    <string name="import_timetable">导入课程表</string>
+    <string name="cancel">取消</string>
+    <string name="action_share">分享</string>
+    <string name="share_timetable">分享课程表</string>
+    <string name="share_error">分享失败</string>
+    <string name="this_is_timetable_share_code">这是课程表分享码，可以复制全文通过小鸦课程表导入</string>
+    <string name="import_error">导入失败</string>
+    <string name="ok">确定</string>
 
 
 </resources>

@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_autorenew_white"
         android:title="@string/action_refresh"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_gpa"
+        android:icon="@drawable/ic_assessment_white"
+        android:title="@string/action_gpa"
+        app:showAsAction="ifRoom" />
 </menu>

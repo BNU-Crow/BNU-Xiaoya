@@ -114,4 +114,8 @@ public class ExamScore {
                 ", major=" + major +
                 '}';
     }
+
+    public boolean isProfessional() {
+        return classification.contains("专业") || classification.contains("院系");
+    }
 }

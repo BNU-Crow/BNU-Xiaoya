@@ -1159,7 +1159,7 @@ public class SchoolworkAssist implements Parcelable {
         return details;
     }
 
-    public List<Semester> getSemesters() throws IOException, NeedLoginException, JSONException {
+    public ArrayList<Semester> getSemesters() throws IOException, NeedLoginException, JSONException {
         Connection.Response res = Jsoup.connect(DROPLIST_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -1183,7 +1183,7 @@ public class SchoolworkAssist implements Parcelable {
         return semesters;
     }
 
-    public List<TableCourse> getTableCourses(Semester semester) throws IOException, NeedLoginException {
+    public ArrayList<TableCourse> getTableCourses(Semester semester) throws IOException, NeedLoginException {
         String params = "xn=" + semester.getYear()
                 + "&xq=" + semester.getTerm()
                 + "&xh=" + getStudentInfo().getId();

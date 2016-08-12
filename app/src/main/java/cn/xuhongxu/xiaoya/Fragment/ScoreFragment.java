@@ -1,8 +1,10 @@
 package cn.xuhongxu.xiaoya.Fragment;
 
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,8 +26,12 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
+import cn.xuhongxu.Assist.ExamScore;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.xiaoya.Adapter.ScoreRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
@@ -54,6 +60,8 @@ public class ScoreFragment extends Fragment {
     private int year, term;
     private Button yearView;
 
+    private String statistics;
+
     public ScoreFragment() {
         // Required empty public constructor
     }
@@ -78,7 +86,11 @@ public class ScoreFragment extends Fragment {
             View view = getView();
             assert view != null;
             try {
-                app.setExamScores(app.getAssist().getExamScores(year, term));
+                if (year == 0) {
+                    app.setExamScores(app.getAssist().getExamScores());
+                } else {
+                    app.setExamScores(app.getAssist().getExamScores(year, term));
+                }
             } catch (NeedLoginException needLogin) {
                 return getString(R.string.login_timeout);
             } catch (IOException e) {
@@ -141,6 +153,12 @@ public class ScoreFragment extends Fragment {
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    void setTerm() {
+        this.year = 0;
+        this.term = 0;
+        yearView.setText(R.string.all);
+    }
+
     void setTerm(int year, int term) {
         this.year = year;
         this.term = term;
@@ -158,6 +176,7 @@ public class ScoreFragment extends Fragment {
         yearView = (Button) v.findViewById(R.id.scoreYear);
 
         final ArrayList<CharSequence> years = new ArrayList<>();
+        years.add(getString(R.string.all));
         for (
                 int i = Integer.valueOf(app.getStudentInfo().getGrade());
                 i <= Integer.valueOf(app.getStudentInfo().getAcademicYear());
@@ -177,9 +196,13 @@ public class ScoreFragment extends Fragment {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String year = String.valueOf(years.get(i));
-                        year = year.substring(0, year.indexOf("-"));
-                        setTerm(Integer.valueOf(year), i % 2);
+                        if (i == 0) {
+                            setTerm();
+                        } else {
+                            String year = String.valueOf(years.get(i));
+                            year = year.substring(0, year.indexOf("-"));
+                            setTerm(Integer.valueOf(year), (i - 1) % 2);
+                        }
                         task = new GetExamScoreTask();
                         task.execute(false);
                     }
@@ -270,7 +293,11 @@ public class ScoreFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.only_refresh_menu, menu);
+        inflater.inflate(R.menu.score, menu);
+    }
+
+    private String fmtD(Double d) {
+        return String.format(Locale.getDefault(), "%.2f", d);
     }
 
     @Override
@@ -280,6 +307,102 @@ public class ScoreFragment extends Fragment {
         if (id == R.id.action_refresh) {
             task = new GetExamScoreTask();
             task.execute(false);
+        } else if (id == R.id.action_gpa) {
+            List<ExamScore> scores = app.getExamScores();
+            Double gpa = 0.0, gpaP = 0.0;
+            Double gpa4 = 0.0, gpa4P = 0.0;
+            Double totalCredit = 0.0, totalCreditP = 0.0;
+            int failedCount = 0, failedCountP = 0;
+            int goodCount = 0, goodCountP = 0;
+            int outCount = 0, outCountP = 0;
+            for (ExamScore score : scores) {
+                double s;
+                double c;
+                c = Double.valueOf(score.getCourseCredit());
+                try {
+                    s = Double.valueOf(score.getScore());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    s = 85.0;
+                }
+                if (s >= 60) {
+                    if (s >= 90) {
+                        ++goodCount;
+                        if (score.isProfessional()) {
+                            ++goodCountP;
+                        }
+                    }
+                    if (s == 100) {
+                        ++outCount;
+                        if (score.isProfessional()) {
+                            ++outCountP;
+                        }
+                    }
+                    int s4 = (int) ((s - 50) / 10);
+                    if (s4 >= 5) {
+                        s4 = 4;
+                    }
+                    gpa4 += s4 * c;
+                    if (score.isProfessional()) {
+                        gpa4P += s4 * c;
+                    }
+                } else {
+                    ++failedCount;
+                    if (score.isProfessional()) {
+                        ++failedCountP;
+                    }
+                }
+                gpa += s * c;
+                if (score.isProfessional()) {
+                    gpaP += s * c;
+                }
+                totalCredit += Double.valueOf(score.getCourseCredit());
+                if (score.isProfessional()) {
+                    totalCreditP += Double.valueOf(score.getCourseCredit());
+                }
+            }
+
+            if (totalCredit == 0) totalCredit = 1.0;
+            if (totalCreditP == 0) totalCreditP = 1.0;
+
+            gpa /= totalCredit;
+            gpa4 /= totalCredit;
+            gpaP /= totalCreditP;
+            gpa4P /= totalCreditP;
+
+            final String dialogTitle = yearView.getText() + "  " + getString(R.string.score_statistics);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(dialogTitle);
+
+            statistics = getString(R.string.all_course) + "\n\n" +
+                    getString(R.string.average_GPA) + ": " + fmtD(gpa) + "\n" +
+                    getString(R.string.standard_GPA) + ": " + fmtD(gpa * 4 / 100) + "\n" +
+                    getString(R.string.four_GPA) + ": " + fmtD(gpa4) + "\n" +
+                    getString(R.string.failed_count) + ": " + failedCount + "\n" +
+                    getString(R.string.good_count) + ": " + goodCount + "\n" +
+                    getString(R.string.out_count) + ": " + outCount + "\n\n\n" +
+                    getString(R.string.professional_course) + "\n\n" +
+                    getString(R.string.average_GPA) + ": " + fmtD(gpaP) + "\n" +
+                    getString(R.string.standard_GPA) + ": " + fmtD(gpaP * 4 / 100) + "\n" +
+                    getString(R.string.four_GPA) + ": " + fmtD(gpa4P) + "\n" +
+                    getString(R.string.failed_count) + ": " + failedCountP + "\n" +
+                    getString(R.string.good_count) + ": " + goodCountP + "\n" +
+                    getString(R.string.out_count) + ": " + outCountP + "\n";
+            builder.setMessage(statistics);
+            builder.setPositiveButton(R.string.share, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_SUBJECT, dialogTitle);
+                    sendIntent.putExtra(Intent.EXTRA_TITLE, dialogTitle);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, dialogTitle + "\n\n" + statistics);
+                    sendIntent.setType("text/plain");
+                    startActivity(sendIntent);
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.show();
         }
 
         return super.onOptionsItemSelected(item);

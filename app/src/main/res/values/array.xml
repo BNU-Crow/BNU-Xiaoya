@@ -11,4 +11,8 @@
         <item>春季学期</item>
         <item>秋季学期</item>
     </string-array>
+    <string-array name="import_timetable">
+        <item>从教务网导入</item>
+        <item>从分享码导入</item>
+    </string-array>
 </resources>
