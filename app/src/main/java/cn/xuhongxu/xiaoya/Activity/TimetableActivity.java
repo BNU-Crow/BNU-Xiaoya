@@ -80,7 +80,7 @@ public class TimetableActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Bmob.initialize(this, "b9ae7e8f85b4a31144bd382619290008");
+        Bmob.initialize(this, getString(R.string.bmob_key));
         BmobPush.startWork(this);
 
         preferences =

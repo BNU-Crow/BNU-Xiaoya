@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bmob.initialize(this, "b9ae7e8f85b4a31144bd382619290008");
+        Bmob.initialize(this, getString(R.string.bmob_key));
 //        BmobInstallation.getCurrentInstallation().save();
         BmobPush.startWork(this);
 
@@ -535,6 +535,9 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
+        if (app.getAssist() == null) {
+            reLogin(true);
+        }
         // app.student = BmobUser.getCurrentUser(Student.class);
         if (app.student == null) {
             // 判断用户存在

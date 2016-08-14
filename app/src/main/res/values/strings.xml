@@ -2,6 +2,7 @@
     <string name="app_name">北师小鸦</string>
 
     <string name="preference_key">cn.xuhongxu.xiaoya.PREFERENCE_KEY</string>
+    <string name="gateway_preference_key">cn.xuhongxu.xiaoya.GATEWAY_PREFERENCE_KEY</string>
 
     <string name="navigation_drawer_open">打开导航抽屉</string>
     <string name="navigation_drawer_close">关闭导航抽屉</string>
@@ -121,6 +122,9 @@
     <string name="this_is_timetable_share_code">这是课程表分享码，可以复制全文通过小鸦课程表导入</string>
     <string name="import_error">导入失败</string>
     <string name="ok">确定</string>
+    <string name="title_activity_gateway">小鸦网关</string>
+    <string name="gateway_login_tip">网关登录</string>
+    <string name="force_logout">强制离线</string>
 
 
 </resources>
