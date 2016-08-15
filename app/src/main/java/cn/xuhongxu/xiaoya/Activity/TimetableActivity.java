@@ -191,15 +191,19 @@ public class TimetableActivity extends AppCompatActivity {
     private int calcWeek() {
         currentWeek = preferences.getInt("current_week", 1);
         Calendar now = Calendar.getInstance();
+        now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DATE));
         now.setFirstDayOfWeek(Calendar.MONDAY);
         int year = preferences.getInt("year", now.get(Calendar.YEAR));
         int month = preferences.getInt("month", now.get(Calendar.MONTH));
         int date = preferences.getInt("date", now.get(Calendar.DATE));
         Calendar thatDay = Calendar.getInstance();
         thatDay.setFirstDayOfWeek(Calendar.MONDAY);
-        thatDay.set(year, month, date);
+        thatDay.set(year, month, date, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
         int diffWeek = now.get(Calendar.WEEK_OF_YEAR) - thatDay.get(Calendar.WEEK_OF_YEAR);
         currentWeek += diffWeek;
+        if (currentWeek <= 0) {
+            currentWeek = 1;
+        }
         shownWeek = currentWeek;
 
         SharedPreferences.Editor editor = preferences.edit();
