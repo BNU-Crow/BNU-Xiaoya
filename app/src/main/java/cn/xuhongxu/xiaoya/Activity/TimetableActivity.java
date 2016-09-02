@@ -482,6 +482,12 @@ public class TimetableActivity extends AppCompatActivity {
                                     public void done(TimeTable timeTable, BmobException e) {
                                         if (e == null) {
                                             try {
+                                                tableCourses = (ArrayList<TableCourse>) fromString(timeTable.getContent());
+                                                FileOutputStream fos = TimetableActivity.this.openFileOutput("timetable", Context.MODE_PRIVATE);
+                                                ObjectOutputStream os = new ObjectOutputStream(fos);
+                                                os.writeObject(tableCourses);
+                                                os.close();
+                                                fos.close();
                                                 SharedPreferences.Editor editor = preferences.edit();
                                                 editor.putString("share_code", finalShareCode);
                                                 editor.remove("current_week");
@@ -489,7 +495,6 @@ public class TimetableActivity extends AppCompatActivity {
                                                 editor.remove("month");
                                                 editor.remove("date");
                                                 editor.apply();
-                                                tableCourses = (ArrayList<TableCourse>) fromString(timeTable.getContent());
                                                 parseTable(calcWeek());
                                             } catch (Exception e1) {
                                                 e1.printStackTrace();

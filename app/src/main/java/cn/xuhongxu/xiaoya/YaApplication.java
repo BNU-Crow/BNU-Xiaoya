@@ -48,14 +48,12 @@ public class YaApplication extends Application {
         examScores = new ArrayList<>();
 
 
-        /*
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
                 handleUncaughtException(thread, e);
             }
         });
-        */
 
     }
 

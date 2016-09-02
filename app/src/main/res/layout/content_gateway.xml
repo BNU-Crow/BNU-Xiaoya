@@ -96,13 +96,10 @@
         android:textSize="14sp" />
 
     <Button
-        android:id="@+id/force_logout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/login_button"
         android:layout_below="@id/switch_remember"
-        android:layout_marginTop="24sp"
-        android:onClick="login"
-        android:text="@string/force_logout"
-        android:textSize="18sp" />
+        android:text="@string/login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

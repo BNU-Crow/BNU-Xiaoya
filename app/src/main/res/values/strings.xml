@@ -125,6 +125,7 @@
     <string name="title_activity_gateway">小鸦网关</string>
     <string name="gateway_login_tip">网关登录</string>
     <string name="force_logout">强制离线</string>
+    <string name="building">建设中……</string>
 
 
 </resources>
