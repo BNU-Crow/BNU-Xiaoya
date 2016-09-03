@@ -264,49 +264,64 @@ public class TimetableActivity extends AppCompatActivity {
                     int startN = 0, endN = 0;
 
                     start = index + 1;
-                    index = s.indexOf("[", start);
-                    String dayPart = s.substring(start, index).trim();
-                    if (dayPart.equals("一")) {
-                        day = 0;
-                    } else if (dayPart.equals("二")) {
-                        day = 1;
-                    } else if (dayPart.equals("三")) {
-                        day = 2;
-                    } else if (dayPart.equals("四")) {
-                        day = 3;
-                    } else if (dayPart.equals("五")) {
-                        day = 4;
-                    } else if (dayPart.equals("六")) {
-                        day = 5;
-                    } else {
-                        day = 6;
+
+
+                    if (s.substring(start, start + 1).equals("(")) {
+                        isIn = false;
+                        // 单双周
+                        if ((s.substring(start + 1, start + 2).equals("单") && week % 2 == 1) || (s.substring(start + 1, start + 2).equals("双") && week % 2 == 0)) {
+                            start = s.indexOf(")", start) + 1;
+                            isIn = true;
+                        }
                     }
 
-                    start = index + 1;
-                    index = s.indexOf("]", start);
-                    String nPart = s.substring(start, index);
-                    String[] nParts = nPart.split("-");
-                    startN = Integer.valueOf(nParts[0]) - 1;
-                    endN = Integer.valueOf(nParts[1]) - 1;
+                    if (isIn) {
 
-                    start = index + 1;
-                    index = s.indexOf(",", start);
-                    String loc = "";
-                    if (index == -1) {
-                        loc = s.substring(start);
-                    } else {
-                        loc = s.substring(start, index);
+                        index = s.indexOf("[", start);
+                        String dayPart = s.substring(start, index).trim();
+                        if (dayPart.equals("一")) {
+                            day = 0;
+                        } else if (dayPart.equals("二")) {
+                            day = 1;
+                        } else if (dayPart.equals("三")) {
+                            day = 2;
+                        } else if (dayPart.equals("四")) {
+                            day = 3;
+                        } else if (dayPart.equals("五")) {
+                            day = 4;
+                        } else if (dayPart.equals("六")) {
+                            day = 5;
+                        } else {
+                            day = 6;
+                        }
+
+                        start = index + 1;
+                        index = s.indexOf("]", start);
+                        String nPart = s.substring(start, index);
+                        String[] nParts = nPart.split("-");
+                        startN = Integer.valueOf(nParts[0]) - 1;
+                        endN = Integer.valueOf(nParts[1]) - 1;
+
+                        start = index + 1;
+                        index = s.indexOf(",", start);
+                        String loc = "";
+                        if (index == -1) {
+                            loc = s.substring(start);
+                        } else {
+                            loc = s.substring(start, index);
+                        }
+
+                        table.classes.add(new TimeTableView.Rectangle(course.getName()
+                                + "\n\n" + course.getTeacher() + "\n" + loc, day, startN, endN));
+
+                        if (index == -1) {
+                            break;
+                        }
+                        start = index + 1;
                     }
+                }
 
-                    table.classes.add(new TimeTableView.Rectangle(course.getName()
-                            + "\n\n" + course.getTeacher() + "\n" + loc, day, startN, endN));
-
-                    if (index == -1) {
-                        break;
-                    }
-                    start = index + 1;
-
-                } else {
+                if (!isIn) {
                     start = s.indexOf(",", index + 1) + 1;
                     if (start == 0) {
                         break;
