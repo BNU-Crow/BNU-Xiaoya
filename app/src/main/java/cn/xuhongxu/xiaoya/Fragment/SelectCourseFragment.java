@@ -44,7 +44,6 @@ public class SelectCourseFragment extends Fragment {
         tabLayout.setVisibility(View.GONE);
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,9 +54,9 @@ public class SelectCourseFragment extends Fragment {
         viewPager = (ViewPager) v.findViewById(R.id.viewPager);
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getChildFragmentManager());
         adapter.add(PlanCourseFragment.class, getString(R.string.plan_course));
-        adapter.add(PlanCourseFragment.class, getString(R.string.elective_course));
+        adapter.add(BuildingFragment.class, getString(R.string.elective_course));
         adapter.add(SelectResultFragment.class, getString(R.string.select_result));
-        adapter.add(PlanCourseFragment.class, getString(R.string.cancel_course));
+        adapter.add(BuildingFragment.class, getString(R.string.cancel_course));
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         return v;

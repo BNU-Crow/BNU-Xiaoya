@@ -24,6 +24,7 @@ import android.widget.ViewFlipper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.util.Objects;
 
@@ -183,8 +184,19 @@ public class GatewayActivity extends AppCompatActivity {
                                     .data("key", k)
                                     .post();
 
+                            String res = doc.text();
 
-                            return "成功" + doc.text();
+                            doc = Jsoup.connect("http://ip.bnu.edu.cn")
+                                    .timeout(5000)
+                                    .get();
+
+                            String where = "";
+                            Elements el = doc.getElementsByAttributeValue("color", "blue");
+                            if (el.size() > 0) {
+                                where = el.text();
+                            }
+
+                            return "成功" + res + "," + where;
                         } else {
                             return body;
                         }
@@ -249,7 +261,8 @@ public class GatewayActivity extends AppCompatActivity {
                             "已用流量：" + rest.toString() + "MB\n" +
                                     "已用时长：" + h + "时" + m + "分" + s + "秒\n" +
                                     "账户余额：" + info[2] + "元\n" +
-                                    "IP：" + info[5]
+                                    "IP：" + info[5] + "\n" +
+                                    "位置：" + info[6]
                     );
                     ip = info[5];
                     editor = preferences.edit();

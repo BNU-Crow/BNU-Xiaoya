@@ -52,6 +52,7 @@ import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.Assist.StudentInfo;
+import cn.xuhongxu.xiaoya.Fragment.BuildingFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity
         EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener,
         SelectResultFragment.OnFragmentInteractionListener,
+        BuildingFragment.OnFragmentInteractionListener,
         ScoreFragment.OnFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getName();
@@ -232,6 +234,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
+                Toast.makeText(this, R.string.building, Toast.LENGTH_SHORT).show();
                 return true;
         }
 
