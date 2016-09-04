@@ -45,7 +45,9 @@ public class ElectiveCourse {
     // 上课时间 sksj
     private String time = "";
     // 上课地点 skdd
-    private String locaiton = "";
+    private String location = "";
+    // 选中
+    private String chosen = "";
 
     public String getName() {
         return name;
@@ -115,8 +117,8 @@ public class ElectiveCourse {
         return time;
     }
 
-    public String getLocaiton() {
-        return locaiton;
+    public String getLocation() {
+        return location;
     }
 
     void setName(String name) {
@@ -188,7 +190,7 @@ public class ElectiveCourse {
     }
 
     void setLocaiton(String locaiton) {
-        this.locaiton = locaiton.trim();
+        this.location = locaiton.trim();
     }
 
     public String getTeacherCode() {
@@ -220,7 +222,15 @@ public class ElectiveCourse {
                 ", remainingSelection='" + remainingSelection + '\'' +
                 ", method='" + method + '\'' +
                 ", time='" + time + '\'' +
-                ", locaiton='" + locaiton + '\'' +
+                ", location='" + location + '\'' +
                 '}';
+    }
+
+    public String getChosen() {
+        return chosen;
+    }
+
+    public void setChosen(String chosen) {
+        this.chosen = chosen;
     }
 }

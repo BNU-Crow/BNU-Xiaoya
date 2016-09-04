@@ -96,6 +96,7 @@ public class ScoreFragment extends Fragment {
             } catch (IOException e) {
                 return getString(R.string.network_error);
             } catch (Exception e) {
+                e.printStackTrace();
                 return e.getMessage();
             }
             return "";

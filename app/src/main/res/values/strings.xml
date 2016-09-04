@@ -144,6 +144,9 @@
     <string name="confirm">确定</string>
     <string name="selecting">选课中…</string>
     <string name="succeed_select">选课成功</string>
+    <string name="time_location">时间地点</string>
+    <string name="canceling">退选中……</string>
+    <string name="cancel_confirm">确定退选</string>
 
 
 </resources>

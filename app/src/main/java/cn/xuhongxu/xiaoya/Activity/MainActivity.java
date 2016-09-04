@@ -53,6 +53,8 @@ import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.Assist.StudentInfo;
 import cn.xuhongxu.xiaoya.Fragment.BuildingFragment;
+import cn.xuhongxu.xiaoya.Fragment.CancelCourseFragment;
+import cn.xuhongxu.xiaoya.Fragment.ElectiveCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity
         EvaluationCourseFragment.OnListFragmentInteractionListener,
         SelectResultFragment.OnFragmentInteractionListener,
         BuildingFragment.OnFragmentInteractionListener,
+        ElectiveCourseFragment.OnFragmentInteractionListener,
+        CancelCourseFragment.OnFragmentInteractionListener,
         ScoreFragment.OnFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getName();

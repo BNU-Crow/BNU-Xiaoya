@@ -553,6 +553,10 @@ public class SchoolworkAssist implements Parcelable {
             course.setMethod(doc.getElementById(prefix + "skfs").text());
             course.setTime(doc.getElementById(prefix + "sksj").text());
             course.setLocaiton(doc.getElementById(prefix + "skdd").text());
+            Element chosenEl = doc.getElementById(prefix + "xz");
+            if (chosenEl.childNodeSize() > 0) {
+                course.setChosen(doc.getElementById(prefix + "xz").child(0).text());
+            }
             courses.add(course);
         }
         return courses;
@@ -925,6 +929,9 @@ public class SchoolworkAssist implements Parcelable {
             throw new NeedLoginException();
         }
         ArrayList<ExamScore> examScores = new ArrayList<>();
+        if (doc.getElementsByTag("tbody").size() == 0) {
+            return examScores;
+        }
         Element table = doc.getElementsByTag("tbody").get(0);
         Elements rows = table.getElementsByTag("tr");
         String lastTerm = "";

@@ -105,6 +105,11 @@ public class SelectResultFragment extends Fragment {
             recyclerView.setAdapter(adapter);
         }
 
+        View view = getView();
+        if (view != null && first) {
+            Snackbar snackbar = Snackbar.make(view, R.string.updated, Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
         swipeRefreshLayout.setRefreshing(false);
     }
 

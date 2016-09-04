@@ -2,10 +2,11 @@ package cn.xuhongxu.xiaoya;
 
 import android.app.Application;
 import android.content.Intent;
-import android.os.Bundle;
 
 import java.util.ArrayList;
 
+import cn.xuhongxu.Assist.CancelCourse;
+import cn.xuhongxu.Assist.ElectiveCourse;
 import cn.xuhongxu.Assist.EvaluationCourse;
 import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.ExamArrangement;
@@ -42,6 +43,8 @@ public class YaApplication extends Application {
     private ArrayList<PlanCourse> planCourses;
     private ArrayList<PlanChildCourse> planChildCourses;
     private ArrayList<SelectionResult> selectionResults;
+    private ArrayList<ElectiveCourse> electiveCourses;
+    private ArrayList<CancelCourse> cancelCourses;
 
     @Override
     public void onCreate() {
@@ -56,6 +59,8 @@ public class YaApplication extends Application {
         planCourses = new ArrayList<>();
         planChildCourses = new ArrayList<>();
         selectionResults = new ArrayList<>();
+        electiveCourses = new ArrayList<>();
+        cancelCourses = new ArrayList<>();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -169,5 +174,21 @@ public class YaApplication extends Application {
 
     public void setSelectionResults(ArrayList<SelectionResult> selectionResults) {
         this.selectionResults = selectionResults;
+    }
+
+    public ArrayList<ElectiveCourse> getElectiveCourses() {
+        return electiveCourses;
+    }
+
+    public void setElectiveCourses(ArrayList<ElectiveCourse> electiveCourses) {
+        this.electiveCourses = electiveCourses;
+    }
+
+    public ArrayList<CancelCourse> getCancelCourses() {
+        return cancelCourses;
+    }
+
+    public void setCancelCourses(ArrayList<CancelCourse> cancelCourses) {
+        this.cancelCourses = cancelCourses;
     }
 }
