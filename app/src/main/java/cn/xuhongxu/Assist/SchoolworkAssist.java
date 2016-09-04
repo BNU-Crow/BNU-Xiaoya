@@ -708,6 +708,7 @@ public class SchoolworkAssist implements Parcelable {
 
     public ArrayList<SelectionResult> getSelectionResult() throws IOException, NeedLoginException {
         Document doc = Jsoup.connect(SELECTION_RESULT_URL + Math.random() * 1000000)
+                .timeout(20000)
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)

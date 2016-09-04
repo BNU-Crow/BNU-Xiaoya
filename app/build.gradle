@@ -42,5 +42,4 @@ dependencies {
     compile 'cn.bmob.android:http-legacy:1.0'
     // AES
     compile 'com.scottyab:aescrypt:0.0.1'
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }
