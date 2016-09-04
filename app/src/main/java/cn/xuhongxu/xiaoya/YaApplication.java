@@ -14,6 +14,7 @@ import cn.xuhongxu.Assist.ExamScore;
 import cn.xuhongxu.Assist.PlanChildCourse;
 import cn.xuhongxu.Assist.PlanCourse;
 import cn.xuhongxu.Assist.SchoolworkAssist;
+import cn.xuhongxu.Assist.SelectionResult;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.Assist.StudentInfo;
 import cn.xuhongxu.xiaoya.Activity.ErrorActivity;
@@ -40,6 +41,7 @@ public class YaApplication extends Application {
     public Student student;
     private ArrayList<PlanCourse> planCourses;
     private ArrayList<PlanChildCourse> planChildCourses;
+    private ArrayList<SelectionResult> selectionResults;
 
     @Override
     public void onCreate() {
@@ -53,6 +55,7 @@ public class YaApplication extends Application {
 
         planCourses = new ArrayList<>();
         planChildCourses = new ArrayList<>();
+        selectionResults = new ArrayList<>();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -158,5 +161,13 @@ public class YaApplication extends Application {
 
     public void setPlanChildCourses(ArrayList<PlanChildCourse> planChildCourses) {
         this.planChildCourses = planChildCourses;
+    }
+
+    public ArrayList<SelectionResult> getSelectionResults() {
+        return selectionResults;
+    }
+
+    public void setSelectionResults(ArrayList<SelectionResult> selectionResults) {
+        this.selectionResults = selectionResults;
     }
 }

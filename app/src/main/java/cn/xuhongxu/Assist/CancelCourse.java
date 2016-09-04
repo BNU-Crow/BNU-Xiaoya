@@ -2,6 +2,9 @@ package cn.xuhongxu.Assist;
 
 /**
  * Created by xuhongxu on 16/4/5.
+ *
+ * @author Hongxu Xu
+ * @version 0.1
  */
 public class CancelCourse {
     // 课程名称 kc

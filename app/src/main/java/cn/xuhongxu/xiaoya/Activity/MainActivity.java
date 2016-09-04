@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.scottyab.aescrypt.AESCrypt;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -49,8 +48,6 @@ import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.LogInListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
-import cn.xuhongxu.Assist.ExamRound;
-import cn.xuhongxu.Assist.LoginException;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
@@ -61,7 +58,7 @@ import cn.xuhongxu.xiaoya.Fragment.ExamArrangementFragment;
 import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
 import cn.xuhongxu.xiaoya.Fragment.ScoreFragment;
-import cn.xuhongxu.xiaoya.Fragment.SelectFragment;
+import cn.xuhongxu.xiaoya.Fragment.SelectResultFragment;
 import cn.xuhongxu.xiaoya.Model.Student;
 import cn.xuhongxu.xiaoya.Model.YaBmobInstallation;
 import cn.xuhongxu.xiaoya.Fragment.PlanChildCourseFragment;
@@ -69,7 +66,6 @@ import cn.xuhongxu.xiaoya.Fragment.PlanCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.SelectCourseFragment;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
-import rx.Subscription;
 
 public class MainActivity extends AppCompatActivity
         implements
@@ -82,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         ExamArrangementFragment.OnListFragmentInteractionListener,
         EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener,
-        SelectFragment.OnFragmentInteractionListener,
+        SelectResultFragment.OnFragmentInteractionListener,
         ScoreFragment.OnFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getName();

@@ -56,7 +56,8 @@ public class SelectCourseFragment extends Fragment {
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getChildFragmentManager());
         adapter.add(PlanCourseFragment.class, getString(R.string.plan_course));
         adapter.add(PlanCourseFragment.class, getString(R.string.elective_course));
-        adapter.add(PlanCourseFragment.class, getString(R.string.select_result));
+        adapter.add(SelectResultFragment.class, getString(R.string.select_result));
+        adapter.add(PlanCourseFragment.class, getString(R.string.cancel_course));
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         return v;
