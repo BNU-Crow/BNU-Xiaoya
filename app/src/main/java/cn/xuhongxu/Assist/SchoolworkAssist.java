@@ -84,6 +84,9 @@ public class SchoolworkAssist implements Parcelable {
     // URL: Get Timetable
     private static final String TIMETABLE_URL
             = "http://zyfw.bnu.edu.cn/wsxk/xkjg.ckdgxsxdkchj_data10319.jsp?params=";
+    // URL: Get Select Info
+    private static final String SELECT_INFO_URL
+            = "http://zyfw.bnu.edu.cn/jw/common/getWsxkTimeRange.action?xktype=2";
 
     // TABLE_ID: Course ArrayList
     private static final String COURSE_LIST_TABLE_ID = "5327018";
@@ -110,6 +113,7 @@ public class SchoolworkAssist implements Parcelable {
     private Map<String, String> cookies;
     private String lt, excution;
     private StudentInfo studentInfo;
+    private SelectInfo selectInfo;
 
     protected SchoolworkAssist(Parcel in) {
         username = in.readString();
@@ -287,7 +291,10 @@ public class SchoolworkAssist implements Parcelable {
         everSucceed = false;
     }
 
-    public ArrayList<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException {
+    public ArrayList<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException, JSONException {
+
+        fetchSelectInfo();
+
         Connection conn = Jsoup.connect(TABLE_URL + COURSE_LIST_TABLE_ID)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -296,8 +303,8 @@ public class SchoolworkAssist implements Parcelable {
                 .data("initQry", "0")
                 .data("xktype", "2")
                 .data("xh", getStudentInfo().getId())
-                .data("xn", getStudentInfo().getAcademicYear())
-                .data("xq", getStudentInfo().getSchoolTerm())
+                .data("xn", /*getStudentInfo().getAcademicYear()*/selectInfo.getYear())
+                .data("xq", /*getStudentInfo().getSchoolTerm()*/selectInfo.getXqM())
                 .data("nj", getStudentInfo().getGrade())
                 .data("zydm", getStudentInfo().getSpecialityCode())
                 .data("kcfw", "zxbnj")
@@ -367,10 +374,17 @@ public class SchoolworkAssist implements Parcelable {
         return courses;
     }
 
-    public ArrayList<PlanChildCourse> getPlanChildCourses(PlanCourse course) throws IOException, NeedLoginException {
+    public ArrayList<PlanChildCourse> getPlanChildCourses(PlanCourse course) throws IOException, NeedLoginException, JSONException {
+
+        fetchSelectInfo();
+
         String params = String.format("xn=%s&xq_m=%s&xh=%s&kcdm=%s&skbjdm=&xktype=2&kcfw=zxbnj",
+                selectInfo.getYear(),
+                selectInfo.getXqM(),
+                /*
                 getStudentInfo().getAcademicYear(),
                 getStudentInfo().getSchoolTerm(),
+                */
                 getStudentInfo().getId(),
                 course.getCode());
         Document doc = Jsoup.connect(TABLE_URL + PLAN_COURSE_CLASSES_TABLE_ID + "&" + params)
@@ -459,7 +473,10 @@ public class SchoolworkAssist implements Parcelable {
         return classes;
     }
 
-    public ArrayList<ElectiveCourse> getElectiveCourses(boolean showAll) throws IOException, NeedLoginException {
+    public ArrayList<ElectiveCourse> getElectiveCourses(boolean showAll) throws IOException, NeedLoginException, JSONException {
+
+        fetchSelectInfo();
+
         Connection conn = Jsoup.connect(TABLE_URL + ELECTIVE_COURSE_LIST_TABLE_ID)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -468,8 +485,8 @@ public class SchoolworkAssist implements Parcelable {
                 .data("initQry", "0")
                 .data("xktype", "2")
                 .data("xh", getStudentInfo().getId())
-                .data("xn", getStudentInfo().getAcademicYear())
-                .data("xq", getStudentInfo().getSchoolTerm())
+                .data("xn", /*getStudentInfo().getAcademicYear()*/selectInfo.getYear())
+                .data("xq", /*getStudentInfo().getSchoolTerm()*/selectInfo.getXqM())
                 .data("nj", getStudentInfo().getGrade())
                 .data("zydm", getStudentInfo().getSpecialityCode())
                 .data("kcfw", "zxggrx")
@@ -541,7 +558,10 @@ public class SchoolworkAssist implements Parcelable {
         return courses;
     }
 
-    public ArrayList<CancelCourse> getCancelCourses() throws IOException, NeedLoginException {
+    public ArrayList<CancelCourse> getCancelCourses() throws IOException, NeedLoginException, JSONException {
+
+        fetchSelectInfo();
+
         Document doc = Jsoup.connect(TABLE_URL + CANCEL_LIST_TABLE_ID)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -549,8 +569,8 @@ public class SchoolworkAssist implements Parcelable {
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("xktype", "5")
                 .data("xh", getStudentInfo().getId())
-                .data("xn", getStudentInfo().getAcademicYear())
-                .data("xq", getStudentInfo().getSchoolTerm())
+                .data("xn", /*getStudentInfo().getAcademicYear()*/selectInfo.getYear())
+                .data("xq", /*getStudentInfo().getSchoolTerm()*/selectInfo.getXqM())
                 .data("nj", getStudentInfo().getGrade())
                 .data("zydm", getStudentInfo().getSpecialityCode())
                 /*
@@ -614,9 +634,14 @@ public class SchoolworkAssist implements Parcelable {
 
     public Result cancelCourse(CancelCourse course)
             throws IOException, NeedLoginException, JSONException {
+
+        fetchSelectInfo();
+
         String params = String.format("xn=%s&xq=%s&xh=%s&kcdm=%s&skbjdm=%s&xktype=5",
-                getStudentInfo().getAcademicYear(),
-                getStudentInfo().getSchoolTerm(),
+                /*getStudentInfo().getAcademicYear(),
+                getStudentInfo().getSchoolTerm(),*/
+                selectInfo.getYear(),
+                selectInfo.getXqM(),
                 getStudentInfo().getId(),
                 course.getCode(),
                 course.getClassCode());
@@ -637,14 +662,37 @@ public class SchoolworkAssist implements Parcelable {
         return new Result(res.body());
     }
 
+    public SelectInfo fetchSelectInfo() throws IOException, NeedLoginException, JSONException {
+        if (selectInfo != null) {
+            return selectInfo;
+        }
+        Document doc = Jsoup.connect(SELECT_INFO_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .post();
+        if (!isLogin(doc.outerHtml())) {
+            throw new NeedLoginException();
+        }
+        selectInfo = new SelectInfo(doc.body().html());
+        return selectInfo;
+    }
+
     public Result selectPlanCourse(PlanCourse course, PlanChildCourse childCourse)
             throws IOException, NeedLoginException, JSONException {
-        String params = String.format("xktype=3&xn=%s&xq=%s&xh=%s&nj=%s&zydm=%s&kcdm=%s" +
+
+        fetchSelectInfo();
+
+        String params = String.format("xktype=%s&xn=%s&xq=%s&xh=%s&nj=%s&zydm=%s&kcdm=%s" +
                 "&kclb1=%s&kclb2=%s&kclb3=&khfs=%s&skbjdm=%s&skbzdm=&xf=%s&is_checkTime=1" +
                 "&kknj=&kkzydm=&txt_skbjdm=&xk_points=0&is_buy_book=0&is_cx=0&is_yxtj=1" +
                 "&menucode_current=JW130403&kcfw=zxbnj",
-                getStudentInfo().getAcademicYear(),
-                getStudentInfo().getSchoolTerm(),
+                selectInfo.getXktype(),
+                //getStudentInfo().getAcademicYear(),
+                //getStudentInfo().getSchoolTerm(),
+                selectInfo.getYear(),
+                selectInfo.getXqM(),
                 getStudentInfo().getId(),
                 getStudentInfo().getGrade(),
                 getStudentInfo().getSpecialityCode(),
@@ -674,12 +722,15 @@ public class SchoolworkAssist implements Parcelable {
 
     public Result selectElectiveCourse(ElectiveCourse course)
             throws IOException, NeedLoginException, JSONException {
-        String params = String.format("xktype=3&initQry=0&xh=%s&xn=%s&xq=%s&nj=%s&zydm=%s" +
+        String params = String.format("xktype=%s&initQry=0&xh=%s&xn=%s&xq=%s&nj=%s&zydm=%s" +
                 "&kcdm=%s&kclb1=%s&kclb2=%s&khfs=%s&skbjdm=%s&skbzdm=&xf=%s&kcfw=zxggrx" +
                 "&njzy=%s&items=&is_xjls=undefined&kcmc=&t_skbh=&menucode_current=JW130415",
+                selectInfo.getXktype(),
                 getStudentInfo().getId(),
-                getStudentInfo().getAcademicYear(),
-                getStudentInfo().getSchoolTerm(),
+                //getStudentInfo().getAcademicYear(),
+                //getStudentInfo().getSchoolTerm(),
+                selectInfo.getYear(),
+                selectInfo.getXqM(),
                 getStudentInfo().getGrade(),
                 getStudentInfo().getSpecialityCode(),
                 course.getCode(),

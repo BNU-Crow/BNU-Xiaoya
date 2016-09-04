@@ -134,6 +134,15 @@
     <string name="plan_course">计划课程</string>
     <string name="elective_course">公选课</string>
     <string name="select_result">选课结果</string>
+    <string name="teacher">教师</string>
+    <string name="chosen">已选中</string>
+    <string name="remaining_selection">可选人数</string>
+    <string name="selected_count">已选/免听/上限</string>
+    <string name="class_id">班号</string>
+    <string name="select_confirm">确定选择</string>
+    <string name="confirm">确定</string>
+    <string name="selecting">选课中…</string>
+    <string name="succeed_select">选课成功</string>
 
 
 </resources>

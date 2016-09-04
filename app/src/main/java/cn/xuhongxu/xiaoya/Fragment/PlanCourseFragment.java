@@ -22,7 +22,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import cn.xuhongxu.Assist.NeedLoginException;
-import cn.xuhongxu.xiaoya.Adapter.ExamRoundRecycleAdapter;
+import cn.xuhongxu.xiaoya.Adapter.PlanCourseRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -31,36 +31,30 @@ import cn.xuhongxu.xiaoya.YaApplication;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ExamRoundFragment.OnFragmentInteractionListener} interface
+ * {@link PlanCourseFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ExamRoundFragment#newInstance} factory method to
+ * Use the {@link PlanCourseFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ExamRoundFragment extends Fragment {
+public class PlanCourseFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private YaApplication app;
 
-    private GetExamRoundTask task;
+    private GetPlanCourseTask task;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
 
-    public ExamRoundFragment() {
+    public PlanCourseFragment() {
         // Required empty public constructor
     }
 
-    public static ExamRoundFragment newInstance() {
-        return new ExamRoundFragment();
+    public static PlanCourseFragment newInstance() {
+        return new PlanCourseFragment();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        getActivity().setTitle(R.string.Test);
-    }
-
-    private class GetExamRoundTask extends AsyncTask<Boolean, Void, String> {
+    private class GetPlanCourseTask extends AsyncTask<Boolean, Void, String> {
         private boolean first = false;
 
         @Override
@@ -76,7 +70,7 @@ public class ExamRoundFragment extends Fragment {
             View view = getView();
             assert view != null;
             try {
-                app.setExamRounds(app.getAssist().getExamRounds());
+                app.setPlanCourses(app.getAssist().getPlanCourses(true));
             } catch (NeedLoginException needLogin) {
                 return getString(R.string.login_timeout);
             } catch (IOException e) {
@@ -107,8 +101,8 @@ public class ExamRoundFragment extends Fragment {
 
     private void updateItems(boolean updated, boolean first) {
         if (updated) {
-            ExamRoundRecycleAdapter adapter =
-                    new ExamRoundRecycleAdapter(getActivity(), app.getExamRounds());
+            PlanCourseRecycleAdapter adapter =
+                    new PlanCourseRecycleAdapter(getActivity(), app.getPlanCourses());
             recyclerView.setAdapter(adapter);
         }
 
@@ -117,8 +111,8 @@ public class ExamRoundFragment extends Fragment {
             final SharedPreferences preferences =
                     getActivity().getSharedPreferences(getString(R.string.preference_key),
                             Context.MODE_PRIVATE);
-            if (preferences.getBoolean("showExamRoundTip", true)) {
-                int showTextId = R.string.select_exam_round;
+            if (preferences.getBoolean("showPlanCourseTip", true)) {
+                int showTextId = R.string.select_plan_course;
                 if (!first) {
                     showTextId = R.string.updated;
                 }
@@ -128,7 +122,7 @@ public class ExamRoundFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.putBoolean("showExamRoundTip", false);
+                            editor.putBoolean("showPlanCourseTip", false);
                             editor.apply();
                         }
                     });
@@ -143,11 +137,11 @@ public class ExamRoundFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_exam_round, container, false);
+        View v = inflater.inflate(R.layout.fragment_plan_course, container, false);
 
         app = (YaApplication) getActivity().getApplication();
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.exam_round_swipe_refresh_layout);
-        recyclerView = (RecyclerView) v.findViewById(R.id.exam_round_recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.plan_course_swipe_refresh_layout);
+        recyclerView = (RecyclerView) v.findViewById(R.id.plan_course_recycler_view);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
@@ -155,15 +149,15 @@ public class ExamRoundFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         layoutManager.scrollToPosition(0);
         recyclerView.setLayoutManager(layoutManager);
-        ExamRoundRecycleAdapter adapter =
-                new ExamRoundRecycleAdapter(getActivity(), app.getExamRounds());
+        PlanCourseRecycleAdapter adapter =
+                new PlanCourseRecycleAdapter(getActivity(), app.getPlanCourses());
         recyclerView.setAdapter(adapter);
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(),
                 recyclerView,
                 new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        mListener.onExamRoundSelected(position);
+                        mListener.onPlanCourseSelected(position);
                     }
 
                     @Override
@@ -173,9 +167,9 @@ public class ExamRoundFragment extends Fragment {
 
                 }));
         progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
-        if (app.getExamRounds().isEmpty()) {
+        if (app.getPlanCourses().isEmpty()) {
             progressBar.setIndeterminate(true);
-            task = new GetExamRoundTask();
+            task = new GetPlanCourseTask();
             task.execute(true);
         } else {
             progressBar.setVisibility(View.GONE);
@@ -184,7 +178,7 @@ public class ExamRoundFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                task = new GetExamRoundTask();
+                task = new GetPlanCourseTask();
                 task.execute(false);
             }
         });
@@ -215,7 +209,7 @@ public class ExamRoundFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onReLogin(boolean back);
 
-        void onExamRoundSelected(int pos);
+        void onPlanCourseSelected(int pos);
     }
 
     @Override
@@ -235,7 +229,7 @@ public class ExamRoundFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            task = new GetExamRoundTask();
+            task = new GetPlanCourseTask();
             task.execute(false);
         }
 

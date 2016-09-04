@@ -44,7 +44,7 @@ public class EvaluationFragment extends Fragment {
     private GetEvaluationTask task;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
 
     public EvaluationFragment() {
         // Required empty public constructor
@@ -52,6 +52,12 @@ public class EvaluationFragment extends Fragment {
 
     public static EvaluationFragment newInstance() {
         return new EvaluationFragment();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().setTitle(R.string.Evaluate);
     }
 
     private class GetEvaluationTask extends AsyncTask<Boolean, Void, String> {

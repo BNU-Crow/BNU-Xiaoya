@@ -11,6 +11,8 @@ import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.ExamArrangement;
 import cn.xuhongxu.Assist.ExamRound;
 import cn.xuhongxu.Assist.ExamScore;
+import cn.xuhongxu.Assist.PlanChildCourse;
+import cn.xuhongxu.Assist.PlanCourse;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
 import cn.xuhongxu.Assist.StudentInfo;
@@ -36,6 +38,8 @@ public class YaApplication extends Application {
     private StudentDetails studentDetails;
     private StudentInfo studentInfo;
     public Student student;
+    private ArrayList<PlanCourse> planCourses;
+    private ArrayList<PlanChildCourse> planChildCourses;
 
     @Override
     public void onCreate() {
@@ -47,6 +51,8 @@ public class YaApplication extends Application {
         examArrangement = new ArrayList<>();
         examScores = new ArrayList<>();
 
+        planCourses = new ArrayList<>();
+        planChildCourses = new ArrayList<>();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -136,5 +142,21 @@ public class YaApplication extends Application {
 
     public void setStudentInfo(StudentInfo studentInfo) {
         this.studentInfo = studentInfo;
+    }
+
+    public ArrayList<PlanCourse> getPlanCourses() {
+        return planCourses;
+    }
+
+    public void setPlanCourses(ArrayList<PlanCourse> planCourses) {
+        this.planCourses = planCourses;
+    }
+
+    public ArrayList<PlanChildCourse> getPlanChildCourses() {
+        return planChildCourses;
+    }
+
+    public void setPlanChildCourses(ArrayList<PlanChildCourse> planChildCourses) {
+        this.planChildCourses = planChildCourses;
     }
 }
