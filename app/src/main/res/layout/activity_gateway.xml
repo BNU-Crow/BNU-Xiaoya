@@ -26,15 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ViewFlipper
-            android:id="@+id/view_flipper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
             <include android:id="@+id/layout_login" layout="@layout/content_gateway" />
-            <include android:id="@+id/layout_info" layout="@layout/content_gateway_info" />
-
-        </ViewFlipper>
 
     </android.support.v4.widget.NestedScrollView>
 

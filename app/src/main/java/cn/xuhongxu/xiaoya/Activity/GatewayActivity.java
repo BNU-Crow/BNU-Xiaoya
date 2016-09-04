@@ -36,8 +36,7 @@ public class GatewayActivity extends AppCompatActivity {
     private TextInputEditText editUsername;
     private TextInputEditText editPassword;
     private Switch switchRemember;
-    private ViewFlipper viewFlipper;
-    private Button loginButton, logoutButton;
+    private Button loginButton, logoutButton, forceButton;
     private TextView infoView;
 
     private ProgressDialog progressDialog;
@@ -54,9 +53,9 @@ public class GatewayActivity extends AppCompatActivity {
         editUsername = (TextInputEditText) findViewById(R.id.edit_username);
         editPassword = (TextInputEditText) findViewById(R.id.edit_password);
         switchRemember = (Switch) findViewById(R.id.switch_remember);
-        viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         loginButton = (Button) findViewById(R.id.login_button);
         logoutButton = (Button) findViewById(R.id.logout_button);
+        forceButton = (Button) findViewById(R.id.force_button);
         infoView = (TextView) findViewById(R.id.info);
 
         preferences =
@@ -80,10 +79,7 @@ public class GatewayActivity extends AppCompatActivity {
             }
         });
 
-        if (preferences.getBoolean("isLogin", false)) {
-            ip = preferences.getString("ip", "");
-            viewFlipper.showNext();
-        }
+        ip = preferences.getString("ip", "");
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +91,12 @@ public class GatewayActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 logout();
+            }
+        });
+        forceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                force();
             }
         });
     }
@@ -133,6 +135,18 @@ public class GatewayActivity extends AppCompatActivity {
         );
     }
 
+    public void force() {
+
+        hideKeyboard(this);
+
+        progressDialog = ProgressDialog.show(this, "强制离线中", "正在强制离线网关...",
+                true);
+        new LoginTask().execute(editUsername.getText().toString(),
+                editPassword.getText().toString(),
+                "force"
+        );
+    }
+
     private class LoginTask extends AsyncTask<String, Void, String> {
 
         private String type;
@@ -152,12 +166,14 @@ public class GatewayActivity extends AppCompatActivity {
                                 .data("nas_ip", "")
                                 .data("user_mac", "")
                                 .data("url", "")
+                                .data("ajax", "1")
                                 .data("save_me", "1")
                                 .data("username", params[0])
                                 .data("password", params[1])
                                 .post();
                         String body = doc.text();
-                        if (body.contains("登录成功")) {
+                        body = body.split(",")[0];
+                        if (body.contains("login_ok")) {
 
                             String k = "" + Math.floor(Math.random() * (100000 + 1));
 
@@ -170,20 +186,28 @@ public class GatewayActivity extends AppCompatActivity {
 
                             return "成功" + doc.text();
                         } else {
-                            int i = body.indexOf("<p style=\"color:#FF0;\">");
-                            i = body.indexOf("(", i);
-                            int t = body.indexOf(")", i);
-                            return body.substring(i + 1, t);
+                            return body;
                         }
                     }
                     case "logout": {
                         Document doc = Jsoup.connect("http://gw.bnu.edu.cn:803/srun_portal_pc.php")
                                 .timeout(5000)
                                 .data("action", "auto_logout")
+                                .data("ajax", "1")
                                 .data("info", "")
                                 .data("user_ip", ip)
                                 .post();
-                        return "成功";
+                        return doc.text();
+                    }
+                    case "force": {
+                        Document doc = Jsoup.connect("http://gw.bnu.edu.cn:801/include/auth_action.php")
+                                .timeout(5000)
+                                .data("action", "logout")
+                                .data("ajax", "1")
+                                .data("username", params[0])
+                                .data("password", params[1])
+                                .post();
+                        return doc.text();
                     }
                 }
             } catch (Exception e) {
@@ -198,14 +222,18 @@ public class GatewayActivity extends AppCompatActivity {
             super.onPostExecute(result);
             progressDialog.dismiss();
 
+            infoView.setText("未登录");
+
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("username", editUsername.getText().toString());
-            editor.putBoolean("isLogin", false);
             editor.apply();
             if (result == null) {
                 result = "网络错误";
             }
+
+            View view = findViewById(android.R.id.content);
             if (result.contains("成功")) {
+                Snackbar.make(view, "成功", Snackbar.LENGTH_SHORT).show();
                 if (type.equals("login")) {
                     String r = result.substring(2);
                     String[] info = r.split(",");
@@ -225,16 +253,12 @@ public class GatewayActivity extends AppCompatActivity {
                     );
                     ip = info[5];
                     editor = preferences.edit();
-                    editor.putBoolean("isLogin", true);
                     editor.putString("ip", ip);
                     editor.apply();
-                    viewFlipper.showNext();
                 } else {
                     editor = preferences.edit();
-                    editor.putBoolean("isLogin", false);
                     editor.putString("ip", "");
                     editor.apply();
-                    viewFlipper.showPrevious();
                 }
                 if (switchRemember.isChecked()) {
                     editor.putString("password", editPassword.getText().toString());
@@ -243,7 +267,7 @@ public class GatewayActivity extends AppCompatActivity {
                 }
             } else {
                 // 登录失败
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+                Snackbar.make(view, result, Snackbar.LENGTH_SHORT).show();
             }
         }
     }

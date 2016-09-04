@@ -109,7 +109,7 @@
             android:label="@string/title_activity_gateway"
             android:taskAffinity="cn.xuhongxu.xiaoya.GatewayTask"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateVisible|adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
