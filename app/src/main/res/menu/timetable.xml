@@ -16,4 +16,8 @@
         android:icon="@drawable/ic_share_white"
         android:title="@string/action_share"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_import_history"
+        android:title="@string/action_import_history"
+        app:showAsAction="never" />
 </menu>

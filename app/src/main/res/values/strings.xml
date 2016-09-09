@@ -98,7 +98,7 @@
     <string name="action_set_current">设为当前周</string>
     <string name="action_import">导入课表</string>
     <string name="choose_week">选择周数</string>
-    <string name="shown_week">当前显示：</string>
+    <string name="shown_week">当前显示</string>
     <string name="prefix_week">第</string>
     <string name="suffix_week">周</string>
     <string name="is_current">(当前)</string>
@@ -119,7 +119,7 @@
     <string name="action_share">分享</string>
     <string name="share_timetable">分享课程表</string>
     <string name="share_error">分享失败</string>
-    <string name="this_is_timetable_share_code">这是课程表分享码，可以复制全文通过小鸦课程表导入</string>
+    <string name="this_is_timetable_share_code">这是课程表分享码，可以复制全文（包括这些）通过小鸦课程表导入</string>
     <string name="import_error">导入失败</string>
     <string name="ok">确定</string>
     <string name="title_activity_gateway">小鸦网关</string>
@@ -147,6 +147,17 @@
     <string name="time_location">时间地点</string>
     <string name="canceling">退选中……</string>
     <string name="cancel_confirm">确定退选</string>
+    <string name="action_feedback">用户反馈</string>
+    <string name="action_about">关于</string>
+    <string name="about">许宏旭\n\n2014级本科生\n信息科学与技术学院\n北京师范大学</string>
+    <string name="contact_me">联系我</string>
+    <string name="action_import_history">导入历史分享</string>
+    <string name="choose_history">选择历史分享码</string>
+    <string name="import_success">导入成功！</string>
+    <string name="delete_current">删除当前</string>
+    <string name="delete_ok">删除成功</string>
+    <string name="no_current">不存在当前项</string>
+    <string name="is_shown">(显示)</string>
 
 
 </resources>

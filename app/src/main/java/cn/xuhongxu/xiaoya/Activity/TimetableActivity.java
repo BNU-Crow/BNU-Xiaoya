@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,41 +13,39 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SurfaceView;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.TextView;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.GetCallback;
+import com.avos.avoscloud.SaveCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.sql.Array;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import cn.bmob.push.BmobPush;
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.exception.BmobException;
-import cn.bmob.v3.listener.QueryListener;
-import cn.bmob.v3.listener.SaveListener;
 import cn.xuhongxu.Assist.Semester;
 import cn.xuhongxu.Assist.TableCourse;
-import cn.xuhongxu.xiaoya.Model.TimeTable;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.View.TimeTableView;
 import cn.xuhongxu.xiaoya.View.YaHorizontalScrollView;
@@ -58,14 +54,13 @@ import cn.xuhongxu.xiaoya.YaApplication;
 
 public class TimetableActivity extends AppCompatActivity {
 
-    YaScrollView classScroll, numberScroll;
-    YaHorizontalScrollView classHScroll, weekScroll;
     TextView title;
     TimeTableView table;
     YaApplication app;
     private static final int LOGIN_REQUEST = 1;
     private ArrayList<Semester> semesterList;
     private ArrayList<TableCourse> tableCourses;
+    private HashSet<String> history;
 
     private SharedPreferences preferences;
 
@@ -73,9 +68,15 @@ public class TimetableActivity extends AppCompatActivity {
     private int currentWeek = 0;
     private int shownWeek = 0;
 
+    String studentName = "";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AVAnalytics.trackAppOpened(getIntent());
+
         setContentView(R.layout.activity_timetable);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,6 +84,10 @@ public class TimetableActivity extends AppCompatActivity {
         preferences =
                 getSharedPreferences(getString(R.string.preference_key),
                         Context.MODE_PRIVATE);
+
+        history = (HashSet<String>) preferences.getStringSet("history", new HashSet<String>());
+        studentName = preferences.getString("name", "");
+
 
         app = (YaApplication) getApplication();
 
@@ -94,10 +99,12 @@ public class TimetableActivity extends AppCompatActivity {
                 builder.setTitle(R.string.choose_week);
                 CharSequence[] items = new CharSequence[weekCount];
                 for (int i = 1; i <= weekCount; ++i) {
+                    items[i - 1] = getString(R.string.prefix_week) + i + getString(R.string.suffix_week);
                     if (i == currentWeek) {
-                        items[i - 1] = getString(R.string.prefix_week) + i + getString(R.string.suffix_week) + " " + getString(R.string.is_current);
-                    } else {
-                        items[i - 1] = getString(R.string.prefix_week) + i + getString(R.string.suffix_week);
+                        items[i - 1] = items[i - 1] + " " + getString(R.string.is_current);
+                    }
+                    if (i == shownWeek) {
+                        items[i - 1] = items[i - 1] + " " + getString(R.string.is_shown);
                     }
                 }
                 builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -121,68 +128,25 @@ public class TimetableActivity extends AppCompatActivity {
         table = (TimeTableView) findViewById(R.id.timetable);
         title = (TextView) findViewById(R.id.timetable_title);
 
-        weekScroll = (YaHorizontalScrollView) findViewById(R.id.weekScroll);
-        numberScroll = (YaScrollView) findViewById(R.id.numberScroll);
-        classScroll = (YaScrollView) findViewById(R.id.classScroll);
-        classHScroll = (YaHorizontalScrollView) findViewById(R.id.classHScroll);
-
-        weekScroll.setOnScrollListener(new YaHorizontalScrollView.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged(int x, int y, int oldX, int oldY) {
-                if (classHScroll.getScrollX() != x) {
-                    classHScroll.setScrollX(x);
-                }
-            }
-        });
-
-        numberScroll.setOnScrollListener(new YaScrollView.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged(int x, int y, int oldX, int oldY) {
-                if (classScroll.getScrollY() != y) {
-                    classScroll.setScrollY(y);
-                }
-            }
-        });
-
-        classScroll.setOnScrollListener(new YaScrollView.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged(int x, int y, int oldX, int oldY) {
-                if (y >= oldY) {
-                    fab.hide();
-                } else {
-                    fab.show();
-                }
-                if (numberScroll.getScrollY() != y) {
-                    numberScroll.setScrollY(y);
-                }
-            }
-        });
-
-        classHScroll.setOnScrollListener(new YaHorizontalScrollView.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged(int x, int y, int oldX, int oldY) {
-                if (x >= oldX) {
-                    fab.hide();
-                } else {
-                    fab.show();
-                }
-                if (weekScroll.getScrollX() != x) {
-                    weekScroll.setScrollX(x);
-                }
-            }
-        });
-
-        try {
-            FileInputStream fis = openFileInput("timetable");
-            ObjectInputStream is = new ObjectInputStream(fis);
-            tableCourses = (ArrayList<TableCourse>) is.readObject();
-            is.close();
-            fis.close();
-            parseTable(calcWeek());
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (studentName.isEmpty()) {
             Snackbar.make(findViewById(R.id.timetable_layout), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
+        } else {
+            try {
+                FileInputStream fis = openFileInput("timetable");
+                ObjectInputStream is = new ObjectInputStream(fis);
+                tableCourses = (ArrayList<TableCourse>) is.readObject();
+                is.close();
+                fis.close();
+                parseTable(calcWeek());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Snackbar.make(findViewById(R.id.timetable_layout), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
+            }
         }
+    }
+
+    private int px(float dp) {
+        return (int) (getResources().getDisplayMetrics().density * dp);
     }
 
     private int calcWeek() {
@@ -221,7 +185,9 @@ public class TimetableActivity extends AppCompatActivity {
             title.setText(getString(R.string.prefix_week) + week + getString(R.string.suffix_week));
         }
 
-        table.classes.clear();
+        List<TimeTableView.Rectangle> classes = new ArrayList<>();
+
+        weekCount = 0;
 
         for (TableCourse course : tableCourses) {
             String s = course.getLocationTime();
@@ -276,20 +242,28 @@ public class TimetableActivity extends AppCompatActivity {
 
                         index = s.indexOf("[", start);
                         String dayPart = s.substring(start, index).trim();
-                        if (dayPart.equals("一")) {
-                            day = 0;
-                        } else if (dayPart.equals("二")) {
-                            day = 1;
-                        } else if (dayPart.equals("三")) {
-                            day = 2;
-                        } else if (dayPart.equals("四")) {
-                            day = 3;
-                        } else if (dayPart.equals("五")) {
-                            day = 4;
-                        } else if (dayPart.equals("六")) {
-                            day = 5;
-                        } else {
-                            day = 6;
+                        switch (dayPart) {
+                            case "一":
+                                day = 0;
+                                break;
+                            case "二":
+                                day = 1;
+                                break;
+                            case "三":
+                                day = 2;
+                                break;
+                            case "四":
+                                day = 3;
+                                break;
+                            case "五":
+                                day = 4;
+                                break;
+                            case "六":
+                                day = 5;
+                                break;
+                            default:
+                                day = 6;
+                                break;
                         }
 
                         start = index + 1;
@@ -308,7 +282,7 @@ public class TimetableActivity extends AppCompatActivity {
                             loc = s.substring(start, index);
                         }
 
-                        table.classes.add(new TimeTableView.Rectangle(course.getName()
+                        classes.add(new TimeTableView.Rectangle(course.getName()
                                 + "\n\n" + course.getTeacher() + "\n" + loc, day, startN, endN));
 
                         if (index == -1) {
@@ -330,6 +304,7 @@ public class TimetableActivity extends AppCompatActivity {
             }
         }
 
+        table.setClasses(classes);
         table.invalidate();
     }
 
@@ -338,6 +313,7 @@ public class TimetableActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Semester... params) {
             try {
+                studentName = app.getAssist().getStudentDetails().getName();
                 tableCourses = app.getAssist().getTableCourses(params[0]);
             } catch (Exception e) {
                 return e.getMessage();
@@ -356,6 +332,7 @@ public class TimetableActivity extends AppCompatActivity {
                     os.close();
                     fos.close();
                     SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("name", studentName);
                     editor.remove("current_week");
                     editor.remove("year");
                     editor.remove("month");
@@ -363,6 +340,7 @@ public class TimetableActivity extends AppCompatActivity {
                     editor.remove("share_code");
                     editor.apply();
                     parseTable(calcWeek());
+                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Snackbar.make(findViewById(R.id.timetable_layout), R.string.write_error, Snackbar.LENGTH_LONG).show();
                     e.printStackTrace();
@@ -430,24 +408,74 @@ public class TimetableActivity extends AppCompatActivity {
         return true;
     }
 
-    private static Object fromString(String s) throws IOException,
-            ClassNotFoundException {
-        byte[] data = Base64.decode(s, Base64.DEFAULT);
-        ObjectInputStream ois = new ObjectInputStream(
-                new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return o;
+    private String tableToString() {
+        String res = "{\"name\":\"" + studentName + "\",\"table\":[";
+        for (TableCourse c : tableCourses) {
+            res += c.toString() + ",";
+        }
+        return res.substring(0, res.length() - 1) + "]}";
     }
 
-    private static String toString(Serializable o) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(o);
-        oos.close();
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+    public String tableFromString(String s) throws JSONException {
+        tableCourses.clear();
+        JSONObject jsonObject = new JSONObject(s);
+        String name = jsonObject.getString("name");
+        JSONArray arr = jsonObject.getJSONArray("table");
+        for (int i = 0; i < arr.length(); ++i) {
+            JSONObject o = arr.getJSONObject(i);
+            TableCourse tc = new TableCourse();
+            tc.setCode(o.getString("code"));
+            tc.setTeacher(o.getString("teacher"));
+            tc.setLocationTime(o.getString("locationTime"));
+            tc.setCredit(o.getString("credit"));
+            tc.setName(o.getString("name"));
+            tableCourses.add(tc);
+        }
+        return name;
     }
 
+    void importShareCode(String shareCode) {
+        int i = shareCode.indexOf("：");
+        if (i != -1) {
+            shareCode = shareCode.substring(i + 1).trim();
+        }
+        AVQuery<AVObject> avQuery = new AVQuery<AVObject>("TimeTable");
+        final String finalShareCode = shareCode;
+        avQuery.getInBackground(shareCode, new GetCallback<AVObject>() {
+            @Override
+            public void done(AVObject avObject, AVException e) {
+                try {
+
+                    studentName = tableFromString(avObject.getString("Content"));
+
+                    history.add(studentName + " " + avObject.getObjectId());
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putStringSet("history", history);
+                    editor.apply();
+
+                    FileOutputStream fos = TimetableActivity.this.openFileOutput("timetable", Context.MODE_PRIVATE);
+                    ObjectOutputStream os = new ObjectOutputStream(fos);
+                    os.writeObject(tableCourses);
+                    os.close();
+                    fos.close();
+
+                    editor.putString("name", studentName);
+                    editor.remove("current_week");
+                    editor.remove("year");
+                    editor.remove("month");
+                    editor.remove("date");
+                    editor.putString("share_code", finalShareCode);
+                    editor.apply();
+
+                    parseTable(calcWeek());
+                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_error, Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -460,6 +488,7 @@ public class TimetableActivity extends AppCompatActivity {
             builder.setItems(R.array.import_timetable, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    AVAnalytics.onEvent(getApplicationContext(), getString(R.string.action_import));
                     if (i == 0) {
                         // 教务网
                         if (app.getAssist() == null) {
@@ -483,40 +512,7 @@ public class TimetableActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String shareCode = input.getText().toString();
-                                int i = shareCode.indexOf("：");
-                                if (i != -1) {
-                                    shareCode = shareCode.substring(i + 1);
-                                }
-                                BmobQuery<TimeTable> query = new BmobQuery<>();
-                                final String finalShareCode = shareCode;
-                                query.getObject(shareCode, new QueryListener<TimeTable>() {
-                                    @Override
-                                    public void done(TimeTable timeTable, BmobException e) {
-                                        if (e == null) {
-                                            try {
-                                                tableCourses = (ArrayList<TableCourse>) fromString(timeTable.getContent());
-                                                FileOutputStream fos = TimetableActivity.this.openFileOutput("timetable", Context.MODE_PRIVATE);
-                                                ObjectOutputStream os = new ObjectOutputStream(fos);
-                                                os.writeObject(tableCourses);
-                                                os.close();
-                                                fos.close();
-                                                SharedPreferences.Editor editor = preferences.edit();
-                                                editor.putString("share_code", finalShareCode);
-                                                editor.remove("current_week");
-                                                editor.remove("year");
-                                                editor.remove("month");
-                                                editor.remove("date");
-                                                editor.apply();
-                                                parseTable(calcWeek());
-                                            } catch (Exception e1) {
-                                                e1.printStackTrace();
-                                                Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_error, Snackbar.LENGTH_LONG).show();
-                                            }
-                                        } else {
-                                            Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_error, Snackbar.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
+                                importShareCode(shareCode);
                             }
                         });
                         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -554,21 +550,22 @@ public class TimetableActivity extends AppCompatActivity {
             editor.putInt("date", now.get(Calendar.DATE));
             editor.apply();
         } else if (id == R.id.action_share) {
+            // 分享
             String shareCode = preferences.getString("share_code", "");
             if (shareCode.isEmpty()) {
                 try {
-                    TimeTable data = new TimeTable();
-                    data.setContent(toString(tableCourses));
-                    data.save(new SaveListener<String>() {
+                    final AVObject data = new AVObject("TimeTable");
+                    data.put("Content", tableToString());
+                    data.saveInBackground(new SaveCallback() {
                         @Override
-                        public void done(String s, BmobException e) {
+                        public void done(AVException e) {
                             if (e == null) {
                                 SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString("share_code", s);
+                                editor.putString("share_code", data.getObjectId());
                                 editor.apply();
                                 Intent sendIntent = new Intent();
                                 sendIntent.setAction(Intent.ACTION_SEND);
-                                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + s);
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + data.getObjectId());
                                 sendIntent.setType("text/plain");
                                 startActivity(sendIntent);
                             } else {
@@ -576,7 +573,7 @@ public class TimetableActivity extends AppCompatActivity {
                             }
                         }
                     });
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
                 }
@@ -587,8 +584,62 @@ public class TimetableActivity extends AppCompatActivity {
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
             }
+        } else if (id == R.id.action_import_history) {
+           // TODO: history List
+            AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);
+            builder.setTitle(R.string.choose_history);
+            CharSequence[] items = new CharSequence[history.size()];
+            final ArrayList<String> historyArr = new ArrayList<>(history);
+            int i = 0;
+            int current = -1;
+            for (String code : historyArr) {
+                String name = code.split("\\s+")[0];
+                if (name.equals(studentName)) {
+                    current = i;
+                    items[i++] = code.split("\\s+")[0] + " " + getString(R.string.is_current);
+                } else {
+                    items[i++] = code.split("\\s+")[0];
+                }
+            }
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    String code = historyArr.get(i);
+                    importShareCode(code.split("\\s+")[1]);
+                }
+            });
+            final int finalCurrent = current;
+            builder.setPositiveButton(R.string.delete_current, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (finalCurrent != -1) {
+                        historyArr.remove(finalCurrent);
+                        history = new HashSet<>(historyArr);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putStringSet("history", history);
+                        editor.apply();
+                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.delete_ok, Snackbar.LENGTH_LONG).show();
+                    } else {
+                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.no_current, Snackbar.LENGTH_LONG).show();
+                    }
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.show();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AVAnalytics.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AVAnalytics.onResume(this);
     }
 }

@@ -20,9 +20,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobInstallation;
-import cn.bmob.v3.BmobUser;
+import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.PushService;
+import com.avos.avoscloud.SaveCallback;
+
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.YaApplication;
@@ -121,8 +125,18 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bmob.initialize(this, getString(R.string.bmob_key));
-        BmobInstallation.getCurrentInstallation().save();
+        AVInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+            public void done(AVException e) {
+                if (e == null) {
+                    // 保存成功
+                    String installationId = AVInstallation.getCurrentInstallation().getInstallationId();
+                } else {
+                    // 保存失败，输出错误信息
+                    Log.e(getClass().getName(), e.getMessage());
+                }
+            }
+        });
+        PushService.setDefaultPushCallback(this, MainActivity.class);
 
         app = (YaApplication) getApplication();
 
@@ -140,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
         editUsername.setText(preferences.getString("username", ""));
         if (preferences.getBoolean("remember", false)) {
-            BmobUser.logOut();
+            AVUser.logOut();
             Intent intent = getIntent();
             if (intent.getBooleanExtra(MESSAGE_LOGOUT, false)) {
                 SharedPreferences.Editor editor = preferences.edit();
@@ -185,5 +199,17 @@ public class LoginActivity extends AppCompatActivity {
                 true);
         new LoginTask().execute(editUsername.getText().toString(),
                 editPassword.getText().toString());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AVAnalytics.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AVAnalytics.onResume(this);
     }
 }

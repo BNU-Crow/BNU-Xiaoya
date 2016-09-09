@@ -40,4 +40,4 @@ captures/
 /build
 /capture
 
-app/src/main/res/values/keys.xml
+app/src/main/java/cn/xuhongxu/xiaoya/YaApplication.java

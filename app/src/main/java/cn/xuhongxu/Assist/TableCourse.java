@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.Serializable;
 
 /**
@@ -65,13 +68,12 @@ public class TableCourse implements Serializable {
 
     @Override
     public String toString() {
-        return "TableCourse{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", credit='" + credit + '\'' +
-                ", teacher='" + teacher + '\'' +
-                ", locationTime='" + locationTime + '\'' +
-                '}';
+        return "{\"code\":\"" + code
+                + "\",\"name\":\"" + name
+                + "\",\"credit\":\"" + credit
+                + "\",\"teacher\":\"" + teacher
+                + "\",\"locationTime\":\"" + locationTime + "\"}";
     }
+
 
 }

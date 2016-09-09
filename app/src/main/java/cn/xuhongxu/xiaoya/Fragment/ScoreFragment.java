@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVAnalytics;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -309,6 +311,9 @@ public class ScoreFragment extends Fragment {
             task = new GetExamScoreTask();
             task.execute(false);
         } else if (id == R.id.action_gpa) {
+
+            AVAnalytics.onEvent(getContext(), getString(R.string.action_gpa));
+
             List<ExamScore> scores = app.getExamScores();
             Double gpa = 0.0, gpaP = 0.0;
             Double gpa4 = 0.0, gpa4P = 0.0;
@@ -407,5 +412,17 @@ public class ScoreFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AVAnalytics.onFragmentEnd(getClass().getName());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AVAnalytics.onFragmentStart(getClass().getName());
     }
 }

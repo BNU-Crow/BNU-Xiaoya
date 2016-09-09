@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
 
+import com.avos.avoscloud.AVAnalytics;
+
 import cn.xuhongxu.xiaoya.Activity.MainActivity;
 import cn.xuhongxu.xiaoya.Adapter.ViewPagerFragmentAdapter;
 import cn.xuhongxu.xiaoya.R;
@@ -91,5 +93,17 @@ public class SelectCourseFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AVAnalytics.onFragmentEnd(getClass().getName());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AVAnalytics.onFragmentStart(getClass().getName());
     }
 }

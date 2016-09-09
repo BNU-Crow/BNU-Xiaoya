@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVAnalytics;
+
 import java.io.IOException;
 
 import cn.xuhongxu.Assist.EvaluationCourse;
@@ -257,6 +259,7 @@ public class EvaluationCourseFragment extends Fragment {
             showEvaluateDialog(EVALUATE_ALL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    AVAnalytics.onEvent(getContext(), getString(R.string.action_evaluate_all));
                     progressDialog = new ProgressDialog(getContext());
                     progressDialog.setTitle(getString(R.string.evaluating));
                     progressDialog.setMessage(getString(R.string.action_evaluate_all));
@@ -363,4 +366,16 @@ public class EvaluationCourseFragment extends Fragment {
         dialog.show();
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AVAnalytics.onFragmentEnd(getClass().getName());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AVAnalytics.onFragmentStart(getClass().getName());
+    }
 }

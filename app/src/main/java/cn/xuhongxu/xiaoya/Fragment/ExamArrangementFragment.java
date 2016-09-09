@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVAnalytics;
+
 import java.io.IOException;
 
 import cn.xuhongxu.Assist.NeedLoginException;
@@ -235,4 +237,16 @@ public class ExamArrangementFragment extends Fragment {
         void onReLogin(boolean back);
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AVAnalytics.onFragmentEnd(getClass().getName());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AVAnalytics.onFragmentStart(getClass().getName());
+    }
 }

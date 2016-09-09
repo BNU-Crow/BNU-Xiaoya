@@ -22,6 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.avos.avoscloud.AVAnalytics;
+
+import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -196,7 +200,14 @@ public class GatewayActivity extends AppCompatActivity {
                                 where = el.text();
                             }
 
-                            return "成功" + res + "," + where;
+                            doc = Jsoup.connect("http://172.16.202.201:8069/user/status/" + params[0])
+                                    .ignoreContentType(true)
+                                    .timeout(5000)
+                                    .get();
+                            JSONObject object = new JSONObject(doc.text());
+                            String product = object.getString("ProductsName");
+
+                            return "成功" + res + "," + where + "," + product;
                         } else {
                             return body;
                         }
@@ -258,6 +269,7 @@ public class GatewayActivity extends AppCompatActivity {
                     m %= 60;
 
                     infoView.setText(
+                            "套餐：" + info[7] + "\n" +
                             "已用流量：" + rest.toString() + "MB\n" +
                                     "已用时长：" + h + "时" + m + "分" + s + "秒\n" +
                                     "账户余额：" + info[2] + "元\n" +
@@ -283,5 +295,17 @@ public class GatewayActivity extends AppCompatActivity {
                 Snackbar.make(view, result, Snackbar.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AVAnalytics.onFragmentEnd(getClass().getName());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AVAnalytics.onFragmentStart(getClass().getName());
     }
 }

@@ -3,6 +3,7 @@ package cn.xuhongxu.xiaoya.Activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,10 +27,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.LogInCallback;
+import com.avos.avoscloud.PushService;
+import com.avos.avoscloud.SignUpCallback;
+import com.avos.avoscloud.feedback.FeedbackAgent;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.io.IOException;
@@ -38,16 +49,6 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
-import cn.bmob.push.BmobPush;
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobInstallation;
-import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.BmobUser;
-import cn.bmob.v3.exception.BmobException;
-import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.LogInListener;
-import cn.bmob.v3.listener.SaveListener;
-import cn.bmob.v3.listener.UpdateListener;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
@@ -62,8 +63,6 @@ import cn.xuhongxu.xiaoya.Fragment.ExamRoundFragment;
 import cn.xuhongxu.xiaoya.Fragment.HomeFragment;
 import cn.xuhongxu.xiaoya.Fragment.ScoreFragment;
 import cn.xuhongxu.xiaoya.Fragment.SelectResultFragment;
-import cn.xuhongxu.xiaoya.Model.Student;
-import cn.xuhongxu.xiaoya.Model.YaBmobInstallation;
 import cn.xuhongxu.xiaoya.Fragment.PlanChildCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.PlanCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.SelectCourseFragment;
@@ -101,6 +100,9 @@ public class MainActivity extends AppCompatActivity
     private int fragmentId;
     private boolean isBack = false;
 
+
+    FeedbackAgent agent;
+
     private TabLayout tabLayout;
 
     public TabLayout getTabLayout() {
@@ -111,9 +113,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bmob.initialize(this, getString(R.string.bmob_key));
-//        BmobInstallation.getCurrentInstallation().save();
-        BmobPush.startWork(this);
+        AVAnalytics.trackAppOpened(getIntent());
+
+        agent = new FeedbackAgent(this);
+        agent.sync();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -237,8 +240,35 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         switch (id) {
+            /*
             case R.id.action_settings:
                 Toast.makeText(this, R.string.building, Toast.LENGTH_SHORT).show();
+                return true;
+                */
+            case R.id.action_feedback:
+                agent.startDefaultThreadActivity();
+                return true;
+            case R.id.action_about:
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.action_about);
+                builder.setMessage(R.string.about);
+                builder.setPositiveButton(R.string.contact_me, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        Uri uri = Uri.parse("http://blog.xuhongxu.cn/about/");
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
                 return true;
         }
 
@@ -344,10 +374,9 @@ public class MainActivity extends AppCompatActivity
             new LoginTask().execute();
             return;
         }
+        AVUser.logOut();
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         if (logout) {
-            BmobUser.logOut();
-            app.student = null;
             intent.putExtra(LoginActivity.MESSAGE_LOGOUT, true);
         }
         startActivity(intent);
@@ -412,161 +441,57 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        private void record() {
-            if (app.student != null && !app.student.getObjectId().isEmpty()) {
-                BmobQuery<YaBmobInstallation> query = new BmobQuery<>();
-                query.addWhereEqualTo("installationId", BmobInstallation.getInstallationId(getApplicationContext()));
-                query.findObjects(new FindListener<YaBmobInstallation>() {
-
-                    @Override
-                    public void done(List<YaBmobInstallation> list, BmobException e) {
-                        if (list.size() > 0) {
-                            YaBmobInstallation mbi = list.get(0);
-                            if (mbi.getUid() != null && mbi.getUid().equals(app.student.getObjectId())) {
-                                return;
-                            }
-                            mbi.setUid(app.student.getObjectId());
-                            mbi.update(mbi.getObjectId(), new UpdateListener() {
-
-                                @Override
-                                public void done(BmobException e) {
-                                    if (e == null) {
-                                        Log.i("bmob", "设备信息更新成功");
-                                    } else {
-                                        Log.i("bmob", "设备信息更新失败:" + e.getMessage());
-                                    }
-                                }
-
-                            });
-                        }
-                    }
-                });
-                Student student = new Student();
-                StudentInfo si = app.getStudentInfo();
-                StudentDetails sd = app.getStudentDetails();
-                student.setStudentId(si.getId());
-                student.setGrade(si.getGrade());
-                student.setSpeciality(si.getSpeciality());
-                student.setSpecialityCode(si.getSpecialityCode());
-                student.setAcademicYear(si.getAcademicYear());
-                student.setSchoolTerm(si.getSchoolTerm());
-                student.setRegistrationTime(sd.getRegistrationTime());
-                student.setNationality(sd.getNationality());
-                student.setSpeciality(sd.getSpeciality());
-                student.setEmail(sd.getEmail());
-                student.setMobilePhoneNumber(sd.getMobile());
-                student.setMiddleSchool(sd.getMiddleSchool());
-                student.setClassName(sd.getClassName());
-                student.setStudentId(sd.getId());
-                student.setCultureStandard(sd.getCultureStandard());
-                student.setCollegeWill(sd.getCollegeWill());
-                student.setSchoolSystem(sd.getSchoolSystem());
-                try {
-                    student.setIdNumber(AESCrypt.encrypt(getString(R.string.encryptedMsg), sd.getIdNumber()));
-                } catch (GeneralSecurityException e) {
-                    e.printStackTrace();
-                }
-                student.setEducationLevel(sd.getEducationLevel());
-                student.setName(sd.getName());
-                student.setGaokaoID(sd.getGaokaoID());
-                student.setNumber(sd.getNumber());
-                student.setAvatarID(sd.getAvatarID());
-                student.setCollege(sd.getCollege());
-                student.setGender(sd.getGender());
-                student.setAddress(sd.getAddress());
-                student.setPinyin(sd.getPinyin());
-                student.setRegistrationGrade(sd.getRegistrationGrade());
-                student.setBirthday(sd.getBirthday());
-                if (student.isChanged(app.student)) {
-                    student.update(app.student.getObjectId(), new UpdateListener() {
-                        @Override
-                        public void done(BmobException e) {
-                            if (e != null) {
-                                Log.e(TAG, "done: update user info error", e);
-                            }
-                        }
-                    });
-                }
-            }
-
-        }
-
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if (result == null) {
                 loadAvatar();
-                StudentDetails sd = app.getStudentDetails();
+                final StudentDetails sd = app.getStudentDetails();
                 usernameView.setText(sd.getName());
                 userIDView.setText(sd.getId());
 
-                if (app.student == null) {
-                    // 判断用户存在
-                    BmobQuery<Student> query = new BmobQuery<>();
-                    query.addWhereEqualTo("username", app.getAssist().getUsername());
-                    query.findObjects(new FindListener<Student>() {
-                        @Override
-                        public void done(List<Student> list, BmobException e) {
-                            if (e == null) {
-                                if (list.size() == 0) {
-                                    // 用户不存在
-                                    app.student = new Student();
-                                    app.student.setUsername(app.getAssist().getUsername());
-                                    StudentInfo si = app.getStudentInfo();
-                                    try {
-                                        app.student.setPassword(AESCrypt.encrypt(getString(R.string.encryptedMsg), app.getStudentInfo().getId()));
-                                    } catch (GeneralSecurityException e1) {
-                                        Log.e(TAG, "done: encrypting error", e1);
-                                        Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
-                                    }
-                                    app.student.signUp(new SaveListener<Student>() {
-                                        @Override
-                                        public void done(Student student, BmobException e) {
-                                            if (e == null) {
-                                                app.student.login(new SaveListener<Student>() {
-                                                    @Override
-                                                    public void done(Student student, BmobException e) {
-                                                        if (e == null) {
-                                                            app.student = student;
-                                                            // 获取用户详细信息
-                                                            record();
-                                                        }
-                                                    }
-                                                });
-                                            } else {
-                                                Log.e(TAG, "done: signup error", e);
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    try {
-                                        BmobUser.loginByAccount(app.getAssist().getUsername(),
-                                                AESCrypt.encrypt(
-                                                        getString(R.string.encryptedMsg),
-                                                        app.getStudentInfo().getId()),
-                                                new LogInListener<Student>() {
-                                                    @Override
-                                                    public void done(Student student, BmobException e) {
-                                                        if (e == null) {
-                                                            app.student = student;
-                                                            // 获取用户详细信息
-                                                            record();
-                                                        } else {
-                                                            Log.e(TAG, "done: login error", e);
-                                                        }
-                                                    }
-                                                });
-                                    } catch (GeneralSecurityException e1) {
-                                        Log.e(TAG, "done: encrypting error", e1);
-                                        Toast.makeText(getApplicationContext(), R.string.encrypt_error, Toast.LENGTH_LONG).show();
-                                    }
+                PushService.subscribe(getApplicationContext(), "College-" + sd.getCollege(), MainActivity.class);
+                PushService.subscribe(getApplicationContext(), "Grade-" + sd.getRegistrationGrade(), MainActivity.class);
+
+                AVUser user = new AVUser();// 新建 AVUser 对象实例
+                user.setUsername(sd.getId());// 设置用户名
+                user.setPassword(sd.getNumber() + sd.getGaokaoID());// 设置密码
+                user.setEmail(sd.getEmail());// 设置邮箱
+                user.setMobilePhoneNumber(sd.getMobile());
+                user.put("RegistrationTime", sd.getRegistrationTime());
+                user.put("Nationality", sd.getNationality());
+                user.put("AdmitSpeciality", sd.getSpeciality());
+                user.put("MiddleSchool", sd.getMiddleSchool());
+                user.put("ClassName", sd.getClassName());
+                user.put("CultureStandard", sd.getCultureStandard());
+                user.put("CollegeWill", sd.getCollegeWill());
+                user.put("SchoolSystem", sd.getSchoolSystem());
+                user.put("EducationLevel", sd.getEducationLevel());
+                user.put("Name", sd.getName());
+                user.put("Number", sd.getNumber());
+                user.put("AvatarID", sd.getAvatarID());
+                user.put("College", sd.getCollege());
+                user.put("Gender", sd.getGender());
+                user.put("Address", sd.getAddress());
+                user.put("Pinyin", sd.getPinyin());
+                user.put("RegistrationGrade", sd.getRegistrationGrade());
+                user.put("Birthday", sd.getBirthday());
+                user.signUpInBackground(new SignUpCallback() {
+                    @Override
+                    public void done(AVException e) {
+                        if (e == null || e.getCode() == AVException.USERNAME_TAKEN || e.getCode() == AVException.EMAIL_TAKEN || e.getCode() == AVException.USER_MOBILE_PHONENUMBER_TAKEN) {
+                            // 注册成功
+                            AVUser.logInInBackground(sd.getId(), sd.getNumber() + sd.getGaokaoID(), new LogInCallback<AVUser>() {
+                                @Override
+                                public void done(AVUser avUser, AVException e) {
+                                    AVInstallation.getCurrentInstallation().put("user_id", avUser);
                                 }
-                            }
+                            });
+                        } else {
+                            Log.e(getClass().getName(), e.getMessage());
                         }
-                    });
-                } else {
-                    record();
-                }
+                    }
+                });
 
             } else if (result.equals(getString(R.string.login_timeout)) || result.equals(getString(R.string.network_error))) {
                 Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
@@ -637,4 +562,17 @@ public class MainActivity extends AppCompatActivity
             reLogin();
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AVAnalytics.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AVAnalytics.onResume(this);
+    }
+
 }
