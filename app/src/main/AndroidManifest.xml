@@ -5,7 +5,6 @@
     <!-- 允许联网 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -18,7 +17,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <receiver android:name="com.avos.avoscloud.AVBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -45,7 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Activity.LoginActivity"
             android:label="@string/app_name"
@@ -58,13 +55,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".Activity.ErrorActivity" />
-
         <activity
             android:name=".Activity.GatewayActivity"
-            android:label="@string/title_activity_gateway"
             android:icon="@mipmap/spotify"
+            android:label="@string/title_activity_gateway"
             android:taskAffinity="cn.xuhongxu.xiaoya.GatewayTask"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">
@@ -74,11 +69,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.avos.avoscloud.feedback.ThreadActivity" />
 
-        <activity
-            android:name="com.avos.avoscloud.feedback.ThreadActivity" >
-        </activity>
+        <receiver android:name=".TimetableStackAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/timetable_stack_app_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".Service.TimetableAppWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <receiver android:name=".TimetableListAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/timetable_list_app_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

@@ -51,13 +51,13 @@ public class ExamArragementRecycleAdapter
             holder.days.setTextColor(Color.BLACK);
             holder.courseName.setText(context.getString(R.string.ended) + item.getCourseName());
         } else if (item.getBeginTime().before(Calendar.getInstance())) {
-            holder.days.setTextColor(Color.RED);
+            holder.days.setTextColor(Color.DKGRAY);
             holder.courseName.setText(context.getString(R.string.testing) + item.getCourseName());
         } else {
             if (days > 3) {
                 holder.days.setTextColor(Color.GREEN);
             } else {
-                holder.days.setTextColor(Color.YELLOW);
+                holder.days.setTextColor(Color.RED);
             }
             holder.courseName.setText(item.getCourseName());
         }

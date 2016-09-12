@@ -2,11 +2,13 @@ package cn.xuhongxu.xiaoya.View;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v13.view.ViewCompat;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -225,16 +227,18 @@ public class TimeTableView extends View {
     }
 
     static public class Rectangle {
-        public String name;
+        public String text;
         public int day;
         public int start, end;
+        public String name, teacher, loc;
 
-        public Rectangle(String name, int day, int start, int end) {
-            this.name = name;
+        public Rectangle(String text, int day, int start, int end) {
+            this.text = text;
             this.day = day;
             this.start = start;
             this.end = end;
         }
+
     }
 
     @Override
@@ -253,7 +257,7 @@ public class TimeTableView extends View {
                 cp = paint;
             }
             canvas.drawRect(px(c.day * (w + 2) + 1), px(c.start * (h + 2) + 1), px(c.day * (w + 2) + w + 1), px(c.end * (h + 2) + h + 1), cp);
-            StaticLayout sl = new StaticLayout(c.name, txtPaint, px(w - 8), Layout.Alignment.ALIGN_CENTER, 1, 1, true);
+            StaticLayout sl = new StaticLayout(c.text, txtPaint, px(w - 8), Layout.Alignment.ALIGN_CENTER, 1, 1, true);
             canvas.save();
             canvas.translate(px(c.day * (w + 2) + 5), px(c.start * (h + 2) + 5));
             sl.draw(canvas);
@@ -298,4 +302,5 @@ public class TimeTableView extends View {
         gestureDetector.onTouchEvent(e);
         return true;
     }
+
 }

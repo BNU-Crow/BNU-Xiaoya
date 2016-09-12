@@ -27,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,20 +39,15 @@ import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.PushService;
 import com.avos.avoscloud.SignUpCallback;
 import com.avos.avoscloud.feedback.FeedbackAgent;
-import com.scottyab.aescrypt.AESCrypt;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.GeneralSecurityException;
-import java.util.List;
 import java.util.Map;
 
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.Assist.SchoolworkAssist;
 import cn.xuhongxu.Assist.StudentDetails;
-import cn.xuhongxu.Assist.StudentInfo;
-import cn.xuhongxu.xiaoya.Fragment.BuildingFragment;
 import cn.xuhongxu.xiaoya.Fragment.CancelCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.ElectiveCourseFragment;
 import cn.xuhongxu.xiaoya.Fragment.EvaluationCourseFragment;
@@ -81,7 +75,6 @@ public class MainActivity extends AppCompatActivity
         EvaluationFragment.OnFragmentInteractionListener,
         EvaluationCourseFragment.OnListFragmentInteractionListener,
         SelectResultFragment.OnFragmentInteractionListener,
-        BuildingFragment.OnFragmentInteractionListener,
         ElectiveCourseFragment.OnFragmentInteractionListener,
         CancelCourseFragment.OnFragmentInteractionListener,
         ScoreFragment.OnFragmentInteractionListener {
@@ -283,14 +276,13 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             fragmentClass = HomeFragment.class;
         } else if (id == R.id.nav_select) {
-            // TODO: 选课
+            // 选课
             fragmentClass = SelectCourseFragment.class;
-
         } else if (id == R.id.nav_test) {
             // 考试
             fragmentClass = ExamRoundFragment.class;
         } else if (id == R.id.nav_score) {
-            // TODO: 成绩
+            // 成绩
             fragmentClass = ScoreFragment.class;
         } else if (id == R.id.nav_evaluate) {
             // 评教
@@ -381,11 +373,6 @@ public class MainActivity extends AppCompatActivity
         }
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
     @Override
@@ -543,8 +530,9 @@ public class MainActivity extends AppCompatActivity
 
         if (app.getAssist() == null) {
             reLogin(true);
+        } else {
+            getStudentDetails();
         }
-        getStudentDetails();
     }
 
     @Override

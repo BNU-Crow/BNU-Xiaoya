@@ -49,7 +49,7 @@ public class SchoolworkAssist implements Parcelable {
 
     // URL: Login
     private static final String LOGIN_URL  = "http://cas.bnu.edu.cn/cas/login?service=http%3A%2F%2Fzyfw.bnu.edu.cn%2F" +
-            "MainFrm.text";
+            "MainFrm.html";
     // URL: Get Student Info
     private static final String STUDENT_INFO_URL = "http://zyfw.bnu.edu.cn/STU_DynamicInitDataAction.do?classPath=" +
             "com.kingosoft.service.jw.student.pyfa.CourseInfoService&xn=2015&xq_m=1";
@@ -210,6 +210,9 @@ public class SchoolworkAssist implements Parcelable {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             res = new BigInteger(1, messageDigest.digest(p.getBytes())).toString(16);
+            for (int i = 0; i < 32 - res.length(); ++i) {
+                res = "0" + res;
+            }
         } catch (NoSuchAlgorithmException e) {
             throw new SecurityException("Failed to encrypt params");
         }
@@ -888,11 +891,11 @@ public class SchoolworkAssist implements Parcelable {
                 if (late1 && late2) {
                     return e2.getEndTime().compareTo(e1.getEndTime());
                 } else if (!late1 && !late2) {
-                    return e1.getBeginTime().compareTo(e1.getBeginTime());
+                    return e1.getBeginTime().compareTo(e2.getBeginTime());
                 } else if(late1 && !late2) {
-                    return 1;
+                    return 100;
                 } else {
-                    return -1;
+                    return -100;
                 }
             }
         });

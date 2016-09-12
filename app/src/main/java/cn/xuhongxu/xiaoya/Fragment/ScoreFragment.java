@@ -68,6 +68,12 @@ public class ScoreFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().setTitle(R.string.Score);
+    }
+
     public static ScoreFragment newInstance() {
         return new ScoreFragment();
     }

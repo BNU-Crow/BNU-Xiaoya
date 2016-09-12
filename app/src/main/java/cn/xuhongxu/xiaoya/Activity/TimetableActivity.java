@@ -13,11 +13,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,20 +35,19 @@ import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import cn.xuhongxu.Assist.Semester;
 import cn.xuhongxu.Assist.TableCourse;
+import cn.xuhongxu.xiaoya.Helper.TimetableHelper;
 import cn.xuhongxu.xiaoya.R;
 import cn.xuhongxu.xiaoya.View.TimeTableView;
-import cn.xuhongxu.xiaoya.View.YaHorizontalScrollView;
-import cn.xuhongxu.xiaoya.View.YaScrollView;
 import cn.xuhongxu.xiaoya.YaApplication;
 
 public class TimetableActivity extends AppCompatActivity {
@@ -59,35 +57,34 @@ public class TimetableActivity extends AppCompatActivity {
     YaApplication app;
     private static final int LOGIN_REQUEST = 1;
     private ArrayList<Semester> semesterList;
-    private ArrayList<TableCourse> tableCourses;
     private HashSet<String> history;
 
     private SharedPreferences preferences;
 
-    private int weekCount = 0;
-    private int currentWeek = 0;
-    private int shownWeek = 0;
-
-    String studentName = "";
+    TimetableHelper helper;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AVAnalytics.trackAppOpened(getIntent());
-
         setContentView(R.layout.activity_timetable);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        try {
+            helper = new TimetableHelper(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         preferences =
                 getSharedPreferences(getString(R.string.preference_key),
                         Context.MODE_PRIVATE);
 
         history = (HashSet<String>) preferences.getStringSet("history", new HashSet<String>());
-        studentName = preferences.getString("name", "");
-
 
         app = (YaApplication) getApplication();
 
@@ -97,21 +94,21 @@ public class TimetableActivity extends AppCompatActivity {
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);
                 builder.setTitle(R.string.choose_week);
-                CharSequence[] items = new CharSequence[weekCount];
-                for (int i = 1; i <= weekCount; ++i) {
+                CharSequence[] items = new CharSequence[helper.getWeekCount()];
+                for (int i = 1; i <= helper.getWeekCount(); ++i) {
                     items[i - 1] = getString(R.string.prefix_week) + i + getString(R.string.suffix_week);
-                    if (i == currentWeek) {
+                    if (i == helper.getCurrentWeek()) {
                         items[i - 1] = items[i - 1] + " " + getString(R.string.is_current);
                     }
-                    if (i == shownWeek) {
+                    if (i == helper.getShownWeek()) {
                         items[i - 1] = items[i - 1] + " " + getString(R.string.is_shown);
                     }
                 }
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        shownWeek = i + 1;
-                        parseTable(shownWeek);
+                        helper.setShownWeek(i + 1);
+                        parseTable(helper.getShownWeek());
                     }
                 });
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -128,183 +125,23 @@ public class TimetableActivity extends AppCompatActivity {
         table = (TimeTableView) findViewById(R.id.timetable);
         title = (TextView) findViewById(R.id.timetable_title);
 
-        if (studentName.isEmpty()) {
+
+        if (helper.isEmpty()) {
             Snackbar.make(findViewById(R.id.timetable_layout), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
         } else {
-            try {
-                FileInputStream fis = openFileInput("timetable");
-                ObjectInputStream is = new ObjectInputStream(fis);
-                tableCourses = (ArrayList<TableCourse>) is.readObject();
-                is.close();
-                fis.close();
-                parseTable(calcWeek());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(findViewById(R.id.timetable_layout), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
-            }
+            parseTable(helper.calcWeek());
         }
-    }
 
-    private int px(float dp) {
-        return (int) (getResources().getDisplayMetrics().density * dp);
-    }
-
-    private int calcWeek() {
-        currentWeek = preferences.getInt("current_week", 1);
-        Calendar now = Calendar.getInstance();
-        now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DATE));
-        now.setFirstDayOfWeek(Calendar.MONDAY);
-        int year = preferences.getInt("year", now.get(Calendar.YEAR));
-        int month = preferences.getInt("month", now.get(Calendar.MONTH));
-        int date = preferences.getInt("date", now.get(Calendar.DATE));
-        Calendar thatDay = Calendar.getInstance();
-        thatDay.setFirstDayOfWeek(Calendar.MONDAY);
-        thatDay.set(year, month, date, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
-        int diffWeek = now.get(Calendar.WEEK_OF_YEAR) - thatDay.get(Calendar.WEEK_OF_YEAR);
-        currentWeek += diffWeek;
-        if (currentWeek <= 0) {
-            currentWeek = 1;
-        }
-        shownWeek = currentWeek;
-
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("current_week", currentWeek);
-        editor.putInt("year", now.get(Calendar.YEAR));
-        editor.putInt("month", now.get(Calendar.MONTH));
-        editor.putInt("date", now.get(Calendar.DATE));
-        editor.apply();
-
-        return currentWeek;
     }
 
     private void parseTable(int week) {
-
-        if (week == currentWeek) {
+        if (week == helper.getCurrentWeek()) {
             title.setText(getString(R.string.prefix_week) + week + getString(R.string.suffix_week) + " " + getString(R.string.is_current));
         } else {
             title.setText(getString(R.string.prefix_week) + week + getString(R.string.suffix_week));
         }
 
-        List<TimeTableView.Rectangle> classes = new ArrayList<>();
-
-        weekCount = 0;
-
-        for (TableCourse course : tableCourses) {
-            String s = course.getLocationTime();
-            int start = 0;
-            int index = s.indexOf("周");
-            while (index != -1) {
-                String weekPart = s.substring(start, index).trim();
-                String[] weekParts = weekPart.split(",");
-                boolean isIn = false;
-                for (String part : weekParts) {
-                    int si = part.indexOf("-");
-                    if (si == -1) {
-                        int week1 = Integer.valueOf(part);
-                        if (week1 > weekCount) {
-                            weekCount = week1;
-                        }
-                        if (week == week1) {
-                            isIn = true;
-                            break;
-                        }
-                    } else {
-                        int week1 = Integer.valueOf(part.substring(0, si).trim());
-                        int week2 = Integer.valueOf(part.substring(si + 1).trim());
-                        if (week2 > weekCount) {
-                            weekCount = week2;
-                        }
-                        if (week <= week2 && week >= week1) {
-                            isIn = true;
-                            break;
-                        }
-                    }
-                }
-
-
-                if (isIn) {
-                    int day = 0;
-                    int startN = 0, endN = 0;
-
-                    start = index + 1;
-
-
-                    if (s.substring(start, start + 1).equals("(")) {
-                        isIn = false;
-                        // 单双周
-                        if ((s.substring(start + 1, start + 2).equals("单") && week % 2 == 1) || (s.substring(start + 1, start + 2).equals("双") && week % 2 == 0)) {
-                            start = s.indexOf(")", start) + 1;
-                            isIn = true;
-                        }
-                    }
-
-                    if (isIn) {
-
-                        index = s.indexOf("[", start);
-                        String dayPart = s.substring(start, index).trim();
-                        switch (dayPart) {
-                            case "一":
-                                day = 0;
-                                break;
-                            case "二":
-                                day = 1;
-                                break;
-                            case "三":
-                                day = 2;
-                                break;
-                            case "四":
-                                day = 3;
-                                break;
-                            case "五":
-                                day = 4;
-                                break;
-                            case "六":
-                                day = 5;
-                                break;
-                            default:
-                                day = 6;
-                                break;
-                        }
-
-                        start = index + 1;
-                        index = s.indexOf("]", start);
-                        String nPart = s.substring(start, index);
-                        String[] nParts = nPart.split("-");
-                        startN = Integer.valueOf(nParts[0]) - 1;
-                        endN = Integer.valueOf(nParts[1]) - 1;
-
-                        start = index + 1;
-                        index = s.indexOf(",", start);
-                        String loc = "";
-                        if (index == -1) {
-                            loc = s.substring(start);
-                        } else {
-                            loc = s.substring(start, index);
-                        }
-
-                        classes.add(new TimeTableView.Rectangle(course.getName()
-                                + "\n\n" + course.getTeacher() + "\n" + loc, day, startN, endN));
-
-                        if (index == -1) {
-                            break;
-                        }
-                        start = index + 1;
-                    }
-                }
-
-                if (!isIn) {
-                    start = s.indexOf(",", index + 1) + 1;
-                    if (start == 0) {
-                        break;
-                    }
-                }
-
-                index = s.indexOf("周", start);
-
-            }
-        }
-
-        table.setClasses(classes);
+        table.setClasses(helper.parseTable(week));
         table.invalidate();
     }
 
@@ -313,9 +150,10 @@ public class TimetableActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Semester... params) {
             try {
-                studentName = app.getAssist().getStudentDetails().getName();
-                tableCourses = app.getAssist().getTableCourses(params[0]);
+                helper.setStudentName(app.getAssist().getStudentDetails().getName());
+                helper.setTableCourses(app.getAssist().getTableCourses(params[0]));
             } catch (Exception e) {
+                e.printStackTrace();
                 return e.getMessage();
             }
             return null;
@@ -328,24 +166,25 @@ public class TimetableActivity extends AppCompatActivity {
                 try {
                     FileOutputStream fos = TimetableActivity.this.openFileOutput("timetable", Context.MODE_PRIVATE);
                     ObjectOutputStream os = new ObjectOutputStream(fos);
-                    os.writeObject(tableCourses);
+                    os.writeObject(helper.getTableCourses());
                     os.close();
                     fos.close();
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("name", studentName);
+                    editor.putString("name", helper.getStudentName());
                     editor.remove("current_week");
                     editor.remove("year");
                     editor.remove("month");
                     editor.remove("date");
                     editor.remove("share_code");
                     editor.apply();
-                    parseTable(calcWeek());
+                    parseTable(helper.calcWeek());
                     Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Snackbar.make(findViewById(R.id.timetable_layout), R.string.write_error, Snackbar.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             } else {
+                Log.e("err:", result);
                 Snackbar.make(findViewById(R.id.timetable_layout), R.string.network_error, Snackbar.LENGTH_LONG).show();
             }
         }
@@ -358,6 +197,7 @@ public class TimetableActivity extends AppCompatActivity {
             try {
                 semesterList = app.getAssist().getSemesters();
             } catch (Exception e) {
+                e.printStackTrace();
                 return e.getMessage();
             }
             return null;
@@ -384,6 +224,7 @@ public class TimetableActivity extends AppCompatActivity {
                 Dialog dialog = builder.create();
                 dialog.show();
             } else {
+                Log.e("err:", result);
                 Snackbar.make(findViewById(R.id.timetable_layout), R.string.network_error, Snackbar.LENGTH_LONG).show();
             }
         }
@@ -408,66 +249,44 @@ public class TimetableActivity extends AppCompatActivity {
         return true;
     }
 
-    private String tableToString() {
-        String res = "{\"name\":\"" + studentName + "\",\"table\":[";
-        for (TableCourse c : tableCourses) {
-            res += c.toString() + ",";
-        }
-        return res.substring(0, res.length() - 1) + "]}";
-    }
 
-    public String tableFromString(String s) throws JSONException {
-        tableCourses.clear();
-        JSONObject jsonObject = new JSONObject(s);
-        String name = jsonObject.getString("name");
-        JSONArray arr = jsonObject.getJSONArray("table");
-        for (int i = 0; i < arr.length(); ++i) {
-            JSONObject o = arr.getJSONObject(i);
-            TableCourse tc = new TableCourse();
-            tc.setCode(o.getString("code"));
-            tc.setTeacher(o.getString("teacher"));
-            tc.setLocationTime(o.getString("locationTime"));
-            tc.setCredit(o.getString("credit"));
-            tc.setName(o.getString("name"));
-            tableCourses.add(tc);
-        }
-        return name;
-    }
-
-    void importShareCode(String shareCode) {
+    void importShareCode(String shareCode, boolean resetCurrentWeek) {
         int i = shareCode.indexOf("：");
         if (i != -1) {
             shareCode = shareCode.substring(i + 1).trim();
         }
         AVQuery<AVObject> avQuery = new AVQuery<AVObject>("TimeTable");
         final String finalShareCode = shareCode;
+        final boolean reset = resetCurrentWeek;
         avQuery.getInBackground(shareCode, new GetCallback<AVObject>() {
             @Override
             public void done(AVObject avObject, AVException e) {
                 try {
 
-                    studentName = tableFromString(avObject.getString("Content"));
+                    helper.setStudentName(helper.tableFromString(avObject.getString("Content")));
 
-                    history.add(studentName + " " + avObject.getObjectId());
+                    history.add(helper.getStudentName() + " " + avObject.getObjectId());
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putStringSet("history", history);
                     editor.apply();
 
                     FileOutputStream fos = TimetableActivity.this.openFileOutput("timetable", Context.MODE_PRIVATE);
                     ObjectOutputStream os = new ObjectOutputStream(fos);
-                    os.writeObject(tableCourses);
+                    os.writeObject(helper.getTableCourses());
                     os.close();
                     fos.close();
 
-                    editor.putString("name", studentName);
-                    editor.remove("current_week");
-                    editor.remove("year");
-                    editor.remove("month");
-                    editor.remove("date");
+                    editor.putString("name", helper.getStudentName());
+                    if (reset) {
+                        editor.remove("current_week");
+                        editor.remove("year");
+                        editor.remove("month");
+                        editor.remove("date");
+                    }
                     editor.putString("share_code", finalShareCode);
                     editor.apply();
 
-                    parseTable(calcWeek());
+                    parseTable(helper.calcWeek());
                     Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e1) {
                     e1.printStackTrace();
@@ -512,7 +331,7 @@ public class TimetableActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String shareCode = input.getText().toString();
-                                importShareCode(shareCode);
+                                importShareCode(shareCode, true);
                             }
                         });
                         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -540,11 +359,11 @@ public class TimetableActivity extends AppCompatActivity {
             preferences =
                     getSharedPreferences(getString(R.string.preference_key),
                             Context.MODE_PRIVATE);
-            currentWeek = shownWeek;
-            parseTable(shownWeek);
+            helper.setCurrentWeek( helper.getShownWeek());
+            parseTable(helper.getShownWeek());
             Calendar now = Calendar.getInstance();
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt("current_week", currentWeek);
+            editor.putInt("current_week", helper.getCurrentWeek());
             editor.putInt("year", now.get(Calendar.YEAR));
             editor.putInt("month", now.get(Calendar.MONTH));
             editor.putInt("date", now.get(Calendar.DATE));
@@ -555,7 +374,7 @@ public class TimetableActivity extends AppCompatActivity {
             if (shareCode.isEmpty()) {
                 try {
                     final AVObject data = new AVObject("TimeTable");
-                    data.put("Content", tableToString());
+                    data.put("Content", helper.tableToString());
                     data.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(AVException e) {
@@ -585,7 +404,6 @@ public class TimetableActivity extends AppCompatActivity {
                 startActivity(sendIntent);
             }
         } else if (id == R.id.action_import_history) {
-           // TODO: history List
             AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);
             builder.setTitle(R.string.choose_history);
             CharSequence[] items = new CharSequence[history.size()];
@@ -593,8 +411,7 @@ public class TimetableActivity extends AppCompatActivity {
             int i = 0;
             int current = -1;
             for (String code : historyArr) {
-                String name = code.split("\\s+")[0];
-                if (name.equals(studentName)) {
+                if (code.equals(helper.getStudentName() + " " + preferences.getString("share_code", ""))) {
                     current = i;
                     items[i++] = code.split("\\s+")[0] + " " + getString(R.string.is_current);
                 } else {
@@ -605,7 +422,7 @@ public class TimetableActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     String code = historyArr.get(i);
-                    importShareCode(code.split("\\s+")[1]);
+                    importShareCode(code.split("\\s+")[1], false);
                 }
             });
             final int finalCurrent = current;
@@ -629,17 +446,5 @@ public class TimetableActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AVAnalytics.onPause(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AVAnalytics.onResume(this);
     }
 }

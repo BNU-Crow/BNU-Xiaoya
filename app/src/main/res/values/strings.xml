@@ -127,7 +127,6 @@
     <string name="force_logout">强制离线</string>
     <string name="building">建设中……</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="period">学时</string>
     <string name="select_plan_course">请选择计划课程以查看所有班次</string>
@@ -158,6 +157,9 @@
     <string name="delete_ok">删除成功</string>
     <string name="no_current">不存在当前项</string>
     <string name="is_shown">(显示)</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="empty_view_text">没有课</string>
 
 
 </resources>
