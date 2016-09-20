@@ -157,9 +157,28 @@
     <string name="delete_ok">删除成功</string>
     <string name="no_current">不存在当前项</string>
     <string name="is_shown">(显示)</string>
-    <string name="appwidget_text">EXAMPLE</string>
-    <string name="add_widget">Add widget</string>
+    <string name="add_widget">添加部件</string>
     <string name="empty_view_text">没有课</string>
+
+    <!-- Card -->
+
+    <string name="title_activity_card">小鸦学生卡</string>
+    <string name="card_login_tip">校园卡查询登录</string>
+    <string name="cardPassword">校园卡查询密码</string>
+    <string name="transfer">转账充值</string>
+    <string name="net_fee">缴网费</string>
+    <string name="loss">挂失</string>
+    <string name="query_pay">流水查询</string>
+    <string name="card_basic_info">基本信息</string>
+    <string name="code">请输入验证码</string>
+    <string name="name">姓名</string>
+    <string name="student_id">学号</string>
+    <string name="card_id">校园卡编号</string>
+    <string name="balance">余额</string>
+    <string name="transition">过渡余额</string>
+    <string name="frozen">冻结状态</string>
+    <string name="money">转账金额</string>
+    <string name="query_pwd">查询密码</string>
 
 
 </resources>

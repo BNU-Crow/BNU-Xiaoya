@@ -55,7 +55,6 @@ public class TimetableActivity extends AppCompatActivity {
     TextView title;
     TimeTableView table;
     YaApplication app;
-    private static final int LOGIN_REQUEST = 1;
     private ArrayList<Semester> semesterList;
     private HashSet<String> history;
 
@@ -232,7 +231,7 @@ public class TimetableActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == LOGIN_REQUEST) {
+        if (requestCode == LoginActivity.LOGIN_REQUEST) {
             if (resultCode == RESULT_OK) {
                 new GetSemesterTask().execute();
             } else {
@@ -314,7 +313,7 @@ public class TimetableActivity extends AppCompatActivity {
                             // 登录
                             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                             intent.putExtra("justLogin", true);
-                            startActivityForResult(intent, LOGIN_REQUEST);
+                            startActivityForResult(intent, LoginActivity.LOGIN_REQUEST);
                         } else {
                             new GetSemesterTask().execute();
                         }
@@ -446,5 +445,17 @@ public class TimetableActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AVAnalytics.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AVAnalytics.onResume(this);
     }
 }

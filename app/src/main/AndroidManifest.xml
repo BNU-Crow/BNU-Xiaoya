@@ -58,7 +58,7 @@
         <activity android:name=".Activity.ErrorActivity" />
         <activity
             android:name=".Activity.GatewayActivity"
-            android:icon="@mipmap/spotify"
+            android:icon="@mipmap/wifi"
             android:label="@string/title_activity_gateway"
             android:taskAffinity="cn.xuhongxu.xiaoya.GatewayTask"
             android:theme="@style/AppTheme.NoActionBar"
@@ -94,6 +94,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/timetable_list_app_widget_info" />
         </receiver>
+
+        <activity
+            android:name=".Activity.CardActivity"
+            android:icon="@mipmap/card"
+            android:label="@string/title_activity_card"
+            android:taskAffinity="cn.xuhongxu.xiaoya.CardTask"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -1,0 +1,159 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.xuhongxu.xiaoya.Fragment.CardInfoFragment"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:weightSum="2"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:text="@string/name"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/name"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/student_id"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/id"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/card_id"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/card_id"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/balance"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/balance"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/transition"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/transition"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/status"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/status"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="@string/frozen"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/frozen"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

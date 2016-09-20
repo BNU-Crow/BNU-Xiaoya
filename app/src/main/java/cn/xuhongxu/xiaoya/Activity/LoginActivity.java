@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private Switch switchRemember;
 
     private ProgressDialog progressDialog;
+    static final int LOGIN_REQUEST = 1;
 
     private class LoginTask extends AsyncTask<String, Void, String> {
 
