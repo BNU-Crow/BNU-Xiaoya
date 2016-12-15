@@ -171,9 +171,14 @@ public class TimetableHelper {
                         start = index + 1;
                         index = s.indexOf("]", start);
                         String nPart = s.substring(start, index);
-                        String[] nParts = nPart.split("-");
-                        startN = Integer.valueOf(nParts[0]) - 1;
-                        endN = Integer.valueOf(nParts[1]) - 1;
+                        if (nPart.contains("-")) {
+                            String[] nParts = nPart.split("-");
+                            startN = Integer.valueOf(nParts[0]) - 1;
+                            endN = Integer.valueOf(nParts[1]) - 1;
+                        } else {
+                            startN = Integer.valueOf(nPart) - 1;
+                            endN = Integer.valueOf(nPart) - 1;
+                        }
 
                         start = index + 1;
                         index = s.indexOf(",", start);
