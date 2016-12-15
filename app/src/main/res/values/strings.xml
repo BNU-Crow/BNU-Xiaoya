@@ -160,6 +160,25 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="empty_view_text">没有课</string>
+    <string name="title_activity_preferences">设置</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_category_network">网络连接</string>
+    <string name="pref_default_timeout">30000</string>
+    <string name="pref_title_timeout">连接超时（ms）</string>
+    <string name="pref_category_evaluation">评教内容</string>
+    <string name="pref_title_star_5">五星好评</string>
+    <string name="pref_title_star_4">四星良好</string>
+    <string name="pref_title_star_3">三星一般</string>
+    <string name="pref_title_star_2">二星较差</string>
+    <string name="pref_title_star_1">一星差评</string>
+    <string name="pref_default_star_1">优点很少，收获不多，建议老师充分调动课堂，创新教学方式，继续努力!</string>
+    <string name="pref_default_star_2">优点很多，收获很多，没有建议，继续努力!</string>
+    <string name="pref_default_star_3">优点很多，收获很多，没有建议，继续努力!</string>
+    <string name="pref_default_star_4">优点很多，收获很多，没有建议，继续努力!</string>
+    <string name="pref_default_star_5">优点很多，收获很多，没有建议，继续努力!</string>
+    <string name="action_current">查看本学期</string>
+    <string name="choose_exam_round">选择考试轮次（期末或随堂，无法确定对应关系）</string>
 
 
 </resources>

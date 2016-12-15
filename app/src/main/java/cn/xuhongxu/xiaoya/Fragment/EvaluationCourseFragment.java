@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -302,11 +304,22 @@ public class EvaluationCourseFragment extends Fragment {
             pos = params[0];
             View view = getView();
             assert view != null;
+
+            String[] remarks = new String[5];
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+            remarks[0] = preferences.getString("star_1", getString(R.string.pref_default_star_1));
+            remarks[1] = preferences.getString("star_2", getString(R.string.pref_default_star_2));
+            remarks[2] = preferences.getString("star_3", getString(R.string.pref_default_star_3));
+            remarks[3] = preferences.getString("star_4", getString(R.string.pref_default_star_4));
+            remarks[4] = preferences.getString("star_5", getString(R.string.pref_default_star_5));
+
             try {
                 app.getAssist().evaluateCourse(
                         app.getEvaluationItemList().get(itemPosition),
                         app.getEvaluationCourses().get(params[0]),
-                        params[1]
+                        params[1],
+                        remarks
                 );
                 return 0;
             } catch (NeedLoginException needLogin) {
@@ -329,11 +342,11 @@ public class EvaluationCourseFragment extends Fragment {
                     EvaluationCourse course = app.getEvaluationCourses().get(pos);
                     progressDialog.incrementProgressBy(1);
                     progressDialog.setMessage(getString(R.string.succeed_evaluate)
-                                    + ": "
-                                    + course.getName()
-                                    + "("
-                                    + course.getTeacherName()
-                                    + ")");
+                            + ": "
+                            + course.getName()
+                            + "("
+                            + course.getTeacherName()
+                            + ")");
                     if (pos != app.getEvaluationCourses().size() - 1) {
                         return;
                     }

@@ -15,4 +15,8 @@
         <item>从教务网导入</item>
         <item>从分享码导入</item>
     </string-array>
+    <string-array name="exam_round">
+        <item>考试1</item>
+        <item>考试2</item>
+    </string-array>
 </resources>

@@ -74,9 +74,7 @@ public class TimetableActivity extends AppCompatActivity {
 
         try {
             helper = new TimetableHelper(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -359,49 +357,53 @@ public class TimetableActivity extends AppCompatActivity {
             preferences =
                     getSharedPreferences(getString(R.string.preference_key),
                             Context.MODE_PRIVATE);
-            helper.setCurrentWeek( helper.getShownWeek());
-            parseTable(helper.getShownWeek());
-            Calendar now = Calendar.getInstance();
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt("current_week", helper.getCurrentWeek());
-            editor.putInt("year", now.get(Calendar.YEAR));
-            editor.putInt("month", now.get(Calendar.MONTH));
-            editor.putInt("date", now.get(Calendar.DATE));
-            editor.apply();
+            if (!helper.isEmpty()) {
+                helper.setCurrentWeek(helper.getShownWeek());
+                parseTable(helper.getShownWeek());
+                Calendar now = Calendar.getInstance();
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("current_week", helper.getCurrentWeek());
+                editor.putInt("year", now.get(Calendar.YEAR));
+                editor.putInt("month", now.get(Calendar.MONTH));
+                editor.putInt("date", now.get(Calendar.DATE));
+                editor.apply();
+            }
         } else if (id == R.id.action_share) {
             // 分享
-            String shareCode = preferences.getString("share_code", "");
-            if (shareCode.isEmpty()) {
-                try {
-                    final AVObject data = new AVObject("TimeTable");
-                    data.put("Content", helper.tableToString());
-                    data.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(AVException e) {
-                            if (e == null) {
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString("share_code", data.getObjectId());
-                                editor.apply();
-                                Intent sendIntent = new Intent();
-                                sendIntent.setAction(Intent.ACTION_SEND);
-                                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + data.getObjectId());
-                                sendIntent.setType("text/plain");
-                                startActivity(sendIntent);
-                            } else {
-                                Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+            if (!helper.isEmpty()) {
+                String shareCode = preferences.getString("share_code", "");
+                if (shareCode.isEmpty()) {
+                    try {
+                        final AVObject data = new AVObject("TimeTable");
+                        data.put("Content", helper.tableToString());
+                        data.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(AVException e) {
+                                if (e == null) {
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString("share_code", data.getObjectId());
+                                    editor.apply();
+                                    Intent sendIntent = new Intent();
+                                    sendIntent.setAction(Intent.ACTION_SEND);
+                                    sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + data.getObjectId());
+                                    sendIntent.setType("text/plain");
+                                    startActivity(sendIntent);
+                                } else {
+                                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+                                }
                             }
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + shareCode);
+                    sendIntent.setType("text/plain");
+                    startActivity(sendIntent);
                 }
-            } else {
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.this_is_timetable_share_code) + "：" + shareCode);
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
             }
         } else if (id == R.id.action_import_history) {
             AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);

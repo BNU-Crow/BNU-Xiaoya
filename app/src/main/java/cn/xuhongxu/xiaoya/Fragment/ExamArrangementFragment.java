@@ -22,7 +22,9 @@ import android.widget.Toast;
 import com.avos.avoscloud.AVAnalytics;
 
 import java.io.IOException;
+import java.util.Calendar;
 
+import cn.xuhongxu.Assist.ExamRound;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.xiaoya.Adapter.ExamArragementRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
@@ -72,11 +74,30 @@ public class ExamArrangementFragment extends Fragment {
             View view = getView();
             assert view != null;
             try {
-                app.setExamArrangement(
-                        app.getAssist().getExamArrangement(
-                                app.getExamRounds().get(itemPosition)
-                        )
-                );
+                if (itemPosition < 0) {
+                    ExamRound round = new ExamRound();
+                    Calendar calendar = Calendar.getInstance();
+                    int m = calendar.get(Calendar.MONTH);
+                    int y = calendar.get(Calendar.YEAR);
+                    if (m < 9) {
+                        m = 1;
+                        y--;
+                    } else {
+                        m = 0;
+                    }
+                    round.setYear(y);
+                    round.setTerm(m);
+                    round.setRound(-itemPosition);
+                    app.setExamArrangement(
+                            app.getAssist().getExamArrangement(round)
+                    );
+                } else {
+                    app.setExamArrangement(
+                            app.getAssist().getExamArrangement(
+                                    app.getExamRounds().get(itemPosition)
+                            )
+                    );
+                }
                 return 0;
             } catch (NeedLoginException needLogin) {
                 return R.string.login_timeout;

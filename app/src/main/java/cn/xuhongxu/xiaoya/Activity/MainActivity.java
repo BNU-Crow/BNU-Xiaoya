@@ -233,11 +233,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         switch (id) {
-            /*
             case R.id.action_settings:
-                Toast.makeText(this, R.string.building, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, PreferencesActivity.class);
+                startActivity(intent);
                 return true;
-                */
             case R.id.action_feedback:
                 agent.startDefaultThreadActivity();
                 return true;

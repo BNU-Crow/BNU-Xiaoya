@@ -1057,7 +1057,7 @@ public class SchoolworkAssist implements Parcelable {
         return courses;
     }
 
-    public Result evaluateCourse(EvaluationItem evaluation, EvaluationCourse course, int score)
+    public Result evaluateCourse(EvaluationItem evaluation, EvaluationCourse course, int score, String[] remarks)
             throws IOException, NeedLoginException, JSONException {
 
         if (score > 5) {
@@ -1127,13 +1127,8 @@ public class SchoolworkAssist implements Parcelable {
             textSize = Integer.valueOf(wjSizeEl.val());
         }
         ArrayList<String> textID = new ArrayList<>();
-        String remark;
 
-        if (score < 3) {
-            remark = "@#@优点很少，收获不多，建议老师充分调动课堂，创新教学方式，继续努力!";
-        } else {
-            remark = "@#@优点很多，收获很多，没有建议，继续努力!";
-        }
+        String remark = "@#@" + remarks[score - 1];
 
         for (int i = 0; i < textSize; ++i) {
             String el = "area" + i;

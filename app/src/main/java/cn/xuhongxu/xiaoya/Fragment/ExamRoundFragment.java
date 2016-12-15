@@ -1,12 +1,15 @@
 package cn.xuhongxu.xiaoya.Fragment;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -229,7 +232,7 @@ public class ExamRoundFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.only_refresh_menu, menu);
+        inflater.inflate(R.menu.exam_round, menu);
     }
 
     @Override
@@ -239,6 +242,23 @@ public class ExamRoundFragment extends Fragment {
         if (id == R.id.action_refresh) {
             task = new GetExamRoundTask();
             task.execute(false);
+        } else if (id == R.id.action_current) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.choose_exam_round);
+            builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dialogInterface.cancel();
+                }
+            });
+            builder.setItems(R.array.exam_round, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    mListener.onExamRoundSelected(-i - 1);
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.show();
         }
 
         return super.onOptionsItemSelected(item);

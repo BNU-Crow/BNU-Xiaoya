@@ -1,7 +1,5 @@
 package cn.xuhongxu.Assist;
 
-import java.util.Calendar;
-
 /**
  * Created by xuhongxu on 16/4/6.
  *
@@ -27,17 +25,17 @@ public class ExamRound {
     private void getItemName() {
         int p1 = name.indexOf("学年");
         int p2 = name.indexOf("学期");
-        yearName = name.substring(0, p1);
-        termName = name.substring(p1 + 2, p2);
-        roundName = name.substring(p2 + 2);
+        setYearName(name.substring(0, p1));
+        setTermName(name.substring(p1 + 2, p2));
+        setRoundName(name.substring(p2 + 2));
     }
 
     void setCode(String code) {
         this.code = code.trim();
         String []res = code.split(",");
-        year = Integer.valueOf(res[0]);
-        term = Integer.valueOf(res[1]);
-        round = Integer.valueOf(res[2]);
+        setYear(Integer.valueOf(res[0]));
+        setTerm(Integer.valueOf(res[1]));
+        setRound(Integer.valueOf(res[2]));
     }
 
     public String getName() {
@@ -82,5 +80,29 @@ public class ExamRound {
                 ", term='" + term + '\'' +
                 ", round='" + round + '\'' +
                 '}';
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setTerm(int term) {
+        this.term = term;
+    }
+
+    public void setRound(int round) {
+        this.round = round;
+    }
+
+    public void setYearName(String yearName) {
+        this.yearName = yearName;
+    }
+
+    public void setTermName(String termName) {
+        this.termName = termName;
+    }
+
+    public void setRoundName(String roundName) {
+        this.roundName = roundName;
     }
 }
