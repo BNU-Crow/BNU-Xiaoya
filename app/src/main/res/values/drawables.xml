@@ -14,4 +14,5 @@
     <item name="ic_toc_white" type="drawable">@mipmap/ic_toc_white_48dp</item>
     <item name="ic_stars_white" type="drawable">@mipmap/ic_stars_white_48dp</item>
     <item name="ic_share_white" type="drawable">@mipmap/ic_share_white_48dp</item>
+    <item name="ic_settings_black" type="drawable">@mipmap/ic_settings_black_48dp</item>
 </resources>

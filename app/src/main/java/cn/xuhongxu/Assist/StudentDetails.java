@@ -83,6 +83,9 @@ public class StudentDetails {
     }
 
     public String getEmail() {
+        if (email.isEmpty()) {
+            email = id + "@mail.bnu.edu.cn";
+        }
         return email;
     }
 
@@ -91,6 +94,9 @@ public class StudentDetails {
     }
 
     public String getMobile() {
+        if (mobile.isEmpty()) {
+            mobile = "18888888888";
+        }
         return mobile;
     }
 

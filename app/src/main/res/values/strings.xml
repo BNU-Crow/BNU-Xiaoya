@@ -179,6 +179,9 @@
     <string name="pref_default_star_5">优点很多，收获很多，没有建议，继续努力!</string>
     <string name="action_current">查看本学期</string>
     <string name="choose_exam_round">选择考试轮次（期末或随堂，无法确定对应关系）</string>
+    <string name="feedback_message">请加QQ群\n\n北师小鸦尝鲜用户群 334180755</string>
+    <string name="pref_category_general">基本设置</string>
+    <string name="pref_show_avatar">显示头像</string>
 
 
 </resources>

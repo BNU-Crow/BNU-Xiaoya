@@ -3,12 +3,17 @@ package cn.xuhongxu.xiaoya.Activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -94,8 +99,6 @@ public class MainActivity extends AppCompatActivity
     private boolean isBack = false;
 
 
-    FeedbackAgent agent;
-
     private TabLayout tabLayout;
 
     public TabLayout getTabLayout() {
@@ -107,9 +110,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         AVAnalytics.trackAppOpened(getIntent());
-
-        agent = new FeedbackAgent(this);
-        agent.sync();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -232,16 +232,35 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         switch (id) {
             case R.id.action_settings:
                 Intent intent = new Intent(this, PreferencesActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.action_feedback:
-                agent.startDefaultThreadActivity();
+                builder.setTitle(R.string.action_feedback);
+                builder.setMessage(R.string.feedback_message);
+                builder.setPositiveButton(R.string.action_copy, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ClipboardManager clipboard = (ClipboardManager)
+                                getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("QQGroup", "334180755");
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
                 return true;
             case R.id.action_about:
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.action_about);
                 builder.setMessage(R.string.about);
                 builder.setPositiveButton(R.string.contact_me, new DialogInterface.OnClickListener() {
@@ -249,7 +268,7 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_VIEW);
-                        Uri uri = Uri.parse("http://blog.xuhongxu.cn/about/");
+                        Uri uri = Uri.parse("http://xuhongxu.com/");
                         intent.setData(uri);
                         startActivity(intent);
                     }
@@ -288,6 +307,11 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = EvaluationFragment.class;
         } else if (id == R.id.nav_logout) {
             reLogin(true, true);
+            return;
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, PreferencesActivity.class);
+            startActivity(intent);
+            return;
         }
 
         if (fragmentClass != null) {
@@ -519,8 +543,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadAvatar() {
-        String avatarURL = "http://zyfw.bnu.edu.cn/share/showphoto.jsp?zpid=" + app.getStudentDetails().getAvatarID();
-        new LoadAvatarTask().execute(avatarURL, getString(R.string.avatar_desp));
+        SharedPreferences pf = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (pf.getBoolean("show_avatar", true)) {
+            String avatarURL = "http://zyfw.bnu.edu.cn/share/showphoto.jsp?zpid=" + app.getStudentDetails().getAvatarID();
+            new LoadAvatarTask().execute(avatarURL, getString(R.string.avatar_desp));
+        }
     }
 
     @Override
