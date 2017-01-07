@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity
         CancelCourseFragment.OnFragmentInteractionListener,
         ScoreFragment.OnFragmentInteractionListener {
 
+    boolean registered = false;
     private static final String TAG = MainActivity.class.getName();
     YaApplication app;
 
@@ -460,6 +461,8 @@ public class MainActivity extends AppCompatActivity
                 usernameView.setText(sd.getName());
                 userIDView.setText(sd.getId());
 
+                if (registered) return;
+
                 PushService.subscribe(getApplicationContext(), "College-" + sd.getCollege(), MainActivity.class);
                 PushService.subscribe(getApplicationContext(), "Grade-" + sd.getRegistrationGrade(), MainActivity.class);
 
@@ -467,7 +470,7 @@ public class MainActivity extends AppCompatActivity
                 user.setUsername(sd.getId());// 设置用户名
                 user.setPassword(sd.getNumber() + sd.getGaokaoID());// 设置密码
                 user.setEmail(sd.getEmail());// 设置邮箱
-                user.setMobilePhoneNumber(sd.getMobile());
+                // user.setMobilePhoneNumber(sd.getMobile());
                 user.put("RegistrationTime", sd.getRegistrationTime());
                 user.put("Nationality", sd.getNationality());
                 user.put("AdmitSpeciality", sd.getSpeciality());
@@ -484,6 +487,7 @@ public class MainActivity extends AppCompatActivity
                 user.put("Gender", sd.getGender());
                 user.put("Address", sd.getAddress());
                 user.put("Pinyin", sd.getPinyin());
+                user.put("mobile", sd.getMobile());
                 user.put("RegistrationGrade", sd.getRegistrationGrade());
                 user.put("Birthday", sd.getBirthday());
                 user.signUpInBackground(new SignUpCallback() {
@@ -491,6 +495,7 @@ public class MainActivity extends AppCompatActivity
                     public void done(AVException e) {
                         if (e == null || e.getCode() == AVException.USERNAME_TAKEN || e.getCode() == AVException.EMAIL_TAKEN || e.getCode() == AVException.USER_MOBILE_PHONENUMBER_TAKEN) {
                             // 注册成功
+                            registered = true;
                             AVUser.logInInBackground(sd.getId(), sd.getNumber() + sd.getGaokaoID(), new LogInCallback<AVUser>() {
                                 @Override
                                 public void done(AVUser avUser, AVException e) {

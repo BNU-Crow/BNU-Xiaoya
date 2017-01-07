@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +82,8 @@ public class SchoolworkAssist implements Parcelable {
     // URL: Get Student Details
     private static final String STUDENT_DETAILS_URL = "http://zyfw.bnu.edu.cn/STU_BaseInfoAction.do?" +
             "hidOption=InitData&menucode_current=JW13020101";
+    // URL: Get Grade
+    public static final String GRADE_INFO_URL = "http://zyfw.bnu.edu.cn/jw/common/getStuGradeSpeciatyInfo.action";
     // URL: Get Timetable
     private static final String TIMETABLE_URL
             = "http://zyfw.bnu.edu.cn/wsxk/xkjg.ckdgxsxdkchj_data10319.jsp?params=";
@@ -178,6 +181,31 @@ public class SchoolworkAssist implements Parcelable {
          */
     }
 
+    private GradeInfo fetchGradeInfo(String id) throws IOException, NeedLoginException{
+        Document doc = Jsoup.connect(GRADE_INFO_URL)
+                .data("xh", id)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .post();
+        if (!isLogin(doc.outerHtml())) {
+            throw new NeedLoginException();
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(doc.body().html());
+            String result = jsonObject.getString("result");
+            JSONObject resObject = new JSONObject(result);
+            String zydm = resObject.getString("zydm");
+            String nj = resObject.getString("nj");
+            String zymc = resObject.getString("zymc");
+            return new GradeInfo(nj, zymc, zydm);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new GradeInfo();
+        }
+    }
+
     private void fetchStudentInfo() throws IOException, NeedLoginException {
         Connection.Response res = Jsoup.connect(STUDENT_INFO_URL)
                 .timeout(getTimeout())
@@ -189,12 +217,33 @@ public class SchoolworkAssist implements Parcelable {
             throw new NeedLoginException();
         }
         Document doc = res.parse();
-        studentInfo = new StudentInfo(doc.getElementsByTag("xh").text(),
-                doc.getElementsByTag("nj").text(),
-                doc.getElementsByTag("zymc").text(),
-                doc.getElementsByTag("zydm").text(),
-                doc.getElementsByTag("xn").text(),
-                doc.getElementsByTag("xq_m").text());
+        String xh = "", nj = "", zymc = "", zydm = "", xn = "", xq_m = "";
+        try {
+            xh = doc.getElementsByTag("xh").text();
+            nj = doc.getElementsByTag("nj").text();
+            zymc = doc.getElementsByTag("zymc").text();
+            zydm = doc.getElementsByTag("zydm").text();
+            xn = doc.getElementsByTag("xn").text();
+            xq_m = doc.getElementsByTag("xq_m").text();
+            if (zydm.isEmpty() || nj.isEmpty()) {
+                GradeInfo info = fetchGradeInfo(xh);
+                nj = info.getGrade();
+                zymc = info.getSpeciality();
+                zydm = info.getSpecialityCode();
+            }
+            Calendar calendar = Calendar.getInstance();
+            int m = calendar.get(Calendar.MONTH);
+            int y = calendar.get(Calendar.YEAR) - 1;
+            if (m < 9 && m > 2) {
+                // spring
+                xq_m = "1";
+            } else {
+                xq_m = "0";
+            }
+            xn = String.valueOf(y);
+        } finally {
+            studentInfo = new StudentInfo(xh, nj, zymc, zydm, xn, xq_m);
+        }
     }
 
     private boolean isLogin(String body) {
@@ -261,6 +310,8 @@ public class SchoolworkAssist implements Parcelable {
     }
 
     public void login() throws IOException, LoginException {
+        studentInfo = null;
+        selectInfo = null;
 
         fetchLoginParams();
 

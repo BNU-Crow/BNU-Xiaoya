@@ -146,6 +146,9 @@ public class LoginActivity extends AppCompatActivity {
         PushService.setDefaultPushCallback(this, MainActivity.class);
 
         app = (YaApplication) getApplication();
+        if (app != null) {
+            app.clearAll();
+        }
 
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
