@@ -63,7 +63,7 @@
             android:ems="20"
             android:hint="@string/username"
             android:imeOptions="actionNext"
-            android:inputType="number|textAutoComplete" />
+            android:inputType="textAutoComplete" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout

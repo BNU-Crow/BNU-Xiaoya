@@ -44,6 +44,8 @@ public class SchoolworkAssist implements Parcelable {
     // HEADER: Content-Type
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String USER_AGENT_HEADER = "User-Agent";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     // HEADER: REFERER
     public static final String HEADER_REFERER = "Referer";
     public static final String REFERER = "http://zyfw.bnu.edu.cn";
@@ -154,12 +156,12 @@ public class SchoolworkAssist implements Parcelable {
         lt = "LT-NeusoftAlwaysValidTicket";
         excution = "e1s1";
 
-        Connection.Response res = Jsoup.connect(LOGIN_URL).timeout(getTimeout()).method(Connection.Method.GET).execute();
+        Connection.Response res = Jsoup.connect(LOGIN_URL).header(USER_AGENT_HEADER, USER_AGENT)
+                .timeout(getTimeout()).method(Connection.Method.GET).execute();
         if (res.statusCode() != 200) {
             throw new ConnectException("Failed to get login params");
         }
         cookies = res.cookies();
-        /*
         String text = res.body();
 
         Pattern pattern = Pattern.compile("input type=\"hidden\" name=\"lt\" value=\"(.*)\"");
@@ -178,7 +180,6 @@ public class SchoolworkAssist implements Parcelable {
             throw new ConnectException("Failed to get login param 'execution'");
         }
 
-         */
     }
 
     private GradeInfo fetchGradeInfo(String id) throws IOException, NeedLoginException{
@@ -187,6 +188,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .post();
         if (!isLogin(doc.outerHtml())) {
@@ -209,6 +211,7 @@ public class SchoolworkAssist implements Parcelable {
     private void fetchStudentInfo() throws IOException, NeedLoginException {
         Connection.Response res = Jsoup.connect(STUDENT_INFO_URL)
                 .timeout(getTimeout())
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
                 .cookies(getCookies())
@@ -318,7 +321,7 @@ public class SchoolworkAssist implements Parcelable {
         Document doc = Jsoup.connect(LOGIN_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1")
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("username", getUsername())
                 .data("password", getPassword())
@@ -353,6 +356,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
                 .data("xktype", "2")
@@ -445,6 +449,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
                 .data("electiveCourseForm.xktype", "2")
@@ -536,6 +541,7 @@ public class SchoolworkAssist implements Parcelable {
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("initQry", "0")
                 .data("xktype", "2")
                 .data("xh", getStudentInfo().getId())
@@ -624,6 +630,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("xktype", "5")
                 .data("xh", getStudentInfo().getId())
@@ -708,6 +715,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
                 .data("token", encryptedParams.getToken())
@@ -728,6 +736,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .post();
         if (!isLogin(doc.outerHtml())) {
@@ -766,6 +775,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
                 .data("token", encryptedParams.getToken())
@@ -803,6 +813,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
                 .data("token", encryptedParams.getToken())
@@ -820,6 +831,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(20000)
                 .cookies(getCookies())
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .get();
         if (!isLogin(doc.outerHtml())) {
@@ -866,6 +878,7 @@ public class SchoolworkAssist implements Parcelable {
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("comboBoxName", EXAM_DROP_NAME)
                 .method(Connection.Method.POST)
                 .execute();
@@ -905,6 +918,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("xh", "")
                 .data("xn", String.valueOf(examRound.getYear()))
@@ -964,6 +978,7 @@ public class SchoolworkAssist implements Parcelable {
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("ysyx", "yscj")
                 .data("userCode", getStudentInfo().getId())
                 .data("zfx", "0")
@@ -1024,6 +1039,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("pjzt_m", "20")
                 .method(Connection.Method.POST)
@@ -1063,6 +1079,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("xn", String.valueOf(evaluation.getYear()))
                 .data("xq", String.valueOf(evaluation.getTerm()))
@@ -1121,6 +1138,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("pjlc", evaluation.getCode())
                 .data("kcdm", course.getCode() )
@@ -1201,6 +1219,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("wspjZbpjWjdcForm.pjlb_m", course.getClassificationCode())
                 .data("wspjZbpjWjdcForm.sfzjjs", course.getSfzjjs())
@@ -1232,6 +1251,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .post();
         if (!isLogin(doc.outerHtml())) {
@@ -1272,6 +1292,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_REFERER, REFERER)
                 .data("comboBoxName", "Ms_KBBP_FBXQLLJXAP")
                 .method(Connection.Method.POST)
@@ -1301,6 +1322,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/xkjg.wdkb.jsp?menucode=JW130418")
+                .header(USER_AGENT_HEADER, USER_AGENT)
                 .get();
         if (!isLogin(doc.html())) {
             throw new NeedLoginException();
