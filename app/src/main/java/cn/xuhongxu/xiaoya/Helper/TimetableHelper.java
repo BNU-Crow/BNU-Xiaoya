@@ -35,7 +35,7 @@ public class TimetableHelper {
     private int shownWeek = 0;
     private boolean empty = false;
 
-    public TimetableHelper(Context context) throws IOException, ClassNotFoundException {
+    public TimetableHelper(Context context) {
         mContext = context;
         preferences =
                 mContext.getSharedPreferences(mContext.getString(R.string.preference_key),
@@ -45,11 +45,15 @@ public class TimetableHelper {
         if (getStudentName().isEmpty()) {
             empty = true;
         } else {
-            FileInputStream fis = mContext.openFileInput("timetable");
-            ObjectInputStream is = new ObjectInputStream(fis);
-            setTableCourses((ArrayList<TableCourse>) is.readObject());
-            is.close();
-            fis.close();
+            try {
+                FileInputStream fis = mContext.openFileInput("timetable");
+                ObjectInputStream is = new ObjectInputStream(fis);
+                setTableCourses((ArrayList<TableCourse>) is.readObject());
+                is.close();
+                fis.close();
+            } catch (Exception e) {
+                setTableCourses(new ArrayList<TableCourse>());
+            }
         }
     }
 

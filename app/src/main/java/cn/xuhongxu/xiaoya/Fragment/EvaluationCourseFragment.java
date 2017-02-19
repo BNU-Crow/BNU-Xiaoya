@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,10 +29,16 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.GetCallback;
+import com.avos.avoscloud.SaveCallback;
 
 import java.io.IOException;
 
 import cn.xuhongxu.Assist.EvaluationCourse;
+import cn.xuhongxu.Assist.EvaluationItem;
 import cn.xuhongxu.Assist.NeedLoginException;
 import cn.xuhongxu.xiaoya.Adapter.EvaluationCourseRecycleAdapter;
 import cn.xuhongxu.xiaoya.Listener.RecyclerItemClickListener;
@@ -297,7 +304,7 @@ public class EvaluationCourseFragment extends Fragment {
         private int pos = 0;
 
         @Override
-        protected Integer doInBackground(Integer... params) {
+        protected Integer doInBackground(final Integer... params) {
             if (params.length > 2) {
                 all = params[2] == EVALUATE_ALL;
             }
@@ -315,9 +322,33 @@ public class EvaluationCourseFragment extends Fragment {
             remarks[4] = preferences.getString("star_5", getString(R.string.pref_default_star_5));
 
             try {
+                EvaluationItem item = app.getEvaluationItemList().get(itemPosition);
+                final EvaluationCourse course = app.getEvaluationCourses().get(params[0]);
+
+                AVQuery<AVObject> query = new AVQuery<>("CourseEvaluation");
+                query.whereEqualTo("courseCode", course.getCode());
+                query.getFirstInBackground(new GetCallback<AVObject>() {
+                    @Override
+                    public void done(AVObject avObject, AVException e) {
+                        if (avObject != null) {
+                            avObject.increment("level", params[1]);
+                            avObject.increment("count");
+                            avObject.saveInBackground();
+                        } else {
+                            AVObject evaluation = new AVObject("CourseEvaluation");
+                            evaluation.put("courseCode", course.getCode());
+                            evaluation.put("name", course.getName());
+                            evaluation.put("teacher", course.getTeacherName());
+                            evaluation.put("level", params[1]);
+                            evaluation.put("count", 1);
+                            evaluation.saveInBackground();
+                        }
+                    }
+                });
+
                 app.getAssist().evaluateCourse(
-                        app.getEvaluationItemList().get(itemPosition),
-                        app.getEvaluationCourses().get(params[0]),
+                        item,
+                        course,
                         params[1],
                         remarks
                 );

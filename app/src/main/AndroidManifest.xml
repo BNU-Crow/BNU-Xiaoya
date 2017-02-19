@@ -58,9 +58,9 @@
         </activity>
         <activity android:name=".Activity.ErrorActivity" />
         <activity
-            android:name=".Activity.GatewayActivity"
-            android:icon="@mipmap/wifi"
-            android:label="@string/title_activity_gateway"
+            android:name=".Activity.ToolboxActivity"
+            android:icon="@mipmap/toolbox"
+            android:label="@string/title_activity_toolbox"
             android:taskAffinity="cn.xuhongxu.xiaoya.GatewayTask"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">

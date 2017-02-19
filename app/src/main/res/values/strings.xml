@@ -122,7 +122,7 @@
     <string name="this_is_timetable_share_code">这是课程表分享码，可以复制全文（包括这些）通过小鸦课程表导入</string>
     <string name="import_error">导入失败</string>
     <string name="ok">确定</string>
-    <string name="title_activity_gateway">小鸦网关</string>
+    <string name="title_activity_toolbox">小鸦工具箱</string>
     <string name="gateway_login_tip">网关登录</string>
     <string name="force_logout">强制离线</string>
     <string name="building">建设中……</string>
@@ -182,6 +182,9 @@
     <string name="feedback_message">请加QQ群\n\n北师小鸦尝鲜用户群 334180755</string>
     <string name="pref_category_general">基本设置</string>
     <string name="pref_show_avatar">显示头像</string>
+    <string name="gateway">网关</string>
+    <string name="search_library">搜索馆藏</string>
+    <string name="library_book_keyword">藏书关键词</string>
 
 
 </resources>

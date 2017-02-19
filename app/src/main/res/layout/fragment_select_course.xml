@@ -4,18 +4,10 @@
     android:layout_height="match_parent"
     tools:context="cn.xuhongxu.xiaoya.Fragment.SelectCourseFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
         <android.support.v4.view.ViewPager
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1.0"
+            android:layout_height="match_parent"
             android:scrollbars="none" />
-
-    </LinearLayout>
 
 </FrameLayout>

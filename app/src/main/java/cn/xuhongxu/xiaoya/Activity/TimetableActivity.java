@@ -72,11 +72,7 @@ public class TimetableActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        try {
-            helper = new TimetableHelper(this);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        helper = new TimetableHelper(this);
 
         preferences =
                 getSharedPreferences(getString(R.string.preference_key),

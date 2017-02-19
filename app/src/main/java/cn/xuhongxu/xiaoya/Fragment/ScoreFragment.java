@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,8 +27,15 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.GetCallback;
+import com.avos.avoscloud.SaveCallback;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,6 +137,45 @@ public class ScoreFragment extends Fragment {
     }
 
     private void updateItems(boolean updated, boolean first) {
+
+        try {
+            AVQuery<AVObject> query = new AVQuery<>("CourseScore");
+            final String k = app.getStudentInfo().getId();
+            query.whereEqualTo("stuKey", k);
+
+            query.findInBackground(new FindCallback<AVObject>() {
+                @Override
+                public void done(List<AVObject> list, AVException e) {
+                    List<AVObject> evals = new ArrayList<AVObject>();
+                    for (final ExamScore score : app.getExamScores()) {
+                        boolean has = false;
+                        for (AVObject o : list) {
+                            if (o.get("courseName").equals(score.getCourseName())) {
+                                has = true;
+                                break;
+                            }
+                        }
+                        if (has) continue;
+                        try {
+                            AVObject evaluation = new AVObject("CourseScore");
+                            evaluation.put("stuKey", k);
+                            evaluation.put("courseName", score.getCourseName());
+                            evaluation.put("term", score.getTerm());
+                            evaluation.put("score1", Double.valueOf(score.getUsualScore()));
+                            evaluation.put("score2", Double.valueOf(score.getExamScore()));
+                            evaluation.put("score", score.getScore());
+                            evals.add(evaluation);
+                        } catch (Exception e1){
+                            e1.printStackTrace();
+                        }
+                    }
+                    AVObject.saveAllInBackground(evals);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (updated) {
             ScoreRecycleAdapter adapter =
                     new ScoreRecycleAdapter(getActivity(), app.getExamScores());
