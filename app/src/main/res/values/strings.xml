@@ -185,6 +185,13 @@
     <string name="gateway">网关</string>
     <string name="search_library">搜索馆藏</string>
     <string name="library_book_keyword">藏书关键词</string>
+    <string name="classroom">自习室</string>
+    <string name="query">查询</string>
+    <string name="minor">辅修</string>
+    <string name="renew_all">全部续约</string>
+    <string name="borrow_book">借阅管理</string>
+    <string name="library_key">cn.xuhongxu.xiaoya.LIBRARY</string>
+    <string name="account_setting">设置账号</string>
 
 
 </resources>

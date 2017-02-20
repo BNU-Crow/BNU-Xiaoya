@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.BorrowBookFragment">
+
+
+    <LinearLayout
+        android:id="@+id/controls"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/login"
+            android:text="@string/account_setting"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/renew"
+            android:text="@string/renew_all"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/loading" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/book_list"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/controls" />
+
+</RelativeLayout>

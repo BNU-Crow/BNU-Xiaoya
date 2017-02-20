@@ -50,7 +50,11 @@ public class ScoreRecycleAdapter
         holder.usual.setText(context.getString(R.string.usual_score) + ": " + item.getUsualScore());
         holder.exam.setText(context.getString(R.string.exam_score) + ": " + item.getExamScore());
         holder.credit.setText(context.getString(R.string.credit) + ": " + item.getCourseCredit());
-        holder.classification.setText(item.getClassification());
+        if (item.isMajor()) {
+            holder.classification.setText(item.getClassification());
+        } else {
+            holder.classification.setText(context.getString(R.string.minor) + "  " + item.getClassification());
+        }
     }
 
     @Override

@@ -103,9 +103,11 @@ public class ScoreFragment extends Fragment {
             assert view != null;
             try {
                 if (year == 0) {
-                    app.setExamScores(app.getAssist().getExamScores());
+                    app.setExamScores(app.getAssist().getExamScores(true));
+                    app.getExamScores().addAll(app.getAssist().getExamScores(false));
                 } else {
-                    app.setExamScores(app.getAssist().getExamScores(year, term));
+                    app.setExamScores(app.getAssist().getExamScores(year, term, true));
+                    app.getExamScores().addAll(app.getAssist().getExamScores(year, term, false));
                 }
             } catch (NeedLoginException needLogin) {
                 return getString(R.string.login_timeout);

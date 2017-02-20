@@ -56,7 +56,7 @@ public class LibraryFragment extends Fragment {
     private BookRecycleAdapter adapter;
 
     private Map<String, String> cookies;
-    private int timeout = 10000;
+    private int timeout = 20000;
     private String key = "";
     private InitTask initTask;
     private ArrayList<Book> books = new ArrayList<>();
@@ -104,7 +104,7 @@ public class LibraryFragment extends Fragment {
         }
         ArrayList<Book> tbooks = new ArrayList<>();
         try {
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(url).timeout(timeout).get();
 
             Elements items = doc.getElementsByClass("items");
             for (Element item : items) {

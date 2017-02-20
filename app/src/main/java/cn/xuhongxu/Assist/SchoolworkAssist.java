@@ -968,11 +968,11 @@ public class SchoolworkAssist implements Parcelable {
         return arrangements;
     }
 
-    public ArrayList<ExamScore> getExamScores() throws IOException, NeedLoginException {
-        return getExamScores(0, 0);
+    public ArrayList<ExamScore> getExamScores(boolean major) throws IOException, NeedLoginException {
+        return getExamScores(0, 0, major);
     }
 
-    public ArrayList<ExamScore> getExamScores(int year, int term) throws IOException, NeedLoginException {
+    public ArrayList<ExamScore> getExamScores(int year, int term, boolean major) throws IOException, NeedLoginException {
         Connection conn = Jsoup.connect(EXAM_SCORE_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -981,7 +981,7 @@ public class SchoolworkAssist implements Parcelable {
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("ysyx", "yscj")
                 .data("userCode", getStudentInfo().getId())
-                .data("zfx", "0")
+                .data("zfx", major ? "0" : "1")
                 .data("ysyxS", "on")
                 .data("sjxzS", "on")
                 .data("zfxS", "on");

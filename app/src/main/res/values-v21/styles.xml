@@ -5,5 +5,9 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="multiSliderStyle">@style/Widget.MultiSlider</item>
+    </style>
+
+    <style name="Widget.MultiSlider" parent="android:Widget">
     </style>
 </resources>

@@ -28,6 +28,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import cn.xuhongxu.xiaoya.Adapter.ViewPagerFragmentAdapter;
+import cn.xuhongxu.xiaoya.Fragment.BorrowBookFragment;
+import cn.xuhongxu.xiaoya.Fragment.ClassroomFragment;
 import cn.xuhongxu.xiaoya.Fragment.GatewayFragment;
 import cn.xuhongxu.xiaoya.Fragment.LibraryFragment;
 import cn.xuhongxu.xiaoya.R;
@@ -48,7 +50,9 @@ public class ToolboxActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager());
         adapter.add(GatewayFragment.class, getString(R.string.gateway));
+        adapter.add(ClassroomFragment.class, getString(R.string.classroom));
         adapter.add(LibraryFragment.class, getString(R.string.search_library));
+        adapter.add(BorrowBookFragment.class, getString(R.string.borrow_book));
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
     }
