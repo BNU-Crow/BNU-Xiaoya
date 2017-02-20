@@ -221,6 +221,8 @@ public class ClassroomFragment extends Fragment {
             start = 11;
         } else if (isInPeriod(h, m, 20, 35, 21, 30)) {
             start = 12;
+        } else {
+            start = 12;
         }
 
         end = start + 1;
