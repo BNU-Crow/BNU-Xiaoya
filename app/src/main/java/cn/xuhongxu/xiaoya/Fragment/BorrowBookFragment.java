@@ -183,6 +183,18 @@ public class BorrowBookFragment extends Fragment {
                 }
             });
             alert.show();
+
+            SharedPreferences preferences =
+                    getActivity().getSharedPreferences(getString(R.string.library_key),
+                            Context.MODE_PRIVATE);
+
+            String username = preferences.getString("username", "");
+            String password = preferences.getString("password", "");
+
+            if (preferences.contains("username") && preferences.contains("password")) {
+                progressBar.setVisibility(View.VISIBLE);
+                new LoginTask().execute(username, password);
+            }
         }
     }
 
