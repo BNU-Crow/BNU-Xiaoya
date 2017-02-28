@@ -42,10 +42,10 @@ public class SchoolworkAssist implements Parcelable {
     public static final String MESSAGE_ASSIST = "cn.xuhongxu.Assist";
 
     // HEADER: Content-Type
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String USER_AGENT_HEADER = "User-Agent";
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     // HEADER: REFERER
     public static final String HEADER_REFERER = "Referer";
     public static final String REFERER = "http://zyfw.bnu.edu.cn";

@@ -192,6 +192,10 @@
     <string name="borrow_book">借阅管理</string>
     <string name="library_key">cn.xuhongxu.xiaoya.LIBRARY</string>
     <string name="account_setting">设置账号</string>
+    <string name="exercise_query">锻炼打卡</string>
+    <string name="enter_time">进入时间</string>
+    <string name="leave_time">离开时间</string>
+    <string name="pass_record">显示合格记录</string>
 
 
 </resources>

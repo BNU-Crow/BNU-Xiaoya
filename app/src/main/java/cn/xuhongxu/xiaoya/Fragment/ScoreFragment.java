@@ -148,30 +148,34 @@ public class ScoreFragment extends Fragment {
             query.findInBackground(new FindCallback<AVObject>() {
                 @Override
                 public void done(List<AVObject> list, AVException e) {
-                    List<AVObject> evals = new ArrayList<AVObject>();
-                    for (final ExamScore score : app.getExamScores()) {
-                        boolean has = false;
-                        for (AVObject o : list) {
-                            if (o.get("courseName").equals(score.getCourseName())) {
-                                has = true;
-                                break;
+                    try {
+                        List<AVObject> evals = new ArrayList<AVObject>();
+                        for (final ExamScore score : app.getExamScores()) {
+                            boolean has = false;
+                            for (AVObject o : list) {
+                                if (o.get("courseName").equals(score.getCourseName())) {
+                                    has = true;
+                                    break;
+                                }
+                            }
+                            if (has) continue;
+                            try {
+                                AVObject evaluation = new AVObject("CourseScore");
+                                evaluation.put("stuKey", k);
+                                evaluation.put("courseName", score.getCourseName());
+                                evaluation.put("term", score.getTerm());
+                                evaluation.put("score1", Double.valueOf(score.getUsualScore()));
+                                evaluation.put("score2", Double.valueOf(score.getExamScore()));
+                                evaluation.put("score", score.getScore());
+                                evals.add(evaluation);
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
                             }
                         }
-                        if (has) continue;
-                        try {
-                            AVObject evaluation = new AVObject("CourseScore");
-                            evaluation.put("stuKey", k);
-                            evaluation.put("courseName", score.getCourseName());
-                            evaluation.put("term", score.getTerm());
-                            evaluation.put("score1", Double.valueOf(score.getUsualScore()));
-                            evaluation.put("score2", Double.valueOf(score.getExamScore()));
-                            evaluation.put("score", score.getScore());
-                            evals.add(evaluation);
-                        } catch (Exception e1){
-                            e1.printStackTrace();
-                        }
+                        AVObject.saveAllInBackground(evals);
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
-                    AVObject.saveAllInBackground(evals);
                 }
             });
         } catch (Exception e) {

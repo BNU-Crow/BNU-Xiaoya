@@ -30,6 +30,7 @@ import org.jsoup.select.Elements;
 import cn.xuhongxu.xiaoya.Adapter.ViewPagerFragmentAdapter;
 import cn.xuhongxu.xiaoya.Fragment.BorrowBookFragment;
 import cn.xuhongxu.xiaoya.Fragment.ClassroomFragment;
+import cn.xuhongxu.xiaoya.Fragment.ExerciseFragment;
 import cn.xuhongxu.xiaoya.Fragment.GatewayFragment;
 import cn.xuhongxu.xiaoya.Fragment.LibraryFragment;
 import cn.xuhongxu.xiaoya.R;
@@ -38,6 +39,7 @@ public class ToolboxActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,12 @@ public class ToolboxActivity extends AppCompatActivity {
         adapter.add(ClassroomFragment.class, getString(R.string.classroom));
         adapter.add(LibraryFragment.class, getString(R.string.search_library));
         adapter.add(BorrowBookFragment.class, getString(R.string.borrow_book));
+        preferences =
+                getSharedPreferences(getString(R.string.preference_key),
+                        Context.MODE_PRIVATE);
+        if (Integer.valueOf(preferences.getString("username", "").substring(0, 4)) >= 2016) {
+            adapter.add(ExerciseFragment.class, getString(R.string.exercise_query));
+        }
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
     }
