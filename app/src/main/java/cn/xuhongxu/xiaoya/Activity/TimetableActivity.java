@@ -56,6 +56,8 @@ public class TimetableActivity extends AppCompatActivity {
     TimeTableView table;
     YaApplication app;
     private static final int LOGIN_REQUEST = 1;
+    private static final int LOGIN_REQUEST_NEW = 2;
+    private static final int NEW_COURSE = 3;
     private ArrayList<Semester> semesterList;
     private HashSet<String> history;
 
@@ -118,6 +120,20 @@ public class TimetableActivity extends AppCompatActivity {
 
         table = (TimeTableView) findViewById(R.id.timetable);
         title = (TextView) findViewById(R.id.timetable_title);
+
+        table.addListener(new TimeTableView.TableListener() {
+            @Override
+            public void onRemoveCourse(String name) {
+                for (TableCourse c : helper.getTableCourses()) {
+                    if (name.equals(c.getName())) {
+                        helper.getTableCourses().remove(c);
+                        break;
+                    }
+                }
+                helper.saveCourses();
+                parseTable(helper.calcWeek());
+            }
+        });
 
 
         if (helper.isEmpty()) {
@@ -232,6 +248,16 @@ public class TimetableActivity extends AppCompatActivity {
             } else {
                 Snackbar.make(findViewById(R.id.timetable_layout), R.string.login_error, Snackbar.LENGTH_LONG).show();
             }
+        } else if (requestCode == LOGIN_REQUEST_NEW) {
+            if (resultCode == RESULT_OK) {
+                Intent intent = new Intent(getApplicationContext(), NewCourseActivity.class);
+                startActivityForResult(intent, NEW_COURSE);
+            } else {
+                Snackbar.make(findViewById(R.id.timetable_layout), R.string.login_error, Snackbar.LENGTH_LONG).show();
+            }
+        } else if (requestCode == NEW_COURSE) {
+            helper = new TimetableHelper(this);
+            parseTable(helper.calcWeek());
         }
     }
 
@@ -312,7 +338,7 @@ public class TimetableActivity extends AppCompatActivity {
                         } else {
                             new GetSemesterTask().execute();
                         }
-                    } else {
+                    } else if (i == 1) {
                         // 分享码
                         AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);
                         builder.setTitle(R.string.import_timetable);
@@ -336,6 +362,19 @@ public class TimetableActivity extends AppCompatActivity {
                         });
 
                         builder.show();
+                    } else if (i == 2) {
+                        // 蹭课
+
+                        // 教务网
+                        if (app.getAssist() == null) {
+                            // 登录
+                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                            intent.putExtra("justLogin", true);
+                            startActivityForResult(intent, LOGIN_REQUEST_NEW);
+                        } else {
+                            Intent intent = new Intent(getApplicationContext(), NewCourseActivity.class);
+                            startActivityForResult(intent, NEW_COURSE);
+                        }
                     }
                 }
 
@@ -445,4 +484,5 @@ public class TimetableActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

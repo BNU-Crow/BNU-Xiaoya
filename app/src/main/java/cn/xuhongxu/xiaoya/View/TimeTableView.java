@@ -1,7 +1,9 @@
 package cn.xuhongxu.xiaoya.View;
 
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,10 +12,12 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v13.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -23,7 +27,10 @@ import android.widget.OverScroller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
+import cn.xuhongxu.Assist.TableCourse;
+import cn.xuhongxu.xiaoya.Helper.TimetableHelper;
 import cn.xuhongxu.xiaoya.R;
 
 /**
@@ -33,8 +40,19 @@ import cn.xuhongxu.xiaoya.R;
  * @version 0.1
  */
 public class TimeTableView extends View {
+
+    public interface TableListener {
+        void onRemoveCourse(String name);
+    }
+
+    public void addListener(TableListener listener) {
+        mListener = listener;
+    }
+
+    TableListener mListener = null;
+
     private List<Rectangle> classes;
-    Paint paint;
+    Paint paint, paintDup, paintNew;
     Paint paintCurrent;
     Paint weekPaint, numberPaint;
     TextPaint txtPaint;
@@ -53,12 +71,22 @@ public class TimeTableView extends View {
     private int []weekNames = {R.string.monday, R.string.tuesday, R.string.wednesday,
             R.string.thursday, R.string.friday, R.string.saturday, R.string.sunday};
 
+    int[] slots = new int[7 * 12];
+
     private void init() {
         classes = new ArrayList<>();
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.parseColor("#CCFFCC"));
         paint.setStyle(Paint.Style.FILL);
+
+        paintDup = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintDup.setColor(Color.parseColor("#77AA77"));
+        paintDup.setStyle(Paint.Style.FILL);
+
+        paintNew = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintNew.setColor(Color.parseColor("#AA8855"));
+        paintNew.setStyle(Paint.Style.FILL);
 
         paintCurrent = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintCurrent.setColor(Color.parseColor("#CCCCFF"));
@@ -118,7 +146,44 @@ public class TimeTableView extends View {
 
             @Override
             public boolean onSingleTapUp(MotionEvent motionEvent) {
-                return false;
+                float x = motionEvent.getX() - px(21) * scaleFactor + offsetX;
+                float y = motionEvent.getY() - px(31) * scaleFactor + offsetY;
+                int week = (int) (x / px(w + 2) / scaleFactor);
+                int n = (int) (y / px(h + 2) / scaleFactor);
+
+                String info = "";
+                String name = "";
+
+                for (Rectangle c : getClasses()) {
+                    if (c.day == week && c.start <= n && c.end >= n) {
+                        info += "\n" + c.text + "\n\n";
+                        name = c.name;
+                    }
+                }
+
+                if (name.isEmpty()) return true;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.class_details);
+                builder.setMessage(info);
+                final String finalName = name;
+                builder.setPositiveButton(R.string.delete_course, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (mListener != null) {
+                            mListener.onRemoveCourse(finalName);
+                        }
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                Dialog dialog = builder.create();
+                dialog.show();
+                return true;
             }
 
             @Override
@@ -249,13 +314,36 @@ public class TimeTableView extends View {
 
         canvas.save();
         canvas.translate(px(21) - offsetX / scaleFactor, px(31) - offsetY / scaleFactor);
+
+        for (int i = 0; i < 7 * 12; ++i) {
+            slots[i] = 0;
+        }
+
         for (Rectangle c : getClasses()) {
+
             Paint cp;
             if (c.day == day) {
                 cp = paintCurrent;
             } else {
                 cp = paint;
             }
+
+            txtPaint.setColor(Color.BLACK);
+
+            if (c.name.contains(" (蹭)")) {
+                cp = paintNew;
+                txtPaint.setColor(Color.WHITE);
+            }
+
+            for (int i = c.start; i <= c.end; ++i) {
+                int index = c.day * 12 + i;
+                if (slots[index] != 0) {
+                    cp = paintDup;
+                    txtPaint.setColor(Color.WHITE);
+                }
+                slots[index]++;
+            }
+
             canvas.drawRect(px(c.day * (w + 2) + 1), px(c.start * (h + 2) + 1), px(c.day * (w + 2) + w + 1), px(c.end * (h + 2) + h + 1), cp);
             StaticLayout sl = new StaticLayout(c.text, txtPaint, px(w - 8), Layout.Alignment.ALIGN_CENTER, 1, 1, true);
             canvas.save();

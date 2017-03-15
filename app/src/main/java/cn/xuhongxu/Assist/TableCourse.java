@@ -21,6 +21,7 @@ public class TableCourse implements Serializable {
     private String credit = "";
     private String teacher = "";
     private String locationTime = "";
+    private boolean freeToListen = false;
 
     private static final long serialVersionUID = -7048272870067608021L;
 
@@ -76,4 +77,11 @@ public class TableCourse implements Serializable {
     }
 
 
+    public boolean isFreeToListen() {
+        return freeToListen;
+    }
+
+    public void setFreeToListen(boolean freeToListen) {
+        this.freeToListen = freeToListen;
+    }
 }

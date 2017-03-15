@@ -105,9 +105,17 @@ public class SchoolworkAssist implements Parcelable {
     private static final String EXAM_ARRAGEMENT_TABLE_ID = "2538";
     // TABLE_ID: Evaluate Course ArrayList
     private static final String EVALUATE_COURSE_LIST_TABLE_ID = "50058";
+    // TABLE_ID: Course Details
+    private static final String COURSE_DETAILS_TABLE_ID = "5327042";
 
     // DROP_LIST: Exam Turn
     private static final String EXAM_DROP_NAME = "Ms_KSSW_FBXNXQKSLC";
+    // DROP_LIST: Department
+    private static final String DROP_DEPARTMENT = "MsYXB";
+    // DROP_LIST: Speciality
+    private static final String DROP_SPECIALITY = "MsGrade_PYCC_Specialty";
+    // DROP_LIST: Grade
+    private static final String DROP_GRADE = "MsGrade_Online";
 
     private String username;
     private String password;
@@ -237,7 +245,7 @@ public class SchoolworkAssist implements Parcelable {
             Calendar calendar = Calendar.getInstance();
             int m = calendar.get(Calendar.MONTH);
             int y = calendar.get(Calendar.YEAR) - 1;
-            if (m < 9 && m > 2) {
+            if (m < 7 && m > 0) {
                 // spring
                 xq_m = "1";
             } else {
@@ -404,6 +412,7 @@ public class SchoolworkAssist implements Parcelable {
                 courseName = courseName.substring(courseName.indexOf("]") + 1);
                 course.setName(courseName);
             }
+
             course.setCredit(doc.getElementById(prefix + "xf").text());
             course.setPeriod(doc.getElementById(prefix + "zxs").text());
             if (typeEl.childNodeSize() > 0) {
@@ -432,7 +441,8 @@ public class SchoolworkAssist implements Parcelable {
         return courses;
     }
 
-    public ArrayList<PlanChildCourse> getPlanChildCourses(PlanCourse course) throws IOException, NeedLoginException, JSONException {
+    public ArrayList<PlanChildCourse> getPlanChildCourses(PlanCourse course)
+        throws IOException, NeedLoginException, JSONException {
 
         fetchSelectInfo();
 
@@ -448,7 +458,7 @@ public class SchoolworkAssist implements Parcelable {
         Document doc = Jsoup.connect(TABLE_URL + PLAN_COURSE_CLASSES_TABLE_ID + "&" + params)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/report/wsxk.zx_promt.jsp")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("initQry", "0")
@@ -539,7 +549,7 @@ public class SchoolworkAssist implements Parcelable {
         Connection conn = Jsoup.connect(TABLE_URL + ELECTIVE_COURSE_LIST_TABLE_ID)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/wsxk.bykxk.html?menucode=JW130415")
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("initQry", "0")
@@ -629,7 +639,7 @@ public class SchoolworkAssist implements Parcelable {
         Document doc = Jsoup.connect(TABLE_URL + CANCEL_LIST_TABLE_ID)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/frame/menus/JW1304.jsp?menucode=JW1304")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("xktype", "5")
@@ -714,7 +724,7 @@ public class SchoolworkAssist implements Parcelable {
         Connection.Response res = Jsoup.connect(CANCEL_COURSE_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/wsxk.tx.nopre.html?menucode=JW130406")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -774,7 +784,7 @@ public class SchoolworkAssist implements Parcelable {
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/report/wsxk.zx_promt.jsp")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -812,7 +822,7 @@ public class SchoolworkAssist implements Parcelable {
         Connection.Response res = Jsoup.connect(SELECT_ELECTIVE_COURSE_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/wsxk.bykxk.html?menucode=JW130415")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .data("params", encryptedParams.getParams())
@@ -830,7 +840,7 @@ public class SchoolworkAssist implements Parcelable {
         Document doc = Jsoup.connect(SELECTION_RESULT_URL + Math.random() * 1000000)
                 .timeout(20000)
                 .cookies(getCookies())
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/frame/menus/JW1304.jsp?menucode=JW1304")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .get();
@@ -977,7 +987,7 @@ public class SchoolworkAssist implements Parcelable {
                 .timeout(getTimeout())
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/xscj.stuckcj.jsp?menucode=JW130706")
                 .header(USER_AGENT_HEADER, USER_AGENT)
                 .data("ysyx", "yscj")
                 .data("userCode", getStudentInfo().getId())
@@ -1139,7 +1149,7 @@ public class SchoolworkAssist implements Parcelable {
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(USER_AGENT_HEADER, USER_AGENT)
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/wspj_tjzbpj_wjdcb_pj.jsp")
                 .data("pjlc", evaluation.getCode())
                 .data("kcdm", course.getCode() )
                 .data("jsid", course.getTeacherID())
@@ -1220,7 +1230,7 @@ public class SchoolworkAssist implements Parcelable {
                 .cookies(getCookies())
                 .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
                 .header(USER_AGENT_HEADER, USER_AGENT)
-                .header(HEADER_REFERER, REFERER)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/wspj_tjzbpj_wjdcb_pj.jsp")
                 .data("wspjZbpjWjdcForm.pjlb_m", course.getClassificationCode())
                 .data("wspjZbpjWjdcForm.sfzjjs", course.getSfzjjs())
                 .data("wspjZbpjWjdcForm.xn", String.valueOf(evaluation.getYear()))
@@ -1339,6 +1349,7 @@ public class SchoolworkAssist implements Parcelable {
             course.setLocationTime(columns.get(5).text());
             course.setName(columns.get(0).text());
             course.setTeacher(columns.get(4).text());
+            course.setFreeToListen(columns.get(8).text().equals("是"));
             tableCourses.add(course);
         }
         return tableCourses;
@@ -1366,5 +1377,196 @@ public class SchoolworkAssist implements Parcelable {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+
+    public ArrayList<Department> getDepartments() throws IOException, NeedLoginException, JSONException {
+        Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .data("comboBoxName", DROP_DEPARTMENT)
+                .method(Connection.Method.POST)
+                .execute();
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+        JSONArray rounds = new JSONArray(res.body());
+        ArrayList<Department> departments = new ArrayList<>();
+        for (int i = 0; i < rounds.length(); ++i) {
+            JSONObject round = rounds.getJSONObject(i);
+            Department item = new Department();
+            item.setCode(round.getString("code"));
+            item.setName(round.getString("name"));
+            departments.add(item);
+        }
+
+        return departments;
+    }
+
+    public ArrayList<String> getGrades() throws IOException, NeedLoginException, JSONException {
+        Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .data("comboBoxName", DROP_GRADE)
+                .data("paramValue", "xn=" + getStudentInfo().getAcademicYear()
+                        + "&xq_m=" + getStudentInfo().getSchoolTerm())
+                .method(Connection.Method.POST)
+                .execute();
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+        JSONArray rounds = new JSONArray(res.body());
+        ArrayList<String> grades = new ArrayList<>();
+        for (int i = 0; i < rounds.length(); ++i) {
+            JSONObject round = rounds.getJSONObject(i);
+            grades.add(round.getString("code"));
+        }
+
+        return grades;
+    }
+
+    public ArrayList<EducationLevel> getEducationLevels() throws IOException, NeedLoginException, JSONException {
+        Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .data("comboBoxName", "MsCodeset")
+                .data("paramValue", "DM-PYCC")
+                .method(Connection.Method.POST)
+                .execute();
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+        JSONArray rounds = new JSONArray(res.body());
+        ArrayList<EducationLevel> items = new ArrayList<>();
+        for (int i = 0; i < rounds.length(); ++i) {
+            JSONObject round = rounds.getJSONObject(i);
+            EducationLevel item = new EducationLevel();
+            item.setCode(round.getString("code"));
+            item.setName(round.getString("name"));
+            items.add(item);
+        }
+
+        return items;
+    }
+
+    public ArrayList<Speciality> getSpecialites(String grade, String levelCode, String departmentCode) throws IOException, NeedLoginException, JSONException {
+        Connection.Response res = Jsoup.connect(DROPLIST_URL)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .data("comboBoxName", DROP_SPECIALITY)
+                .data("paramValue", "nj=" + grade + "&pycc=" + levelCode + "&dwh=" + departmentCode)
+                .method(Connection.Method.POST)
+                .execute();
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+        JSONArray rounds = new JSONArray(res.body());
+        ArrayList<Speciality> items = new ArrayList<>();
+        for (int i = 0; i < rounds.length(); ++i) {
+            JSONObject round = rounds.getJSONObject(i);
+            Speciality item = new Speciality();
+            item.setCode(round.getString("code"));
+            item.setName(round.getString("name"));
+            items.add(item);
+        }
+
+        return items;
+    }
+
+    public ArrayList<TableCourse> getCourseDetails(String grade, String levelCode, String departmentCode, String specialityCode) throws IOException, NeedLoginException, JSONException {
+
+        Document doc = Jsoup.connect(TABLE_URL + COURSE_DETAILS_TABLE_ID)
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_REFERER, REFERER)
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .data("initQry", "0")
+                .data("xktype", "2")
+                .data("xh", getStudentInfo().getId())
+                .data("xn", getStudentInfo().getAcademicYear())
+                .data("xq", getStudentInfo().getSchoolTerm())
+                .data("nj", getStudentInfo().getGrade())
+                .data("zydm", getStudentInfo().getSpecialityCode())
+                .data("xnxq", getStudentInfo().getAcademicYear() + "," + getStudentInfo().getSchoolTerm())
+                .data("sel_pycc", levelCode)
+                .data("sel_nj", grade)
+                .data("sel_yxb", departmentCode)
+                .data("sel_zydm", specialityCode)
+                .data("kkdw_range", "self")
+                .post();
+        if (!isLogin(doc.outerHtml())) {
+            throw new NeedLoginException();
+        }
+        ArrayList<TableCourse> courses = new ArrayList<>();
+        TableCourse course = null;
+        for (int i = 0; ; ++i) {
+            String prefix = "tr" + i + "_";
+
+            Element courseNameEl = doc.getElementById(prefix + "kc");
+            if (courseNameEl == null) {
+                break;
+            }
+
+            Element weekEl = doc.getElementById(prefix + "qsz");
+            if (weekEl == null) {
+                continue;
+            }
+            String week = weekEl.text();
+            Element teacherEl = doc.getElementById(prefix + "rkjs");
+            if (teacherEl == null) {
+                continue;
+            }
+            String teacher = teacherEl.text();
+            Element timeEl = doc.getElementById(prefix + "sksj");
+            if (timeEl == null) {
+                continue;
+            }
+            String time = timeEl.text();
+            time = time.replace("(", "[").replace(")", "]").replace("节", "")
+                    .replace("周", "周 ");
+            Element locEl = doc.getElementById(prefix + "skdd");
+            if (locEl == null) {
+                continue;
+            }
+            String loc = locEl.child(0).text();
+
+            if (courseNameEl.childNodeSize() > 0) {
+                String courseName = courseNameEl.child(0).text();
+                courseName = courseName.substring(courseName.indexOf("]") + 1);
+                course = new TableCourse();
+                course.setName(courseName + " (蹭)");
+            } else {
+                if (course == null) {
+                    continue;
+                }
+                String t = week + time;
+                t = t.replace("单周", "周(单)").replace("双周", "周(双)");
+                course.setLocationTime(course.getLocationTime() + "," + t + " " + teacher + "\n" + loc);
+                continue;
+            }
+            String t = week + time;
+            t = t.replace("单周", "周(单)").replace("双周", "周(双)");
+            course.setLocationTime(t + " " + teacher + "\n" + loc);
+            course.setCredit(doc.getElementById(prefix + "xf").text());
+            course.setFreeToListen(false);
+            course.setCode(doc.getElementById(prefix + "skbjdm").text());
+            course.setTeacher("");
+            courses.add(course);
+        }
+
+        return courses;
     }
 }

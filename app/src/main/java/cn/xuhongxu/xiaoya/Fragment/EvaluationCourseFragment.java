@@ -308,6 +308,13 @@ public class EvaluationCourseFragment extends Fragment {
             if (params.length > 2) {
                 all = params[2] == EVALUATE_ALL;
             }
+            if (all) {
+                try {
+                    Thread.sleep(1500 * params[0]);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             pos = params[0];
             View view = getView();
             assert view != null;

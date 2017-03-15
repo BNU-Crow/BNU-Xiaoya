@@ -85,6 +85,8 @@ public class ClassroomFragment extends Fragment {
         try {
             Document doc = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/public/dykb.kxjsi_data.gs1.jsp")
                     .timeout(timeout)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
                     .data("hidweeks", info.day)
                     .data("hidjcs", p)
                     .data("hidMIN", "0")
@@ -112,7 +114,7 @@ public class ClassroomFragment extends Fragment {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return rooms;
@@ -123,14 +125,16 @@ public class ClassroomFragment extends Fragment {
         try {
             Connection.Response res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/jw/common/showYearTerm.action")
                     .timeout(timeout)
-                    .method(Connection.Method.POST)
+                    .method(Connection.Method.GET)
                     .execute();
             JSONObject obj = new JSONObject(res.body());
             info.xn = obj.getString("xn");
             info.xq = obj.getString("xqM");
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dddd", Locale.CHINA);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
             res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/public/getTeachingWeekByDate.action")
                     .timeout(timeout)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
                     .data("xn", info.xn)
                     .data("xq_m", info.xq)
                     .data("hidOption", "getWeek")
@@ -140,7 +144,7 @@ public class ClassroomFragment extends Fragment {
             String[] date = res.body().split("@");
             info.week = date[0];
             info.day = date[1];
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return info;

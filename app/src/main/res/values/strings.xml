@@ -196,6 +196,9 @@
     <string name="enter_time">进入时间</string>
     <string name="leave_time">离开时间</string>
     <string name="pass_record">显示合格记录</string>
+    <string name="has_class">课程时间冲突</string>
+    <string name="class_details">课程明细</string>
+    <string name="delete_course">删除课程</string>
 
 
 </resources>

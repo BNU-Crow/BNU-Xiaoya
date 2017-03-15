@@ -159,10 +159,9 @@ public class LibraryFragment extends Fragment {
                 books.remove(books.size() - 1);
             }
             progressBar.setVisibility(View.GONE);
-            if (result.size() == 0) {
+            books.addAll(result);
+            if (result.size() < 20) {
                 adapter.setMoreDataAvailable(false);
-            } else {
-                books.addAll(result);
             }
             adapter.notifyDataSetChanged();
             adapter.notifyDataChanged();
