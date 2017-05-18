@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,9 +16,13 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import cn.xuhongxu.Assist.TableCourse;
 import cn.xuhongxu.xiaoya.Activity.TimetableActivity;
@@ -65,21 +71,53 @@ public class TimetableHelper {
         return empty;
     }
 
+    private int fetchWeek() {
+        try {
+            Connection.Response res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/jw/common/showYearTerm.action")
+                    .timeout(10000)
+                    .method(Connection.Method.GET)
+                    .execute();
+            JSONObject obj = new JSONObject(res.body());
+            String xn = obj.getString("xn");
+            String xq = obj.getString("xqM");
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+            res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/public/getTeachingWeekByDate.action")
+                    .timeout(10000)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+                    .data("xn", xn)
+                    .data("xq_m", xq)
+                    .data("hidOption", "getWeek")
+                    .data("hdrq", df.format(new Date()))
+                    .method(Connection.Method.POST)
+                    .execute();
+            String[] date = res.body().split("@");
+            return Integer.valueOf(date[1]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
     public int calcWeek() {
-        setCurrentWeek(preferences.getInt("current_week", 1));
+        int w = fetchWeek();
         Calendar now = Calendar.getInstance();
-        now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DATE));
-        now.setFirstDayOfWeek(Calendar.MONDAY);
-        int year = preferences.getInt("year", now.get(Calendar.YEAR));
-        int month = preferences.getInt("month", now.get(Calendar.MONTH));
-        int date = preferences.getInt("date", now.get(Calendar.DATE));
-        Calendar thatDay = Calendar.getInstance();
-        thatDay.setFirstDayOfWeek(Calendar.MONDAY);
-        thatDay.set(year, month, date, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
-        int diffWeek = now.get(Calendar.WEEK_OF_YEAR) - thatDay.get(Calendar.WEEK_OF_YEAR);
-        setCurrentWeek(getCurrentWeek() + diffWeek);
-        if (getCurrentWeek() <= 0) {
-            setCurrentWeek(1);
+        if (w == -1) {
+            setCurrentWeek(preferences.getInt("current_week", 1));
+            now.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DATE));
+            now.setFirstDayOfWeek(Calendar.MONDAY);
+            int year = preferences.getInt("year", now.get(Calendar.YEAR));
+            int month = preferences.getInt("month", now.get(Calendar.MONTH));
+            int date = preferences.getInt("date", now.get(Calendar.DATE));
+            Calendar thatDay = Calendar.getInstance();
+            thatDay.setFirstDayOfWeek(Calendar.MONDAY);
+            thatDay.set(year, month, date, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
+            int diffWeek = now.get(Calendar.WEEK_OF_YEAR) - thatDay.get(Calendar.WEEK_OF_YEAR);
+            setCurrentWeek(getCurrentWeek() + diffWeek);
+            if (getCurrentWeek() <= 0) {
+                setCurrentWeek(1);
+            }
+        } else {
+            setCurrentWeek(w);
         }
         setShownWeek(getCurrentWeek());
 
@@ -112,7 +150,6 @@ public class TimetableHelper {
                     }
                     if (week == week1) {
                         isIn = true;
-                        break;
                     }
                 } else {
                     int week1 = Integer.valueOf(part.substring(0, si).trim());
@@ -122,7 +159,6 @@ public class TimetableHelper {
                     }
                     if (week <= week2 && week >= week1) {
                         isIn = true;
-                        break;
                     }
                 }
             }
@@ -255,6 +291,8 @@ public class TimetableHelper {
             tc.setLocationTime(o.getString("locationTime"));
             tc.setCredit(o.getString("credit"));
             tc.setName(o.getString("name"));
+            if (o.has("freeToListen"))
+                tc.setFreeToListen(o.getBoolean("freeToListen"));
             tableCourses.add(tc);
         }
         return name;

@@ -102,7 +102,16 @@ public class BorrowBookFragment extends Fragment {
                     .timeout(timeout)
                     .get();
             try {
-                Element table = doc.getElementsByTag("table").get(5);
+                Element table = null;
+                for (Element t : doc.getElementsByTag("table")) {
+                    Element noEl = t.getElementsByClass("text3").first();
+                    if (noEl != null && noEl.text().trim().equals("No.")) {
+                        table = t;
+                    }
+                }
+                if (table == null) {
+                    return books;
+                }
                 for (Element tr : table.getElementsByTag("tr")) {
                     if ("tr1".equals(tr.className())) continue;
                     BorrowBook book = new BorrowBook();

@@ -269,8 +269,11 @@ public class TimetableActivity extends AppCompatActivity {
         return true;
     }
 
-
     void importShareCode(String shareCode, boolean resetCurrentWeek) {
+        importShareCode(shareCode, resetCurrentWeek, -1);
+    }
+
+    void importShareCode(String shareCode, boolean resetCurrentWeek, final int current) {
         int i = shareCode.indexOf("：");
         if (i != -1) {
             shareCode = shareCode.substring(i + 1).trim();
@@ -282,6 +285,17 @@ public class TimetableActivity extends AppCompatActivity {
             @Override
             public void done(AVObject avObject, AVException e) {
                 try {
+
+                    if (avObject == null) {
+                        final ArrayList<String> historyArr = new ArrayList<>(history);
+                        historyArr.remove(current);
+                        history = new HashSet<>(historyArr);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putStringSet("history", history);
+                        editor.apply();
+                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_outdated, Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
 
                     helper.setStudentName(helper.tableFromString(avObject.getString("Content")));
 
@@ -459,7 +473,7 @@ public class TimetableActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     String code = historyArr.get(i);
-                    importShareCode(code.split("\\s+")[1], false);
+                    importShareCode(code.split("\\s+")[1], false, i);
                 }
             });
             final int finalCurrent = current;

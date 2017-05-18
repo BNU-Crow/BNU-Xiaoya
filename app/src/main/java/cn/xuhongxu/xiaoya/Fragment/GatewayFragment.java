@@ -154,6 +154,13 @@ public class GatewayFragment extends Fragment {
 
         hideKeyboard(getActivity());
 
+        if (!switchRemember.isChecked()) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("password", "");
+            editor.putBoolean("remember", false);
+            editor.apply();
+        }
+
         progressDialog = ProgressDialog.show(getContext(), "登录中", "正在登录网关...",
                 true);
         new LoginTask().execute(editUsername.getText().toString(),

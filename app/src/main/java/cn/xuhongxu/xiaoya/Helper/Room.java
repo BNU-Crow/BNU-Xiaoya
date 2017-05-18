@@ -9,20 +9,21 @@ import android.support.annotation.NonNull;
  */
 
 public class Room implements Parcelable {
-    public String building;
-    public String rooms;
+    public String name;
+    public boolean[] noCourse;
 
     public Room() {
 
     }
 
-    public String[] getRoomList() {
-        return rooms.split("; ");
+    public Room(String name, boolean[] noCourse) {
+        this.name = name;
+        this.noCourse = noCourse;
     }
 
     protected Room(Parcel in) {
-        building = in.readString();
-        rooms = in.readString();
+        name = in.readString();
+        in.readBooleanArray(noCourse);
     }
 
     @Override
@@ -32,8 +33,8 @@ public class Room implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeString(building);
-        dest.writeString(rooms);
+        dest.writeString(name);
+        dest.writeBooleanArray(noCourse);
     }
 
     public static final Parcelable.Creator<Room> CREATOR = new Parcelable.Creator<Room>() {

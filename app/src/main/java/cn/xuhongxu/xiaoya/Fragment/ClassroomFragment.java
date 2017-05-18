@@ -3,35 +3,34 @@ package cn.xuhongxu.xiaoya.Fragment;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.avos.avoscloud.AVAnalytics;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 import cn.xuhongxu.xiaoya.Adapter.RoomRecycleAdapter;
+import cn.xuhongxu.xiaoya.Helper.Building;
 import cn.xuhongxu.xiaoya.Helper.Room;
 import cn.xuhongxu.xiaoya.R;
 import io.apptik.widget.MultiSlider;
@@ -48,18 +47,15 @@ public class ClassroomFragment extends Fragment {
     RecyclerView recyclerView;
     TextView periodText;
     ProgressBar progressBar;
-    Button queryButton;
+    Spinner spinner;
+    ArrayList<Building> buildings = new ArrayList<>();
     ArrayList<Room> roomList = new ArrayList<>();
+    ArrayList<Room> shownRooms = new ArrayList<>();
     RoomRecycleAdapter adapter;
+    ArrayAdapter<Building> spinnerAdapter;
 
     int start = 1, end = 2;
     int timeout = 30000;
-
-    class Info {
-        public String xn = "", xq = "";
-        public String week = "", day = "";
-    }
-
 
     public ClassroomFragment() {
         // Required empty public constructor
@@ -69,102 +65,108 @@ public class ClassroomFragment extends Fragment {
         return !((h == startH && m < startM) || h < startH || h > endH || (h == endH && m >= endM));
     }
 
-    ArrayList<Room> getRoom(Info info) {
-        ArrayList<Room> rooms = new ArrayList<>();
-        String p = "";
-        for (int i = start; i <= end; ++i) {
-            if (i < 10) {
-                p += "0" + i;
-            } else {
-                p += i;
-            }
-            if (i != end) {
-                p += ",";
-            }
-        }
-        try {
-            Document doc = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/public/dykb.kxjsi_data.gs1.jsp")
-                    .timeout(timeout)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
-                    .data("hidweeks", info.day)
-                    .data("hidjcs", p)
-                    .data("hidMIN", "0")
-                    .data("hidMAX", "800")
-                    .data("sybm_m", "00")
-                    .data("xn", info.xn)
-                    .data("xn1", String.valueOf(Integer.valueOf(info.xn) + 1))
-                    .data("xq_m", info.xq)
-                    .data("sel_zc", info.week)
-                    .data("selXQ", "0")
-                    .data("selGS", "1")
-                    .post();
 
-            Element table = doc.getElementsByTag("tbody").first();
-            if (table != null) {
-                for (Element tr : table.getElementsByTag("tr")) {
-                    try {
-                        Room room = new Room();
-                        room.building = tr.child(2).text();
-                        room.rooms = tr.child(3).text();
-                        rooms.add(room);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+    private List<Building> getBuildings() {
+        List<Building> buildings = new ArrayList<>();
+        try {
+            Connection.Response res =
+                    Jsoup.connect("http://202.112.88.59:8082/buildings").method(Connection.Method.GET).execute();
+            String body = res.body();
+            String[] fields = body.split(",");
+            for (int i = 0; i < fields.length; i += 2) {
+                buildings.add(new Building(fields[i + 1], fields[i]));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            buildings.add(new Building(e.getLocalizedMessage(), "0"));
+        }
+        return buildings;
+    }
+
+    private List<Room> getRooms(String id) {
+        List<Room> rooms = new ArrayList<>();
+        try {
+            Connection.Response res = Jsoup.connect("http://202.112.88.59:8082/building/" + id)
+                    .method(Connection.Method.GET).execute();
+
+            String body = res.body();
+            String[] fields = body.split(";");
+            for (String field : fields) {
+                String[] roomInfo = field.trim().split(",");
+                if (roomInfo.length != 17) continue;
+                rooms.add(new Room(roomInfo[0], new boolean[]{
+                        roomInfo[5].equals("1"),
+                        roomInfo[6].equals("1"),
+                        roomInfo[7].equals("1"),
+                        roomInfo[8].equals("1"),
+                        roomInfo[9].equals("1"),
+                        roomInfo[10].equals("1"),
+                        roomInfo[11].equals("1"),
+                        roomInfo[12].equals("1"),
+                        roomInfo[13].equals("1"),
+                        roomInfo[14].equals("1"),
+                        roomInfo[15].equals("1"),
+                        roomInfo[16].equals("1"),
+                }));
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            rooms.add(new Room("加载失败", new boolean[12]));
         }
         return rooms;
     }
 
-    Info getDate() {
-        Info info = new Info();
-        try {
-            Connection.Response res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/jw/common/showYearTerm.action")
-                    .timeout(timeout)
-                    .method(Connection.Method.GET)
-                    .execute();
-            JSONObject obj = new JSONObject(res.body());
-            info.xn = obj.getString("xn");
-            info.xq = obj.getString("xqM");
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
-            res = Jsoup.connect("http://zyfw.prsc.bnu.edu.cn/public/getTeachingWeekByDate.action")
-                    .timeout(timeout)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
-                    .data("xn", info.xn)
-                    .data("xq_m", info.xq)
-                    .data("hidOption", "getWeek")
-                    .data("hdrq", df.format(new Date()))
-                    .method(Connection.Method.POST)
-                    .execute();
-            String[] date = res.body().split("@");
-            info.week = date[0];
-            info.day = date[1];
-        } catch (Exception e) {
-            e.printStackTrace();
+    private class QueryBuildingTask extends AsyncTask<String, Void, List<Building>> {
+
+        @Override
+        protected List<Building> doInBackground(String... strings) {
+            return getBuildings();
         }
-        return info;
+
+        @Override
+        protected void onPostExecute(List<Building> result) {
+            progressBar.setVisibility(GONE);
+            buildings.clear();
+            buildings.addAll(result);
+            spinnerAdapter.notifyDataSetChanged();
+            if (buildings.size() > 0)
+                spinner.setSelection(0);
+        }
     }
 
-    private class QueryTask extends AsyncTask<Void, Void, ArrayList<Room>> {
+    private class QueryRoomTask extends AsyncTask<String, Void, List<Room>> {
 
         @Override
-        protected ArrayList<Room> doInBackground(Void... voids) {
-            return getRoom(getDate());
+        protected List<Room> doInBackground(String... strings) {
+            return getRooms(strings[0]);
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Room> result) {
+        protected void onPostExecute(List<Room> result) {
             progressBar.setVisibility(GONE);
             roomList.clear();
             roomList.addAll(result);
-            adapter.reset();
-            adapter.notifyDataSetChanged();
+            filterRooms();
         }
+    }
+
+    private void filterRooms() {
+        shownRooms.clear();
+        for (Room room : roomList) {
+            boolean add = true;
+            for (int i = start; i <= end; ++i) {
+                if (!room.noCourse[i - 1]) {
+                    add = false;
+                    break;
+                }
+            }
+            if (add) {
+                shownRooms.add(room);
+            }
+        }
+        adapter.reset();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -173,18 +175,7 @@ public class ClassroomFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_classroom, container, false);
 
-
-        periodText = (TextView)v.findViewById(R.id.period) ;
         multiSlider = (MultiSlider)v.findViewById(R.id.range_slider);
-        queryButton = (Button)v.findViewById(R.id.query);
-        progressBar = (ProgressBar) v.findViewById(R.id.loading);
-        recyclerView = (RecyclerView) v.findViewById(R.id.room_list);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new RoomRecycleAdapter(getContext(), roomList);
-        recyclerView.setAdapter(adapter);
-
         multiSlider.setOnThumbValueChangeListener(new MultiSlider.OnThumbValueChangeListener() {
             @Override
             public void onValueChanged(MultiSlider multiSlider, MultiSlider.Thumb thumb, int thumbIndex, int value) {
@@ -193,9 +184,26 @@ public class ClassroomFragment extends Fragment {
                 } else {
                     end = value;
                 }
-                periodText.setText("第 " + start + " - " + end + " 节");
+                periodText.setText("查看 第 " + start + " - " + end + " 节");
+                filterRooms();
             }
         });
+
+        spinner = (Spinner) v.findViewById(R.id.spinner);
+        periodText = (TextView) v.findViewById(R.id.currentPeriod);
+        progressBar = (ProgressBar) v.findViewById(R.id.loading);
+        recyclerView = (RecyclerView) v.findViewById(R.id.room_list);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        adapter = new RoomRecycleAdapter(getContext(), shownRooms);
+        recyclerView.setAdapter(adapter);
+
+        spinnerAdapter = new ArrayAdapter<Building>(
+                getContext(),
+                R.layout.support_simple_spinner_dropdown_item,
+                buildings
+        );
+        spinner.setAdapter(spinnerAdapter);
 
         Calendar calendar = Calendar.getInstance();
         int h = calendar.get(Calendar.HOUR_OF_DAY);
@@ -226,9 +234,15 @@ public class ClassroomFragment extends Fragment {
         } else if (isInPeriod(h, m, 20, 35, 21, 30)) {
             start = 12;
         } else {
-            start = 12;
+            start = -1;
         }
 
+        if (start == -1) {
+            periodText.setText("今天的课已结束");
+            start = 12;
+        } else {
+            periodText.setText("当前 第 " + start + " 节");
+        }
         end = start + 1;
         if (end > 12) end = 12;
 
@@ -236,16 +250,20 @@ public class ClassroomFragment extends Fragment {
         multiSlider.getThumb(1).setValue(end);
         periodText.setText("第 " + start + " - " + end + " 节");
 
-        if (roomList.isEmpty()) {
+        if (buildings.isEmpty()) {
             progressBar.setVisibility(VISIBLE);
-            new QueryTask().execute();
+            new QueryBuildingTask().execute();
         }
-
-        queryButton.setOnClickListener(new View.OnClickListener() {
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 progressBar.setVisibility(VISIBLE);
-                new QueryTask().execute();
+                new QueryRoomTask().execute(buildings.get(position).id);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -269,6 +287,7 @@ public class ClassroomFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             roomList = savedInstanceState.getParcelableArrayList("ROOMS");
+            buildings = savedInstanceState.getParcelableArrayList("BUILDINGS");
         }
     }
 
@@ -276,6 +295,7 @@ public class ClassroomFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putParcelableArrayList("BUILDINGS", buildings);
         outState.putParcelableArrayList("ROOMS", roomList);
     }
 }

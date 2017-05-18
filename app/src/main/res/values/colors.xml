@@ -7,4 +7,6 @@
     <color name="colorError">#ff4433</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
+    <color name="hasCourse">#881122</color>
+    <color name="noCourse">#99ffaa</color>
 </resources>

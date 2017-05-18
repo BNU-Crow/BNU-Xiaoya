@@ -1,6 +1,7 @@
 package cn.xuhongxu.xiaoya.Adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -57,50 +58,16 @@ public class RoomRecycleAdapter
 
         Room item = values.get(position);
 
-        holder.title.setText(item.building);
+        holder.title.setText(item.name);
 
-        String[] rooms = item.getRoomList();
-        String detailText = "";
-        SortedMap<String, String> roomType = new TreeMap<>();
-        HashMap<String, Integer> roomN = new HashMap<>();
-
-        for (String r : rooms) {
-            String k;
-            switch (item.building) {
-                case "邱季端体育馆":
-                    k = r.substring(3, 5);
-                    r = r.substring(3);
-                    break;
-                case "科技楼C区":
-                    k = r.substring(5, 6);
-                    r = r.substring(5);
-                    break;
-                default:
-                    k = r.substring(0, 2);
-                    break;
-            }
-            if (roomType.containsKey(k)) {
-                if (roomN.get(k) % 4 == 0) {
-                    roomType.put(k, roomType.get(k) + "\n" + r);
-                } else {
-                    roomType.put(k, roomType.get(k) + "\t\t" + r);
-                }
-                roomN.put(k, roomN.get(k) + 1);
-            } else {
-                roomType.put(k, r);
-                roomN.put(k, 1);
-            }
+        for (int i = 0; i < 12; ++i) {
+            holder.course[i].setBackgroundResource(
+                    item.noCourse[i] ? R.color.noCourse : R.color.hasCourse
+            );
+            holder.course[i].setTextColor(ContextCompat.getColor(context,
+                    item.noCourse[i] ? R.color.colorBlack : R.color.colorWhite
+            ));
         }
-
-        for (Map.Entry<String, String> entry : roomType.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            detailText += value + "\n\n";
-        }
-
-        holder.detail.setText(detailText);
-
         if (position == selected) {
             holder.detail.setVisibility(View.VISIBLE);
         } else {
@@ -114,29 +81,59 @@ public class RoomRecycleAdapter
                 selected = holder.getAdapterPosition();
                 // Check for an expanded view, collapse if you find one
                 if (prev >= 0) {
-                    notifyItemChanged(prev);
+                    int tempPrev = prev;
+                    if (prev % 2 == 1) prev -= 1;
+                    if (prev + 1 >= values.size())
+                        notifyItemChanged(prev);
+                    else
+                        notifyItemRangeChanged(prev, 2);
+                    prev = tempPrev;
                 }
                 // Set the current position to "expanded"
-                notifyItemChanged(selected);
+                if (prev == selected) {
+                    selected = -1;
+                } else {
+                    int tempSelected = selected;
+                    if (tempSelected % 2 == 1) tempSelected -= 1;
+                    if (tempSelected + 1 >= values.size())
+                        notifyItemChanged(tempSelected);
+                    else
+                        notifyItemRangeChanged(tempSelected, 2);
+                }
             }
         });
+
     }
 
     @Override
-    public int getItemCount(){
+    public int getItemCount() {
         return values.size();
     }
 
     public final static class RoomItemViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, detail;
+        public TextView title;
+        public TextView[] course = new TextView[12];
         public LinearLayout card;
+        public LinearLayout detail;
 
         public RoomItemViewHolder(View itemView) {
             super(itemView);
 
             card = (LinearLayout) itemView.findViewById(R.id.card_content);
+            detail = (LinearLayout) itemView.findViewById(R.id.details);
             title = (TextView) itemView.findViewById(R.id.title);
-            detail = (TextView) itemView.findViewById(R.id.detail);
+            course[0] = (TextView) itemView.findViewById(R.id.course1);
+            course[1] = (TextView) itemView.findViewById(R.id.course2);
+            course[2] = (TextView) itemView.findViewById(R.id.course3);
+            course[3] = (TextView) itemView.findViewById(R.id.course4);
+            course[4] = (TextView) itemView.findViewById(R.id.course5);
+            course[5] = (TextView) itemView.findViewById(R.id.course6);
+            course[6] = (TextView) itemView.findViewById(R.id.course7);
+            course[7] = (TextView) itemView.findViewById(R.id.course8);
+            course[8] = (TextView) itemView.findViewById(R.id.course9);
+            course[9] = (TextView) itemView.findViewById(R.id.course10);
+            course[10] = (TextView) itemView.findViewById(R.id.course11);
+            course[11] = (TextView) itemView.findViewById(R.id.course12);
         }
     }
 }

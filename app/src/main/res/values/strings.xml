@@ -167,16 +167,16 @@
     <string name="pref_default_timeout">30000</string>
     <string name="pref_title_timeout">连接超时（ms）</string>
     <string name="pref_category_evaluation">评教内容</string>
-    <string name="pref_title_star_5">五星好评</string>
-    <string name="pref_title_star_4">四星良好</string>
-    <string name="pref_title_star_3">三星一般</string>
-    <string name="pref_title_star_2">二星较差</string>
-    <string name="pref_title_star_1">一星差评</string>
-    <string name="pref_default_star_1">优点很少，收获不多，建议老师充分调动课堂，创新教学方式，继续努力!</string>
-    <string name="pref_default_star_2">优点很多，收获很多，没有建议，继续努力!</string>
-    <string name="pref_default_star_3">优点很多，收获很多，没有建议，继续努力!</string>
-    <string name="pref_default_star_4">优点很多，收获很多，没有建议，继续努力!</string>
-    <string name="pref_default_star_5">优点很多，收获很多，没有建议，继续努力!</string>
+    <string name="pref_title_star_5">很好</string>
+    <string name="pref_title_star_4">好</string>
+    <string name="pref_title_star_3">一般</string>
+    <string name="pref_title_star_2">还行</string>
+    <string name="pref_title_star_1">不太好</string>
+    <string name="pref_default_star_1">不太好</string>
+    <string name="pref_default_star_2">还行</string>
+    <string name="pref_default_star_3">一般</string>
+    <string name="pref_default_star_4">好</string>
+    <string name="pref_default_star_5">很好</string>
     <string name="action_current">查看本学期</string>
     <string name="choose_exam_round">选择考试轮次（期末或随堂，无法确定对应关系）</string>
     <string name="feedback_message">请加QQ群\n\n北师小鸦尝鲜用户群 334180755</string>
@@ -199,6 +199,22 @@
     <string name="has_class">课程时间冲突</string>
     <string name="class_details">课程明细</string>
     <string name="delete_course">删除课程</string>
+    <string name="import_outdated">课表已过期，请让TA重新分享</string>
+    <string name="morning">上午</string>
+    <string name="afternoon">下午</string>
+    <string name="evening">晚上</string>
+    <string name="checkin">签到</string>
+    <string name="leave">暂离</string>
+    <string name="stopseat">结束使用</string>
+    <string name="cancel_seat">取消预约</string>
+    <string name="receipt">凭证号</string>
+    <string name="start_time">开始时间</string>
+    <string name="end_time">结束时间</string>
+    <string name="is_checkedin">是否签到</string>
+    <string name="date">日期</string>
+    <string name="login_library">登录图书馆</string>
+    <string name="library_seat">座位预约查看</string>
+    <string name="refresh">刷新</string>
 
 
 </resources>

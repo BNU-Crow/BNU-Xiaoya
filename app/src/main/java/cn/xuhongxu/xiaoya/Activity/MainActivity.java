@@ -305,7 +305,8 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = ScoreFragment.class;
         } else if (id == R.id.nav_evaluate) {
             // 评教
-            fragmentClass = EvaluationFragment.class;
+            if (app.getAssist().getUsername().contains("20141121"))
+                fragmentClass = EvaluationFragment.class;
         } else if (id == R.id.nav_logout) {
             reLogin(true, true);
             return;

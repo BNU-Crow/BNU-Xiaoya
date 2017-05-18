@@ -73,6 +73,7 @@ public class TableCourse implements Serializable {
                 + "\",\"name\":\"" + name
                 + "\",\"credit\":\"" + credit
                 + "\",\"teacher\":\"" + teacher
+                + "\",\"freeToListen\":\"" + freeToListen
                 + "\",\"locationTime\":\"" + locationTime + "\"}";
     }
 
