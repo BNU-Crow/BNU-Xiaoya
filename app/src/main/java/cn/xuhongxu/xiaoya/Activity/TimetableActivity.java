@@ -137,11 +137,25 @@ public class TimetableActivity extends AppCompatActivity {
 
 
         if (helper.isEmpty()) {
-            Snackbar.make(findViewById(R.id.timetable_layout), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
         } else {
-            parseTable(helper.calcWeek());
+            new SyncWeekTask().execute();
         }
 
+    }
+
+    class SyncWeekTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            helper.calcWeek(true);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            parseTable(helper.calcWeek());
+        }
     }
 
     private void parseTable(int week) {
@@ -188,14 +202,14 @@ public class TimetableActivity extends AppCompatActivity {
                     editor.remove("share_code");
                     editor.apply();
                     parseTable(helper.calcWeek());
-                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e) {
-                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.write_error, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), R.string.write_error, Snackbar.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             } else {
                 Log.e("err:", result);
-                Snackbar.make(findViewById(R.id.timetable_layout), R.string.network_error, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.network_error, Snackbar.LENGTH_LONG).show();
             }
         }
     }
@@ -235,7 +249,7 @@ public class TimetableActivity extends AppCompatActivity {
                 dialog.show();
             } else {
                 Log.e("err:", result);
-                Snackbar.make(findViewById(R.id.timetable_layout), R.string.network_error, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.network_error, Snackbar.LENGTH_LONG).show();
             }
         }
     }
@@ -246,14 +260,14 @@ public class TimetableActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 new GetSemesterTask().execute();
             } else {
-                Snackbar.make(findViewById(R.id.timetable_layout), R.string.login_error, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.login_error, Snackbar.LENGTH_LONG).show();
             }
         } else if (requestCode == LOGIN_REQUEST_NEW) {
             if (resultCode == RESULT_OK) {
                 Intent intent = new Intent(getApplicationContext(), NewCourseActivity.class);
                 startActivityForResult(intent, NEW_COURSE);
             } else {
-                Snackbar.make(findViewById(R.id.timetable_layout), R.string.login_error, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.login_error, Snackbar.LENGTH_LONG).show();
             }
         } else if (requestCode == NEW_COURSE) {
             helper = new TimetableHelper(this);
@@ -293,7 +307,7 @@ public class TimetableActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putStringSet("history", history);
                         editor.apply();
-                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_outdated, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.import_outdated, Snackbar.LENGTH_LONG).show();
                         return;
                     }
 
@@ -321,10 +335,10 @@ public class TimetableActivity extends AppCompatActivity {
                     editor.apply();
 
                     parseTable(helper.calcWeek());
-                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_success, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e1) {
                     e1.printStackTrace();
-                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.import_error, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), R.string.import_error, Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -438,13 +452,13 @@ public class TimetableActivity extends AppCompatActivity {
                                     sendIntent.setType("text/plain");
                                     startActivity(sendIntent);
                                 } else {
-                                    Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+                                    Snackbar.make(findViewById(android.R.id.content), R.string.share_error, Snackbar.LENGTH_LONG).show();
                                 }
                             }
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.share_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.share_error, Snackbar.LENGTH_LONG).show();
                     }
                 } else {
                     Intent sendIntent = new Intent();
@@ -486,9 +500,9 @@ public class TimetableActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putStringSet("history", history);
                         editor.apply();
-                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.delete_ok, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.delete_ok, Snackbar.LENGTH_LONG).show();
                     } else {
-                        Snackbar.make(findViewById(R.id.timetable_layout), R.string.no_current, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.no_current, Snackbar.LENGTH_LONG).show();
                     }
                 }
             });

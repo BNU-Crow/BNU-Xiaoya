@@ -16,7 +16,6 @@ import cn.xuhongxu.xiaoya.R;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link String} and makes a call to the
  * specified {@link cn.xuhongxu.xiaoya.Fragment.GradeFragment.OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class GradeRecyclerViewAdapter extends RecyclerView.Adapter<GradeRecyclerViewAdapter.ViewHolder> {
 

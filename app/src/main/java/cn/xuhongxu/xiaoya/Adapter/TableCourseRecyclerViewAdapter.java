@@ -17,7 +17,6 @@ import cn.xuhongxu.xiaoya.R;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TableCourse} and makes a call to the
  * specified {@link cn.xuhongxu.xiaoya.Fragment.TableCourseFragment.OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class TableCourseRecyclerViewAdapter extends RecyclerView.Adapter<TableCourseRecyclerViewAdapter.ViewHolder> {
 

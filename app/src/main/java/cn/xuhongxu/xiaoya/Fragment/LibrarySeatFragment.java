@@ -2,6 +2,7 @@ package cn.xuhongxu.xiaoya.Fragment;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import java.util.List;
 import cn.xuhongxu.LibrarySeat.Reservation;
 import cn.xuhongxu.LibrarySeat.ReservationHistory;
 import cn.xuhongxu.LibrarySeat.SeatClient;
+import cn.xuhongxu.xiaoya.Activity.ChooseSeatActivity;
 import cn.xuhongxu.xiaoya.Adapter.ReservationHistoryRecycleAdapter;
 import cn.xuhongxu.xiaoya.R;
 
@@ -36,9 +38,11 @@ public class LibrarySeatFragment extends Fragment {
     public static final String LOGIN = "login";
     public static final String LOAD_RESERVATION = "load_reservation";
     public static final String CANCEL = "cancel";
+    public static final String CANCEL_ID = "cancelid";
     public static final String CHECKIN = "checkin";
     public static final String LEAVE = "leave";
     public static final String STOP = "stop";
+
     SeatClient client;
 
     ProgressBar progressBar;
@@ -68,6 +72,8 @@ public class LibrarySeatFragment extends Fragment {
                 reservationHistories.addAll(client.getReservationHistory(1, 10));
             } else if(action.equals(CANCEL)) {
                 return client.cancelReservation();
+            } else if (action.equals(CANCEL_ID)) {
+                return client.cancelReservation(params[1]);
             } else if (action.equals(CHECKIN)) {
                 return client.checkIn();
             } else if (action.equals(LEAVE)) {
@@ -109,18 +115,6 @@ public class LibrarySeatFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_library_seat, container, false);
 
-        progressBar = (ProgressBar) v.findViewById(R.id.loading);
-        receipt = (TextView) v.findViewById(R.id.receipt);
-        startTime = (TextView) v.findViewById(R.id.startTime);
-        endTime = (TextView) v.findViewById(R.id.endTime);
-        date = (TextView) v.findViewById(R.id.date);
-        status = (TextView) v.findViewById(R.id.status);
-        recyclerView = (RecyclerView)v.findViewById(R.id.history);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new ReservationHistoryRecycleAdapter(getContext(), reservationHistories);
-        recyclerView.setAdapter(adapter);
 
         final SharedPreferences preferences =
                 getActivity().getSharedPreferences(getString(R.string.library_key),
@@ -134,6 +128,20 @@ public class LibrarySeatFragment extends Fragment {
         }
 
         client = new SeatClient(username, password);
+
+        progressBar = (ProgressBar) v.findViewById(R.id.loading);
+        receipt = (TextView) v.findViewById(R.id.receipt);
+        startTime = (TextView) v.findViewById(R.id.startTime);
+        endTime = (TextView) v.findViewById(R.id.endTime);
+        date = (TextView) v.findViewById(R.id.date);
+        status = (TextView) v.findViewById(R.id.status);
+        recyclerView = (RecyclerView)v.findViewById(R.id.history);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new ReservationHistoryRecycleAdapter(getContext(), reservationHistories, history -> new QueryTask().execute(CANCEL_ID, history.id));
+        recyclerView.setAdapter(adapter);
+
         progressBar.setVisibility(View.VISIBLE);
         new QueryTask().execute(LOGIN);
 
@@ -142,42 +150,38 @@ public class LibrarySeatFragment extends Fragment {
         Button checkin = (Button) v.findViewById(R.id.checkin_button);
         Button leave = (Button) v.findViewById(R.id.leave_button);
         Button stop = (Button) v.findViewById(R.id.stop_button);
+        Button choose = (Button) v.findViewById(R.id.choose_button);
 
-        refresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                new QueryTask().execute(LOGIN);
-            }
+        refresh.setOnClickListener(view -> {
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(LOGIN);
         });
 
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                new QueryTask().execute(CANCEL);
-            }
+        cancel.setOnClickListener(view -> {
+            if (client.getToken().isEmpty()) return;
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(CANCEL);
         });
-        checkin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                new QueryTask().execute(CHECKIN);
-            }
+        checkin.setOnClickListener(view -> {
+            if (client.getToken().isEmpty()) return;
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(CHECKIN);
         });
-        leave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                new QueryTask().execute(LEAVE);
-            }
+        leave.setOnClickListener(view -> {
+            if (client.getToken().isEmpty()) return;
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(LEAVE);
         });
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                new QueryTask().execute(STOP);
-            }
+        stop.setOnClickListener(view -> {
+            if (client.getToken().isEmpty()) return;
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(STOP);
+        });
+        choose.setOnClickListener(view -> {
+            if (client.getToken().isEmpty()) return;
+            Intent intent = new Intent(getContext(), ChooseSeatActivity.class);
+            intent.putExtra("Client", client.getToken());
+            startActivity(intent);
         });
 
         return v;

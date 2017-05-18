@@ -98,7 +98,7 @@ public class NewCourseActivity extends AppCompatActivity implements
                 for (TimeTableView.Rectangle curRect : curRects) {
                     if (curRect.day == rect.day && curRect.start <= rect.end && curRect.end >= rect.start) {
                         // 交叉
-                        Snackbar.make(findViewById(R.id.flContent), R.string.has_class, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.has_class, Snackbar.LENGTH_LONG).show();
                         return;
                     }
                 }

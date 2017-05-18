@@ -17,7 +17,6 @@ import cn.xuhongxu.xiaoya.R;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Department} and makes a call to the
  * specified {@link DepartmentFragment.OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class DepartmentRecyclerViewAdapter extends RecyclerView.Adapter<DepartmentRecyclerViewAdapter.ViewHolder> {
 

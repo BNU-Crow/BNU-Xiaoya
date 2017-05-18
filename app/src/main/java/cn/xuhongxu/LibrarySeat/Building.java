@@ -14,4 +14,9 @@ public class Building {
         this.name = name;
         this.floor = floor;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

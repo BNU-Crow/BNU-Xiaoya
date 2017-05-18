@@ -24,4 +24,10 @@ public class Room {
         this.totalSeats = totalSeats;
         this.free = free;
     }
+
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

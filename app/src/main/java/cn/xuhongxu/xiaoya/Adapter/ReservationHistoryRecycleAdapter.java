@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -23,11 +24,16 @@ public class ReservationHistoryRecycleAdapter
 
     private List<ReservationHistory> values;
     private Context context;
+    OnClickListener listener;
 
-    public ReservationHistoryRecycleAdapter(Context ct, List<ReservationHistory> items) {
+    public interface OnClickListener {
+        void onClicked(ReservationHistory history);
+    }
+
+    public ReservationHistoryRecycleAdapter(Context ct, List<ReservationHistory> items, OnClickListener listener) {
         values = items;
         context = ct;
-
+        this.listener = listener;
     }
 
     @Override
@@ -50,6 +56,12 @@ public class ReservationHistoryRecycleAdapter
         holder.end.setText(item.end);
         holder.status.setText(item.state);
         holder.location.setText(item.location);
+        if (item.state.equals("RESERVE")) {
+            holder.cancel.setVisibility(View.VISIBLE);
+        } else {
+            holder.cancel.setVisibility(View.GONE);
+        }
+        holder.cancel.setOnClickListener(v -> listener.onClicked(item));
     }
 
     @Override
@@ -59,10 +71,12 @@ public class ReservationHistoryRecycleAdapter
 
     public final static class ItemViewHolder extends RecyclerView.ViewHolder {
         public TextView location, status, begin, end, date;
+        public Button cancel;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
 
+            cancel = (Button) itemView.findViewById(R.id.cancel_button);
             location = (TextView) itemView.findViewById(R.id.location);
             status = (TextView) itemView.findViewById(R.id.status);
             begin = (TextView) itemView.findViewById(R.id.begin);

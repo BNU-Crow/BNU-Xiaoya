@@ -92,14 +92,19 @@ public class TimetableHelper {
                     .method(Connection.Method.POST)
                     .execute();
             String[] date = res.body().split("@");
-            return Integer.valueOf(date[1]);
+            return Integer.valueOf(date[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return -1;
     }
-    public int calcWeek() {
-        int w = fetchWeek();
+
+    public int calcWeek() {return calcWeek(false);}
+    public int calcWeek(boolean sync) {
+        int w = -1;
+        if (sync) {
+            w = fetchWeek();
+        }
         Calendar now = Calendar.getInstance();
         if (w == -1) {
             setCurrentWeek(preferences.getInt("current_week", 1));

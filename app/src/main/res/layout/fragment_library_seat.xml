@@ -99,6 +99,12 @@
                 android:text="@string/refresh" />
 
             <Button
+                android:id="@+id/choose_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_seat" />
+
+            <Button
                 android:id="@+id/cancel_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

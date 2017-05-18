@@ -99,7 +99,8 @@
         <activity
             android:name=".Activity.PreferencesActivity"
             android:label="@string/title_activity_preferences" />
-        <activity android:name=".Activity.NewCourseActivity"></activity>
+        <activity android:name=".Activity.NewCourseActivity" />
+        <activity android:name=".Activity.ChooseSeatActivity"></activity>
     </application>
 
 </manifest>

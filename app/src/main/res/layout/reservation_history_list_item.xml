@@ -93,6 +93,15 @@
                     android:layout_weight="1" />
 
             </LinearLayout>
+
+            <Button
+                android:id="@+id/cancel_button"
+                android:layout_marginTop="4dp"
+                android:layout_gravity="end"
+                style="@style/Widget.AppCompat.Button.Small"
+                android:text="@string/cancel_reservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

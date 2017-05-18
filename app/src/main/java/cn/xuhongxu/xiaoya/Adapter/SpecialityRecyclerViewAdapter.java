@@ -18,7 +18,6 @@ import cn.xuhongxu.xiaoya.R;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Speciality} and makes a call to the
  * specified {@link SpecialityFragment.OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class SpecialityRecyclerViewAdapter extends RecyclerView.Adapter<SpecialityRecyclerViewAdapter.ViewHolder> {
 

@@ -1,13 +1,14 @@
 package cn.xuhongxu.LibrarySeat;
 
+import android.util.Log;
+
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,9 +68,8 @@ public class SeatClient {
 
             JSONObject object = new JSONObject(res.body());
 
-            token = object.getJSONObject("data").getString("token");
-
             if (object.getString("status").equals("success")) {
+                setToken(object.getJSONObject("data").getString("token"));
                 return null;
             } else {
                 return object.getString("message");
@@ -84,7 +84,7 @@ public class SeatClient {
     public List<ReservationHistory> getReservationHistory(int start, int end) {
         List<ReservationHistory> histories = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_HISTORY, start, end, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_HISTORY, start, end, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -117,7 +117,7 @@ public class SeatClient {
 
     public Reservation getCurrentReservation() {
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_CURRENT_RESERVATION, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_CURRENT_RESERVATION, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -160,13 +160,15 @@ public class SeatClient {
                     "", "", "", false, "", "");
         }
     }
-
     public String cancelReservation() {
+            Reservation reservation = getCurrentReservation();
+            return cancelReservation("" + reservation.id);
+    }
+
+    public String cancelReservation(String id) {
         try {
 
-            Reservation reservation = getCurrentReservation();
-
-            Connection.Response res = Jsoup.connect(String.format(URL_CANCEL_RESERVATION, reservation, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_CANCEL_RESERVATION, id, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -190,7 +192,7 @@ public class SeatClient {
 
             Reservation reservation = getCurrentReservation();
 
-            Connection.Response res = Jsoup.connect(String.format(URL_CHECKIN, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_CHECKIN, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -214,7 +216,7 @@ public class SeatClient {
 
             Reservation reservation = getCurrentReservation();
 
-            Connection.Response res = Jsoup.connect(String.format(URL_LEAVE, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_LEAVE, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -238,7 +240,7 @@ public class SeatClient {
 
             Reservation reservation = getCurrentReservation();
 
-            Connection.Response res = Jsoup.connect(String.format(URL_STOP, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_STOP, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -260,7 +262,7 @@ public class SeatClient {
     public List<Building> getBuildings() {
         List<Building> buildings = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_BUILDING, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_BUILDING, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -271,11 +273,11 @@ public class SeatClient {
                 JSONObject data = object.getJSONObject("data");
                 JSONArray arr = data.getJSONArray("buildings");
                 for (int i = 0; i < arr.length(); ++i) {
-                    JSONObject o = arr.getJSONObject(i);
+                    JSONArray o = arr.getJSONArray(i);
                     buildings.add(new Building(
-                            o.getInt("id"),
-                            o.getString("name"),
-                            o.getInt("floor")
+                            o.getInt(0),
+                            o.getString(1),
+                            o.getInt(2)
                     ));
                 }
             } else {
@@ -292,7 +294,7 @@ public class SeatClient {
     public List<Room> getRooms(int buildingId) {
         List<Room> rooms = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_ROOM, buildingId, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_ROOM, buildingId, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -328,7 +330,7 @@ public class SeatClient {
     public SeatLayout getSeatLayout(int roomId, String date) {
         SeatLayout layout;
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_LAYOUT, roomId, date, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_LAYOUT, roomId, date, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -342,21 +344,21 @@ public class SeatClient {
                         data.getInt("cols"),
                         data.getInt("rows"));
 
-                JSONArray arr = data.getJSONArray("layout");
-                for (int i = 0; i < arr.length(); ++i) {
-                    JSONObject o = arr.getJSONObject(i);
+                JSONObject arr = data.getJSONObject("layout");
+                for (Iterator<String> it = arr.keys(); it.hasNext(); ) {
+                    String key = it.next();
+                    JSONObject o = arr.getJSONObject(key);
                     layout.layout.add(new SeatLayoutItem(
-                            o.getInt("id"),
-                            o.getString("name"),
-                            o.getString("type"),
-                            o.getString("status"),
-                            o.getBoolean("power")
+                            o.has("id") ? o.getInt("id") : -1,
+                            o.has("name") ? o.getString("name") : "",
+                            o.has("type") ? o.getString("type") : "",
+                            o.has("status") ? o.getString("status") : "",
+                            o.has("power") && o.getBoolean("power")
                     ));
                 }
             } else {
                 layout = new SeatLayout(0, object.getString("message"), 0, 0);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             layout = new SeatLayout(0, e.getLocalizedMessage(), 0, 0);
@@ -367,7 +369,7 @@ public class SeatClient {
     public List<SeatTime> getStartTimes(int seatId, String date) {
         List<SeatTime> times = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_START_TIME, seatId, date, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_START_TIME, seatId, date, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -395,10 +397,10 @@ public class SeatClient {
         return times;
     }
 
-    public List<SeatTime> getEndTimes(int seatId, String date) {
+    public List<SeatTime> getEndTimes(int seatId, String date, String startTimeId) {
         List<SeatTime> times = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect(String.format(URL_END_TIME, seatId, date, token))
+            Connection.Response res = Jsoup.connect(String.format(URL_END_TIME, seatId, date, startTimeId, getToken()))
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
@@ -407,7 +409,7 @@ public class SeatClient {
 
             if (object.getString("status").equals("success")) {
                 JSONObject data = object.getJSONObject("data");
-                JSONArray arr = data.getJSONArray("startTimes");
+                JSONArray arr = data.getJSONArray("endTimes");
                 for (int i = 0; i < arr.length(); ++i) {
                     JSONObject o = arr.getJSONObject(i);
                     times.add(new SeatTime(
@@ -429,7 +431,7 @@ public class SeatClient {
     public Reservation orderSeat(int seatId, String date, String startTimeId, String endTimeId) {
         try {
             Connection.Response res = Jsoup.connect(URL_ORDER)
-                    .data("token", token)
+                    .data("token", getToken())
                     .data("startTime", startTimeId)
                     .data("endTime", endTimeId)
                     .data("seat", "" + seatId)
@@ -456,8 +458,8 @@ public class SeatClient {
                         o.getString("checkedIn")
                 );
             } else {
-                return new Reservation(0, "", "", 0, object.getString("message"),
-                        "", "", "", false, "", "");
+                return new Reservation(0, "失败", "", 0, object.getString("message"),
+                        "失败", "失败", "失败", false, "", "");
             }
 
         } catch (Exception e) {
@@ -465,5 +467,13 @@ public class SeatClient {
             return new Reservation(0, "", "", 0, e.getLocalizedMessage(),
                     "", "", "", false, "", "");
         }
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

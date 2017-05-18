@@ -122,6 +122,9 @@ public class ToolboxActivity extends AppCompatActivity {
                     editor.putString("username", usnm);
                     editor.putString("password", pwd);
                     editor.apply();
+
+                    viewPager.getAdapter().notifyDataSetChanged();
+
                     dialogInterface.dismiss();
                 }
             });
