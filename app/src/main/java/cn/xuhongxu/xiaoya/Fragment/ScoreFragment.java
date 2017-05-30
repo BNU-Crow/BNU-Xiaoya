@@ -164,8 +164,12 @@ public class ScoreFragment extends Fragment {
                                 evaluation.put("stuKey", k);
                                 evaluation.put("courseName", score.getCourseName());
                                 evaluation.put("term", score.getTerm());
-                                evaluation.put("score1", Double.valueOf(score.getUsualScore()));
-                                evaluation.put("score2", Double.valueOf(score.getExamScore()));
+                                String score1 = score.getUsualScore();
+                                String score2 = score.getExamScore();
+                                if (score1.isEmpty()) score1 = "0";
+                                if (score2.isEmpty()) score2 = "0";
+                                evaluation.put("score1", Double.valueOf(score1));
+                                evaluation.put("score2", Double.valueOf(score2));
                                 evaluation.put("score", score.getScore());
                                 evals.add(evaluation);
                             } catch (Exception e1) {

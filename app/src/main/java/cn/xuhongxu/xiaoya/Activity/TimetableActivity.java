@@ -121,24 +121,23 @@ public class TimetableActivity extends AppCompatActivity {
         table = (TimeTableView) findViewById(R.id.timetable);
         title = (TextView) findViewById(R.id.timetable_title);
 
-        table.addListener(new TimeTableView.TableListener() {
-            @Override
-            public void onRemoveCourse(String name) {
-                for (TableCourse c : helper.getTableCourses()) {
-                    if (name.equals(c.getName())) {
-                        helper.getTableCourses().remove(c);
-                        break;
-                    }
+
+        table.addListener(name -> {
+            for (TableCourse c : helper.getTableCourses()) {
+                if (name.equals(c.getName())) {
+                    helper.getTableCourses().remove(c);
+                    break;
                 }
-                helper.saveCourses();
-                parseTable(helper.calcWeek());
             }
+            helper.saveCourses();
+
         });
 
 
         if (helper.isEmpty()) {
             Snackbar.make(findViewById(android.R.id.content), R.string.please_import_timetable, Snackbar.LENGTH_LONG).show();
         } else {
+            parseTable(helper.calcWeek());
             new SyncWeekTask().execute();
         }
 
@@ -202,6 +201,7 @@ public class TimetableActivity extends AppCompatActivity {
                     editor.remove("share_code");
                     editor.apply();
                     parseTable(helper.calcWeek());
+                    new SyncWeekTask().execute();
                     Snackbar.make(findViewById(android.R.id.content), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Snackbar.make(findViewById(android.R.id.content), R.string.write_error, Snackbar.LENGTH_LONG).show();

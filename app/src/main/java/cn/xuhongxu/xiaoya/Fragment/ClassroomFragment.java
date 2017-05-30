@@ -282,20 +282,4 @@ public class ClassroomFragment extends Fragment {
         AVAnalytics.onFragmentStart(getClass().getName());
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            roomList = savedInstanceState.getParcelableArrayList("ROOMS");
-            buildings = savedInstanceState.getParcelableArrayList("BUILDINGS");
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelableArrayList("BUILDINGS", buildings);
-        outState.putParcelableArrayList("ROOMS", roomList);
-    }
 }

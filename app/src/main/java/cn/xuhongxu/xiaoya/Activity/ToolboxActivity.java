@@ -60,10 +60,10 @@ public class ToolboxActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         ViewPagerFragmentAdapter adapter = new ViewPagerFragmentAdapter(getSupportFragmentManager());
         adapter.add(GatewayFragment.class, getString(R.string.gateway));
-        adapter.add(ClassroomFragment.class, getString(R.string.classroom));
         adapter.add(LibraryFragment.class, getString(R.string.search_library));
-        adapter.add(BorrowBookFragment.class, getString(R.string.borrow_book));
+        adapter.add(ClassroomFragment.class, getString(R.string.classroom));
         adapter.add(LibrarySeatFragment.class, getString(R.string.library_seat));
+        adapter.add(BorrowBookFragment.class, getString(R.string.borrow_book));
         preferences =
                 getSharedPreferences(getString(R.string.preference_key),
                         Context.MODE_PRIVATE);
