@@ -2,12 +2,15 @@ package cn.xuhongxu.xiaoya.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.avos.avoscloud.AVAnalytics;
@@ -30,6 +33,15 @@ import cn.xuhongxu.xiaoya.R;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+
+    // 支付宝包名
+    private static final String ALIPAY_PACKAGE_NAME = "com.eg.android.AlipayGphone";
+
+    // 旧版支付宝二维码通用 Intent Scheme Url 格式
+    private static final String INTENT_URL_FORMAT = "intent://platformapi/startapp?saId=10000007&" +
+            "clientVersion=3.7.0.0718&qrcode=https%3A%2F%2Fqr.alipay.com%2F{urlCode}%3F_s" +
+            "%3Dweb-other&_t=1472443966571#Intent;" +
+            "scheme=alipayqr;package=com.eg.android.AlipayGphone;end";
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,6 +79,23 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         final TextView notice = (TextView) v.findViewById(R.id.notice);
+        Button alipay = (Button) v.findViewById(R.id.alipay);
+        alipay.setOnClickListener(v1 -> {
+            PackageManager pm = getContext().getPackageManager();
+            try {
+                PackageInfo info = pm.getPackageInfo(ALIPAY_PACKAGE_NAME, 0);
+                if (info != null) {
+                    Intent intent = Intent.parseUri(
+                            INTENT_URL_FORMAT.replace("{urlCode}", "FKX08027RZSV5UEKTY3WE4"),
+                            Intent.URI_INTENT_SCHEME
+                    );
+                    getActivity().startActivity(intent);
+                }
+            } catch (Exception e) {
+
+            }
+        });
+
 
         AVQuery<AVObject> avQuery = new AVQuery<>("Notice");
         avQuery.getFirstInBackground(new GetCallback<AVObject>() {

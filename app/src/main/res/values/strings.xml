@@ -220,6 +220,7 @@
     <string name="room">房间</string>
     <string name="tip">提示</string>
     <string name="cancel_reservation">取消预约</string>
+    <string name="alipay">点此【支付宝】捐赠</string>
 
 
 </resources>

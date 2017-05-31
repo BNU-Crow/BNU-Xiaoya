@@ -487,7 +487,8 @@ public class TimetableActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     String code = historyArr.get(i);
-                    importShareCode(code.split("\\s+")[1], false, i);
+                    String[] codes = code.split("\\s+");
+                    importShareCode(codes[codes.length - 1], false, i);
                 }
             });
             final int finalCurrent = current;

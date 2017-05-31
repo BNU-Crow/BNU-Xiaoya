@@ -28,10 +28,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/alipay"
+        android:text="@string/alipay"
+        android:layout_below="@id/notice"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <ImageView
         android:src="@drawable/donate"
         android:contentDescription="@string/donate_me"
-        android:layout_below="@id/notice"
+        android:layout_below="@id/alipay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView" />
