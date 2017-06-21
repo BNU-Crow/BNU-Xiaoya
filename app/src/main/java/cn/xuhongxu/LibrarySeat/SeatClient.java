@@ -429,6 +429,7 @@ public class SeatClient {
     }
 
     public Reservation orderSeat(int seatId, String date, String startTimeId, String endTimeId) {
+        if (startTimeId.equals("now")) startTimeId = "-1";
         try {
             Connection.Response res = Jsoup.connect(URL_ORDER)
                     .data("token", getToken())

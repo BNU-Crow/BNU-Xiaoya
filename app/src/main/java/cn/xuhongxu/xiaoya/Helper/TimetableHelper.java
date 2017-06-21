@@ -38,7 +38,7 @@ import cn.xuhongxu.xiaoya.View.TimeTableView;
 public class TimetableHelper {
     private Context mContext;
     private SharedPreferences preferences;
-    private ArrayList<TableCourse> tableCourses;
+    private ArrayList<TableCourse> tableCourses = new ArrayList<>();
     private String studentName;
     private int weekCount = 0;
     private int currentWeek = 0;
@@ -62,7 +62,7 @@ public class TimetableHelper {
                 is.close();
                 fis.close();
             } catch (Exception e) {
-                setTableCourses(new ArrayList<TableCourse>());
+                setTableCourses(new ArrayList<>());
             }
         }
     }

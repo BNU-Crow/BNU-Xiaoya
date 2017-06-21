@@ -15,8 +15,8 @@
     <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="succeed_login">成功!</string>
     <string name="please_login_first">请先登录</string>
-    <string name="network_error">网络错误, 尝试重新登录</string>
-    <string name="login_timeout">登录过期, 尝试重新登录</string>
+    <string name="network_error">网络错误, 请尝试重新登录</string>
+    <string name="login_timeout">登录过期, 请尝试重新登录</string>
     <string name="select_evaluation_turn">请选择评教轮次</string>
     <string name="select_evaluation_course">请选择评教课程</string>
     <string name="do_not_show_again">不再显示</string>

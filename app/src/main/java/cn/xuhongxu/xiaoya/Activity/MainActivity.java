@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onReLogin(boolean back) {
-        reLogin(back);
+        // reLogin(back);
     }
 
     @Override

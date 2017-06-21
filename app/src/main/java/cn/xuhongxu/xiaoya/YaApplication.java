@@ -69,12 +69,9 @@ public class YaApplication extends Application {
         cancelCourses = new ArrayList<>();
 
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                e.printStackTrace();
-                handleUncaughtException(thread, e);
-            }
+        Thread.setDefaultUncaughtExceptionHandler((thread, e) -> {
+//            e.printStackTrace();
+            handleUncaughtException(thread, e);
         });
 
     }
@@ -97,7 +94,7 @@ public class YaApplication extends Application {
     }
 
     private void handleUncaughtException(Thread thread, Throwable e) {
-        e.printStackTrace();
+        // e.printStackTrace();
         Intent intent = new Intent(getApplicationContext(), ErrorActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         String stackTraceString = "";

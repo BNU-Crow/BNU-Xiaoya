@@ -27,6 +27,7 @@ import cn.xuhongxu.LibrarySeat.Reservation;
 import cn.xuhongxu.LibrarySeat.ReservationHistory;
 import cn.xuhongxu.LibrarySeat.SeatClient;
 import cn.xuhongxu.xiaoya.Activity.ChooseSeatActivity;
+import cn.xuhongxu.xiaoya.Activity.ToolboxActivity;
 import cn.xuhongxu.xiaoya.Adapter.ReservationHistoryRecycleAdapter;
 import cn.xuhongxu.xiaoya.R;
 
@@ -109,6 +110,17 @@ public class LibrarySeatFragment extends Fragment {
         }
     }
 
+    ToolboxActivity.LibraryLoginListener listener = new ToolboxActivity.LibraryLoginListener() {
+        @Override
+        public void logined(String usnm, String pwd) {
+            client = new SeatClient(usnm, pwd);
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(LOGIN);
+        }
+    };
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -116,18 +128,15 @@ public class LibrarySeatFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_library_seat, container, false);
 
 
-        final SharedPreferences preferences =
+        SharedPreferences preferences =
                 getActivity().getSharedPreferences(getString(R.string.library_key),
                         Context.MODE_PRIVATE);
 
-        final String username = preferences.getString("username", "");
-        final String password = preferences.getString("password", "");
+        String username = preferences.getString("username", "");
+        String password = preferences.getString("password", "");
 
-        if (username.isEmpty() && password.isEmpty()) {
-            return v;
-        }
-
-        client = new SeatClient(username, password);
+        ToolboxActivity activity = (ToolboxActivity)getActivity();
+        activity.addLibraryLoginListener(listener);
 
         progressBar = (ProgressBar) v.findViewById(R.id.loading);
         receipt = (TextView) v.findViewById(R.id.receipt);
@@ -142,8 +151,11 @@ public class LibrarySeatFragment extends Fragment {
         adapter = new ReservationHistoryRecycleAdapter(getContext(), reservationHistories, history -> new QueryTask().execute(CANCEL_ID, history.id));
         recyclerView.setAdapter(adapter);
 
-        progressBar.setVisibility(View.VISIBLE);
-        new QueryTask().execute(LOGIN);
+        if (!(username.isEmpty() && password.isEmpty())) {
+            client = new SeatClient(username, password);
+            progressBar.setVisibility(View.VISIBLE);
+            new QueryTask().execute(LOGIN);
+        }
 
         Button refresh = (Button) v.findViewById(R.id.refresh_button);
         Button cancel = (Button) v.findViewById(R.id.cancel_button);
@@ -187,4 +199,10 @@ public class LibrarySeatFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ToolboxActivity activity = (ToolboxActivity) getActivity();
+        activity.removeLibraryLoginListener(listener);
+    }
 }

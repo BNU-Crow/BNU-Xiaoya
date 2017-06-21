@@ -188,18 +188,10 @@ public class LibraryFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new BookRecycleAdapter(getActivity(), books);
-        adapter.setLoadMoreListener(new BookRecycleAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int index = books.size() + 1;
-                        loadMore(index);
-                    }
-                });
-            }
-        });
+        adapter.setLoadMoreListener(() -> recyclerView.post(() -> {
+            int index = books.size() + 1;
+            loadMore(index);
+        }));
         recyclerView.setAdapter(adapter);
 
         progressBar = (ProgressBar) v.findViewById(R.id.loadingBooks);
@@ -208,20 +200,17 @@ public class LibraryFragment extends Fragment {
         initTask = new InitTask();
         initTask.execute();
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (initTask.getStatus() != AsyncTask.Status.FINISHED) {
-                    Snackbar.make(v, "请等待初始化完毕！", Snackbar.LENGTH_SHORT).show();
-                    return;
-                }
-
-                adapter.setMoreDataAvailable(true);
-                books.clear();
-                progressBar.setVisibility(View.VISIBLE);
-                new SearchTask().execute(editText.getText().toString(), "1");
-
+        searchButton.setOnClickListener(view -> {
+            if (initTask.getStatus() != AsyncTask.Status.FINISHED) {
+                Snackbar.make(v, "请等待初始化完毕！", Snackbar.LENGTH_SHORT).show();
+                return;
             }
+
+            adapter.setMoreDataAvailable(true);
+            books.clear();
+            progressBar.setVisibility(View.VISIBLE);
+            new SearchTask().execute(editText.getText().toString(), "1");
+
         });
 
         return v;

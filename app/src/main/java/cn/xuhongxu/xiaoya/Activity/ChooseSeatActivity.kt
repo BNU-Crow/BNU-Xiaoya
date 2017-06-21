@@ -36,6 +36,12 @@ class ChooseSeatActivity : AppCompatActivity() {
     val buildings = ArrayList<Building>()
     val rooms = ArrayList<Room>()
 
+    var progressBar: ProgressBar? = null
+    var client: SeatClient? = null
+    var scroll: ScrollView2D? = null
+    var map: RecyclerView? = null
+    var adapter: SeatLayoutItemRecycleAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_seat)
@@ -50,11 +56,11 @@ class ChooseSeatActivity : AppCompatActivity() {
             return
         }
 
-        val client = SeatClient(username, password)
-        client.token = intent.getStringExtra("Client")
+        client = SeatClient(username, password)
+        client!!.token = intent.getStringExtra("Client")
 
 
-        val adapter = SeatLayoutItemRecycleAdapter(this, seatLayout, object : SeatLayoutItemRecycleAdapter.OnClickListener {
+        adapter = SeatLayoutItemRecycleAdapter(this, seatLayout, object : SeatLayoutItemRecycleAdapter.OnClickListener {
             override fun OnClicked(item: SeatLayoutItem) {
                 val initBuilder = AlertDialog.Builder(this@ChooseSeatActivity)
 
@@ -70,13 +76,13 @@ class ChooseSeatActivity : AppCompatActivity() {
 
                     launch(UI) {
                         async(CommonPool) {
-                            startTimes = client.getStartTimes(item.id,SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()) )
+                            startTimes = client!!.getStartTimes(item.id,SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()) )
                         }.await()
 
                         builder.setItems(startTimes!!.map { o -> o.name }.toTypedArray()) { _, which ->
                             launch(UI) {
                                 async(CommonPool) {
-                                    endTimes = client.getEndTimes(item.id, SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()), startTimes!![which].id)
+                                    endTimes = client!!.getEndTimes(item.id, SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()), startTimes!![which].id)
                                 }.await()
                                 val builder2 = AlertDialog.Builder(this@ChooseSeatActivity)
                                 builder2.setTitle("选择结束时间")
@@ -84,7 +90,7 @@ class ChooseSeatActivity : AppCompatActivity() {
                                     launch(UI) {
                                         var reservation : Reservation? = null
                                         async(CommonPool) {
-                                            reservation = client.orderSeat(item.id,
+                                            reservation = client!!.orderSeat(item.id,
                                                     SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()),
                                                     startTimes!![which].id,
                                                     endTimes!![which2].id)
@@ -115,7 +121,7 @@ class ChooseSeatActivity : AppCompatActivity() {
             }
         })
 
-        val progressBar = findViewById(R.id.loading) as ProgressBar
+        progressBar = findViewById(R.id.loading) as ProgressBar
 
         val buildingSpinner = findViewById(R.id.buildingSpinner) as Spinner
         val buildingAdapter = ArrayAdapter<Building>(
@@ -133,18 +139,18 @@ class ChooseSeatActivity : AppCompatActivity() {
         )
         roomSpinner.adapter = roomAdapter
 
-        val map = findViewById(R.id.map) as RecyclerView
-        map.layoutManager = GridLayoutManager(this, 2)
-        map.itemAnimator = DefaultItemAnimator()
-        map.adapter = adapter
+        map = findViewById(R.id.map) as RecyclerView
+        map!!.layoutManager = GridLayoutManager(this, 2)
+        map!!.itemAnimator = DefaultItemAnimator()
+        map!!.adapter = adapter
 
 
-        progressBar.visibility = VISIBLE
+        progressBar!!.visibility = VISIBLE
         launch(UI) {
             async(CommonPool) {
-                buildings.addAll(client.buildings)
+                buildings.addAll(client!!.buildings)
             }.await()
-            progressBar.visibility = GONE
+            progressBar!!.visibility = GONE
             buildingAdapter.notifyDataSetChanged()
             if (buildings.size > 0) {
                 buildingSpinner.setSelection(0)
@@ -154,17 +160,18 @@ class ChooseSeatActivity : AppCompatActivity() {
 
         buildingSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                progressBar.visibility = VISIBLE
+                progressBar!!.visibility = VISIBLE
 
                 launch(UI) {
                     async(CommonPool) {
                         rooms.clear()
-                        rooms.addAll(client.getRooms(buildings[position].id))
+                        rooms.addAll(client!!.getRooms(buildings[position].id))
                     }.await()
-                    progressBar.visibility = GONE
+                    progressBar!!.visibility = GONE
                     roomAdapter.notifyDataSetChanged()
                     if (rooms.size > 0) {
                         roomSpinner.setSelection(0)
+                        updateScroll(0)
                     }
                 }
             }
@@ -174,25 +181,11 @@ class ChooseSeatActivity : AppCompatActivity() {
             }
         }
 
-        val scroll = findViewById(R.id.scrollView) as ScrollView2D
+        scroll = findViewById(R.id.scrollView) as ScrollView2D
 
         roomSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                progressBar.visibility = VISIBLE
-
-                launch(UI) {
-                    async(CommonPool) {
-                        layoutInfo = client.getSeatLayout(rooms[position].roomId,
-                                SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()))
-                        scroll.scrollX = 0
-                        scroll.scrollY = 0
-                        seatLayout.clear()
-                        seatLayout.addAll(layoutInfo!!.layout)
-                    }.await()
-                    map.layoutManager = GridLayoutManager(this@ChooseSeatActivity, layoutInfo!!.cols)
-                    progressBar.visibility = GONE
-                    adapter.notifyDataSetChanged()
-                }
+                updateScroll(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -200,5 +193,23 @@ class ChooseSeatActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    fun updateScroll(position: Int) {
+        progressBar!!.visibility = VISIBLE
+
+        launch(UI) {
+            async(CommonPool) {
+                layoutInfo = client!!.getSeatLayout(rooms[position].roomId,
+                        SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date()))
+                scroll!!.scrollX = 0
+                scroll!!.scrollY = 0
+                seatLayout.clear()
+                seatLayout.addAll(layoutInfo!!.layout)
+            }.await()
+            map!!.layoutManager = GridLayoutManager(this@ChooseSeatActivity, layoutInfo!!.cols)
+            progressBar!!.visibility = GONE
+            adapter!!.notifyDataSetChanged()
+        }
     }
 }

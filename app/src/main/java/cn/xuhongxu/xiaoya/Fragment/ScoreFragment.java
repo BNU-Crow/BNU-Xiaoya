@@ -129,7 +129,7 @@ public class ScoreFragment extends Fragment {
                 updateItems(true, first);
             } else if (result.equals(getString(R.string.login_timeout)) || result.equals(getString(R.string.network_error))) {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
-                mListener.onReLogin(false);
+                // mListener.onReLogin(false);
                 swipeRefreshLayout.setRefreshing(false);
             } else {
                 Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();

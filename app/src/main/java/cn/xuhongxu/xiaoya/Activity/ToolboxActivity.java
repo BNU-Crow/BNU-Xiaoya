@@ -34,6 +34,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import cn.xuhongxu.xiaoya.Adapter.ViewPagerFragmentAdapter;
 import cn.xuhongxu.xiaoya.Fragment.BorrowBookFragment;
 import cn.xuhongxu.xiaoya.Fragment.ClassroomFragment;
@@ -48,6 +51,21 @@ public class ToolboxActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private SharedPreferences preferences;
+
+    public interface LibraryLoginListener {
+        void logined(String usnm, String pwd);
+    }
+
+    private HashSet<LibraryLoginListener> listeners = new HashSet<>();
+
+    public void addLibraryLoginListener(LibraryLoginListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeLibraryLoginListener(LibraryLoginListener listener) {
+        if (listeners.contains(listener))
+            listeners.remove(listener);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,27 +131,23 @@ public class ToolboxActivity extends AppCompatActivity {
             final String password = lib_pref.getString("password", "");
             usernameInput.setText(username);
             passwordInput.setText(password);
-            alert.setPositiveButton("登录", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    SharedPreferences.Editor editor = lib_pref.edit();
-                    String usnm = usernameInput.getText().toString();
-                    String pwd = passwordInput.getText().toString();
-                    editor.putString("username", usnm);
-                    editor.putString("password", pwd);
-                    editor.apply();
+            alert.setPositiveButton("登录", (dialogInterface, i) -> {
+                SharedPreferences.Editor editor = lib_pref.edit();
+                String usnm = usernameInput.getText().toString();
+                String pwd = passwordInput.getText().toString();
+                editor.putString("username", usnm);
+                editor.putString("password", pwd);
+                editor.apply();
 
-                    viewPager.getAdapter().notifyDataSetChanged();
+                viewPager.getAdapter().notifyDataSetChanged();
 
-                    dialogInterface.dismiss();
+                for (LibraryLoginListener listener : listeners) {
+                    listener.logined(usnm, pwd);
                 }
+
+                dialogInterface.dismiss();
             });
-            alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.cancel();
-                }
-            });
+            alert.setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel());
             alert.show();
             return true;
         }

@@ -1,5 +1,7 @@
 package cn.xuhongxu.Assist;
 
+import android.util.Log;
+
 import java.util.Calendar;
 
 /**
@@ -77,8 +79,17 @@ public class ExamArrangement {
 
     void setTimeString(String timeString) {
         this.timeString = timeString.trim();
-        String []datePart = this.timeString.substring(0, this.timeString.indexOf("(")).split("-");
-        String []timePart = this.timeString.substring(this.timeString.indexOf(")") + 1).split("-");
+
+        int pos1 = this.timeString.indexOf("(");
+        int pos2 = this.timeString.indexOf(")");
+
+        if (pos1 == -1) {
+            pos1 = this.timeString.indexOf(" ");
+            pos2 = pos1;
+        }
+
+        String []datePart = this.timeString.substring(0, pos1).split("-");
+        String []timePart = this.timeString.substring(pos2 + 1).split("-");
         String []begin = timePart[0].split(":");
         String []end = timePart[1].split(":");
 

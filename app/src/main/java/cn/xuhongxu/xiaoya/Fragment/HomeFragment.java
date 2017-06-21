@@ -8,10 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avos.avoscloud.AVAnalytics;
 import com.avos.avoscloud.AVException;
@@ -20,6 +22,8 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.GetCallback;
 
 import org.w3c.dom.Text;
+
+import java.net.URISyntaxException;
 
 import cn.xuhongxu.xiaoya.R;
 
@@ -80,21 +84,29 @@ public class HomeFragment extends Fragment {
 
         final TextView notice = (TextView) v.findViewById(R.id.notice);
         Button alipay = (Button) v.findViewById(R.id.alipay);
-        alipay.setOnClickListener(v1 -> {
-            PackageManager pm = getContext().getPackageManager();
-            try {
-                PackageInfo info = pm.getPackageInfo(ALIPAY_PACKAGE_NAME, 0);
-                if (info != null) {
-                    Intent intent = Intent.parseUri(
-                            INTENT_URL_FORMAT.replace("{urlCode}", "FKX08027RZSV5UEKTY3WE4"),
-                            Intent.URI_INTENT_SCHEME
-                    );
+        PackageManager pm = getContext().getPackageManager();
+        try {
+            PackageInfo info = pm.getPackageInfo(ALIPAY_PACKAGE_NAME, 0);
+            if (info != null) {
+                alipay.setOnClickListener(v1 -> {
+                    Intent intent = null;
+                    try {
+                        intent = Intent.parseUri(
+                                INTENT_URL_FORMAT.replace("{urlCode}", "FKX08027RZSV5UEKTY3WE4"),
+                                Intent.URI_INTENT_SCHEME
+                        );
+                    } catch (Exception e1) {
+                        Toast.makeText(getContext(), "调用支付宝失败", Toast.LENGTH_SHORT).show();
+                    }
                     getActivity().startActivity(intent);
-                }
-            } catch (Exception e) {
-
+                });
+            } else {
+                alipay.setVisibility(View.GONE);
             }
-        });
+        } catch (Exception e) {
+            alipay.setVisibility(View.GONE);
+        }
+
 
 
         AVQuery<AVObject> avQuery = new AVQuery<>("Notice");
@@ -104,19 +116,15 @@ public class HomeFragment extends Fragment {
                 if (e == null) {
                     notice.setText(avObject.getString("Content"));
                     final String noticeURL = avObject.getString("URL");
-                    notice.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            Uri uri = Uri.parse(noticeURL);
-                            intent.setData(uri);
-                            startActivity(intent);
-                        }
+                    notice.setOnClickListener(view -> {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        Uri uri = Uri.parse(noticeURL);
+                        intent.setData(uri);
+                        startActivity(intent);
                     });
                 } else {
-                    e.printStackTrace();
+                    // e.printStackTrace();
                 }
             }
         });

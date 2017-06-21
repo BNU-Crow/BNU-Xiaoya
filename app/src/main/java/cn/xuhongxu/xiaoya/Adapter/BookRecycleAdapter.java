@@ -1,10 +1,13 @@
 package cn.xuhongxu.xiaoya.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -64,6 +67,16 @@ public class BookRecycleAdapter
             holder.isbn.setText("ISBN：" + item.isbn);
             holder.position.setText("索书号：" + item.position);
             holder.status.setText(item.status);
+
+            holder.card.setOnClickListener(v -> {
+                String isbn = item.isbn.replace("-", "").replace(" ", "").trim();
+
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                Uri content_url = Uri.parse("http://book.douban.com/isbn/" + isbn);
+                intent.setData(content_url);
+                context.startActivity(Intent.createChooser(intent, "请选择浏览器"));
+            });
         }
     }
     @Override
@@ -82,6 +95,7 @@ public class BookRecycleAdapter
 
     public final static class BookItemViewHolder extends RecyclerView.ViewHolder {
         public TextView title, author, publisher, isbn, position, status;
+        public LinearLayout card;
 
         public BookItemViewHolder(View itemView) {
             super(itemView);
@@ -92,6 +106,7 @@ public class BookRecycleAdapter
             isbn = (TextView) itemView.findViewById(R.id.isbn);
             position = (TextView) itemView.findViewById(R.id.position);
             status = (TextView) itemView.findViewById(R.id.status);
+            card = (LinearLayout) itemView.findViewById(R.id.card_content);
         }
     }
 

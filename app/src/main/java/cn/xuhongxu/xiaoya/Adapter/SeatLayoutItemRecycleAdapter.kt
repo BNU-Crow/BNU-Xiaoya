@@ -30,6 +30,7 @@ class SeatLayoutItemRecycleAdapter(val context: Context,
 
     override fun onBindViewHolder(holder: ItemHolder?, position: Int) {
 
+        if (position >= items.size) return
         val item = items[position]
 
         holder!!.name.text = item.name

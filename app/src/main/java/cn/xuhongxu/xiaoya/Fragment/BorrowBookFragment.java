@@ -6,10 +6,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -34,10 +30,10 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.xuhongxu.xiaoya.Activity.ToolboxActivity;
 import cn.xuhongxu.xiaoya.Adapter.BorrowBookRecycleAdapter;
 import cn.xuhongxu.xiaoya.Helper.BorrowBook;
 import cn.xuhongxu.xiaoya.R;
@@ -57,6 +53,7 @@ public class BorrowBookFragment extends Fragment {
     private BorrowBookRecycleAdapter adapter;
 
     private int timeout = 30000;
+    boolean isShown = false;
 
     public BorrowBookFragment() {
         // Required empty public constructor
@@ -64,6 +61,7 @@ public class BorrowBookFragment extends Fragment {
 
     ArrayList<BorrowBook> login(String usnm, String pwd) {
         ArrayList<BorrowBook> books = new ArrayList<>();
+        String localKey = "";
         try {
             Connection.Response res = Jsoup.connect("http://opac.lib.bnu.edu.cn:8080/F/?func=bor-loan&adm_library=")
                     .timeout(timeout)
@@ -72,7 +70,7 @@ public class BorrowBookFragment extends Fragment {
             Pattern pattern = Pattern.compile("http://opac.lib.bnu.edu.cn:8080/F/(.*?)\\?func");
             Matcher matcher = pattern.matcher(res.body());
             if (matcher.find() && matcher.groupCount() > 0) {
-                key = matcher.group(1);
+                localKey = matcher.group(1);
             }
             cookies = res.cookies();
             res = Jsoup.connect("http://opac.lib.bnu.edu.cn:8080/pds")
@@ -84,7 +82,7 @@ public class BorrowBookFragment extends Fragment {
                     .data("selfreg", "")
                     .data("bor_id", usnm)
                     .data("bor_verification", pwd)
-                    .data("url", "http://opac.lib.bnu.edu.cn:8080/F/" + key + "?func=bor-info")
+                    .data("url", "http://opac.lib.bnu.edu.cn:8080/F/" + localKey + "?func=bor-info")
                     .method(Connection.Method.POST)
                     .execute();
             String loginURL = "";
@@ -98,7 +96,7 @@ public class BorrowBookFragment extends Fragment {
                     .method(Connection.Method.GET)
                     .execute();
             Document doc = Jsoup.connect("http://opac.lib.bnu.edu.cn:8080/F/"
-                    + key + "?func=bor-loan&adm_library=BNU51")
+                    + localKey + "?func=bor-loan&adm_library=BNU51")
                     .timeout(timeout)
                     .get();
             try {
@@ -123,13 +121,14 @@ public class BorrowBookFragment extends Fragment {
                     book.position = tds.get(8).text();
                     books.add(book);
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
+            localKey = "";
         }
+        key = localKey;
         return books;
     }
 
@@ -216,12 +215,23 @@ public class BorrowBookFragment extends Fragment {
         }
     }
 
+    ToolboxActivity.LibraryLoginListener listener = new ToolboxActivity.LibraryLoginListener() {
+        @Override
+        public void logined(String usnm, String pwd) {
+            key = "";
+            if (getUserVisibleHint()) {
+                progressBar.setVisibility(View.VISIBLE);
+                new LoginTask().execute(usnm, pwd);
+            }
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_borrow_book, container, false);
-        loginButton = (Button)v.findViewById(R.id.login);
+        loginButton = (Button)v.findViewById(R.id.refresh);
         renewButton = (Button)v.findViewById(R.id.renew);
         progressBar = (ProgressBar)v.findViewById(R.id.loading);
         recyclerView = (RecyclerView)v.findViewById(R.id.book_list);
@@ -231,6 +241,9 @@ public class BorrowBookFragment extends Fragment {
         adapter = new BorrowBookRecycleAdapter(getContext(), borrowBooks);
         recyclerView.setAdapter(adapter);
 
+        ToolboxActivity activity = (ToolboxActivity)getActivity();
+        activity.addLibraryLoginListener(listener);
+
         final SharedPreferences preferences =
                 getActivity().getSharedPreferences(getString(R.string.library_key),
                         Context.MODE_PRIVATE);
@@ -238,57 +251,26 @@ public class BorrowBookFragment extends Fragment {
         final String username = preferences.getString("username", "");
         final String password = preferences.getString("password", "");
 
-        if (key.isEmpty() && preferences.contains("username") && preferences.contains("password")) {
+        if (isShown && key.isEmpty() && preferences.contains("username") && preferences.contains("password")) {
             progressBar.setVisibility(View.VISIBLE);
             new LoginTask().execute(username, password);
         }
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                View layout=inflater.inflate(R.layout.login_dialog, null);
-                alert.setView(layout);
-                alert.setTitle("登录图书馆");
-                final EditText usernameInput=(EditText)layout.findViewById(R.id.edit_username);
-                final EditText passwordInput=(EditText)layout.findViewById(R.id.edit_password);
-                usernameInput.setText(username);
-                passwordInput.setText(password);
-
-                alert.setPositiveButton("登录", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        SharedPreferences.Editor editor = preferences.edit();
-                        String usnm = usernameInput.getText().toString();
-                        String pwd = passwordInput.getText().toString();
-                        editor.putString("username", usnm);
-                        editor.putString("password", pwd);
-                        editor.apply();
-                        progressBar.setVisibility(View.VISIBLE);
-                        new LoginTask().execute(usnm, pwd);
-                    }
-                });
-                alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                alert.show();
-            }
+        loginButton.setOnClickListener(view -> {
+            String usnm = preferences.getString("username", "");
+            String pwd = preferences.getString("password", "");
+            key = "";
+            progressBar.setVisibility(View.VISIBLE);
+            new LoginTask().execute(usnm, pwd);
         });
 
-        renewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (key.isEmpty()) {
-                    Snackbar.make(v, "请先登录或等待登录完成！", Snackbar.LENGTH_SHORT).show();
-                    return;
-                }
-                progressBar.setVisibility(View.VISIBLE);
-                new RenewTask().execute();
+        renewButton.setOnClickListener(view -> {
+            if (key.isEmpty()) {
+                Snackbar.make(v, "请先登录或等待登录完成！", Snackbar.LENGTH_SHORT).show();
+                return;
             }
+            progressBar.setVisibility(View.VISIBLE);
+            new RenewTask().execute();
         });
 
         return v;
@@ -312,5 +294,32 @@ public class BorrowBookFragment extends Fragment {
 
         outState.putString("KEY", key);
         outState.putParcelableArrayList("BOOKS", borrowBooks);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ToolboxActivity activity = (ToolboxActivity) getActivity();
+        activity.removeLibraryLoginListener(listener);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        isShown = isVisibleToUser;
+        if (!this.isAdded()) return;
+        if (isVisibleToUser) {
+            SharedPreferences preferences =
+                    getContext().getSharedPreferences(getString(R.string.library_key),
+                            Context.MODE_PRIVATE);
+
+            String username = preferences.getString("username", "");
+            String password = preferences.getString("password", "");
+
+            if (key.isEmpty() && preferences.contains("username") && preferences.contains("password")) {
+                progressBar.setVisibility(View.VISIBLE);
+                new LoginTask().execute(username, password);
+            }
+        }
     }
 }

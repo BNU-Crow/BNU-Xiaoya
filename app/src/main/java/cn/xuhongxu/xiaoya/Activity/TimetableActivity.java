@@ -292,7 +292,7 @@ public class TimetableActivity extends AppCompatActivity {
         if (i != -1) {
             shareCode = shareCode.substring(i + 1).trim();
         }
-        AVQuery<AVObject> avQuery = new AVQuery<AVObject>("TimeTable");
+        AVQuery<AVObject> avQuery = new AVQuery<>("TimeTable");
         final String finalShareCode = shareCode;
         final boolean reset = resetCurrentWeek;
         avQuery.getInBackground(shareCode, new GetCallback<AVObject>() {
@@ -337,7 +337,6 @@ public class TimetableActivity extends AppCompatActivity {
                     parseTable(helper.calcWeek());
                     Snackbar.make(findViewById(android.R.id.content), R.string.import_success, Snackbar.LENGTH_LONG).show();
                 } catch (Exception e1) {
-                    e1.printStackTrace();
                     Snackbar.make(findViewById(android.R.id.content), R.string.import_error, Snackbar.LENGTH_LONG).show();
                 }
             }
@@ -352,60 +351,48 @@ public class TimetableActivity extends AppCompatActivity {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.import_timetable);
-            builder.setItems(R.array.import_timetable, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    AVAnalytics.onEvent(getApplicationContext(), getString(R.string.action_import));
-                    if (i == 0) {
-                        // 教务网
-                        if (app.getAssist() == null) {
-                            // 登录
-                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                            intent.putExtra("justLogin", true);
-                            startActivityForResult(intent, LOGIN_REQUEST);
-                        } else {
-                            new GetSemesterTask().execute();
-                        }
-                    } else if (i == 1) {
-                        // 分享码
-                        AlertDialog.Builder builder = new AlertDialog.Builder(TimetableActivity.this);
-                        builder.setTitle(R.string.import_timetable);
+            builder.setItems(R.array.import_timetable, (dialogInterface, i) -> {
+                AVAnalytics.onEvent(getApplicationContext(), getString(R.string.action_import));
+                if (i == 0) {
+                    // 教务网
+                    if (app.getAssist() == null) {
+                        // 登录
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        intent.putExtra("justLogin", true);
+                        startActivityForResult(intent, LOGIN_REQUEST);
+                    } else {
+                        new GetSemesterTask().execute();
+                    }
+                } else if (i == 1) {
+                    // 分享码
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(TimetableActivity.this);
+                    builder1.setTitle(R.string.import_timetable);
 
-                        final EditText input = new EditText(TimetableActivity.this);
-                        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                        builder.setView(input);
+                    final EditText input = new EditText(TimetableActivity.this);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    builder1.setView(input);
 
-                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String shareCode = input.getText().toString();
-                                importShareCode(shareCode, true);
-                            }
-                        });
-                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                    builder1.setPositiveButton(R.string.ok, (dialog, which) -> {
+                        String shareCode = input.getText().toString();
+                        importShareCode(shareCode, true);
+                    });
+                    builder1.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
 
-                        builder.show();
-                    } else if (i == 2) {
-                        // 蹭课
+                    builder1.show();
+                } else if (i == 2) {
+                    // 蹭课
 
-                        // 教务网
-                        if (app.getAssist() == null) {
-                            // 登录
-                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                            intent.putExtra("justLogin", true);
-                            startActivityForResult(intent, LOGIN_REQUEST_NEW);
-                        } else {
-                            Intent intent = new Intent(getApplicationContext(), NewCourseActivity.class);
-                            startActivityForResult(intent, NEW_COURSE);
-                        }
+                    // 教务网
+                    if (app.getAssist() == null) {
+                        // 登录
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        intent.putExtra("justLogin", true);
+                        startActivityForResult(intent, LOGIN_REQUEST_NEW);
+                    } else {
+                        Intent intent = new Intent(getApplicationContext(), NewCourseActivity.class);
+                        startActivityForResult(intent, NEW_COURSE);
                     }
                 }
-
             });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override

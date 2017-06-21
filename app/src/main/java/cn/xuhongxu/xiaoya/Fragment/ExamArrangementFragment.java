@@ -104,9 +104,9 @@ public class ExamArrangementFragment extends Fragment {
             } catch (IOException e) {
                 return R.string.network_error;
             } catch (Exception e) {
-                Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                return R.string.network_error;
             }
-            return -1;
+
         }
 
         @Override
