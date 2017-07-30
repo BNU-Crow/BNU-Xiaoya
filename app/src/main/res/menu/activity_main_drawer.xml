@@ -19,10 +19,6 @@
             android:id="@+id/nav_score"
             android:icon="@drawable/ic_assessment_black"
             android:title="@string/Score" />
-        <item
-            android:id="@+id/nav_evaluate"
-            android:icon="@drawable/ic_plus_one_black"
-            android:title="@string/Evaluate" />
     </group>
 
     <item android:title="@string/Settings">

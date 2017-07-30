@@ -19,43 +19,4 @@
             android:singleLine="true"
             android:title="@string/pref_title_timeout" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:key="pref_key_evaluation_settings"
-        android:title="@string/pref_category_evaluation">
-        <EditTextPreference
-            android:defaultValue="@string/pref_default_star_5"
-            android:inputType="text"
-            android:key="star_5"
-            android:lines="5"
-            android:selectAllOnFocus="true"
-            android:title="@string/pref_title_star_5" />
-        <EditTextPreference
-            android:defaultValue="@string/pref_default_star_4"
-            android:inputType="text"
-            android:key="star_4"
-            android:lines="5"
-            android:selectAllOnFocus="true"
-            android:title="@string/pref_title_star_4" />
-        <EditTextPreference
-            android:defaultValue="@string/pref_default_star_3"
-            android:inputType="text"
-            android:key="star_3"
-            android:lines="5"
-            android:selectAllOnFocus="true"
-            android:title="@string/pref_title_star_3" />
-        <EditTextPreference
-            android:defaultValue="@string/pref_default_star_2"
-            android:inputType="text"
-            android:key="star_2"
-            android:lines="5"
-            android:selectAllOnFocus="true"
-            android:title="@string/pref_title_star_2" />
-        <EditTextPreference
-            android:defaultValue="@string/pref_default_star_1"
-            android:inputType="text"
-            android:key="star_1"
-            android:lines="5"
-            android:selectAllOnFocus="true"
-            android:title="@string/pref_title_star_1" />
-    </PreferenceCategory>
 </PreferenceScreen>

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cn.xuhongxu.xiaoya.Fragment.ClassroomFragment">
+    tools:context="com.xuhongxu.xiaoya.Fragment.ClassroomFragment">
 
     <LinearLayout
         android:id="@+id/controls"

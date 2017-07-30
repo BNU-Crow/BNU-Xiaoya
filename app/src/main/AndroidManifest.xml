@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.xuhongxu.xiaoya">
+    package="com.xuhongxu.xiaoya">
 
     <!-- 允许联网 -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -100,7 +100,12 @@
             android:name=".Activity.PreferencesActivity"
             android:label="@string/title_activity_preferences" />
         <activity android:name=".Activity.NewCourseActivity" />
-        <activity android:name=".Activity.ChooseSeatActivity"></activity>
+        <activity android:name=".Activity.ChooseSeatActivity" />
+
+        <service
+            android:name=".Service.QueryScoreService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

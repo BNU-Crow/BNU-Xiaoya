@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
-    tools:context="cn.xuhongxu.xiaoya.Activity.ChooseSeatActivity">
+    tools:context="com.xuhongxu.xiaoya.Activity.ChooseSeatActivity">
+
+    <Switch
+        android:id="@+id/today_switch"
+        android:text="@string/tomorrow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:id="@+id/layout1"
+        android:layout_below="@id/today_switch"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -48,7 +54,7 @@
 
     </LinearLayout>
 
-    <cn.xuhongxu.xiaoya.View.ScrollView2D
+    <com.xuhongxu.xiaoya.View.ScrollView2D
         android:id="@+id/scrollView"
         android:layout_below="@id/layout2"
         android:layout_width="match_parent"
@@ -63,7 +69,7 @@
             </android.support.v7.widget.RecyclerView>
 
 
-    </cn.xuhongxu.xiaoya.View.ScrollView2D>
+    </com.xuhongxu.xiaoya.View.ScrollView2D>
 
     <ProgressBar
         android:id="@+id/loading"

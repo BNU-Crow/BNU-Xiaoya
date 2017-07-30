@@ -20,10 +20,4 @@
         <item>考试1</item>
         <item>考试2</item>
     </string-array>
-    <string-array name="evaluation_users">
-        <item>20141121</item>
-        <item>201611130164</item>
-        <item>201611120156</item>
-        <item>201611130117</item>
-    </string-array>
 </resources>
