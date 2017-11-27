@@ -66,7 +66,7 @@ public class ClassroomFragment extends Fragment {
         List<Building> buildings = new ArrayList<>();
         try {
             Connection.Response res =
-                    Jsoup.connect("http://202.112.88.59:8082/buildings").method(Connection.Method.GET).execute();
+                    Jsoup.connect("http://123.206.51.151:1221/buildings").method(Connection.Method.GET).execute();
             String body = res.body();
             String[] fields = body.split(",");
             for (int i = 0; i < fields.length; i += 2) {
@@ -82,7 +82,7 @@ public class ClassroomFragment extends Fragment {
     private List<Room> getRooms(String id) {
         List<Room> rooms = new ArrayList<>();
         try {
-            Connection.Response res = Jsoup.connect("http://202.112.88.59:8082/building/" + id)
+            Connection.Response res = Jsoup.connect("http://123.206.51.151:1221/building/" + id)
                     .method(Connection.Method.GET).execute();
 
             String body = res.body();

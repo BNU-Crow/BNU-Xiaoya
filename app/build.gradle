@@ -17,8 +17,8 @@ android {
         applicationId "com.xuhongxu.xiaoya"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 33
-        versionName "6.1"
+        versionCode 37
+        versionName "6.3"
     }
     buildTypes {
         release {

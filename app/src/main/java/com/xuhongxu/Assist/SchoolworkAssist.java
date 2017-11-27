@@ -197,7 +197,7 @@ public class SchoolworkAssist implements Parcelable {
         void onFetched(String res) throws LoginException, IOException;
     }
 
-    private void fetchLoginParams(OnFetched onFetched) throws IOException {
+    private void fetchLoginParams(OnFetched onFetched) throws IOException, LoginException {
         lt = "LT-NeusoftAlwaysValidTicket";
         excution = "e1s1";
 
@@ -220,6 +220,10 @@ public class SchoolworkAssist implements Parcelable {
         if (exeEl.size() > 0) {
             excution = exeEl.first().attr("value").trim();
         }
+
+        onFetched.onFetched(Des.strEnc(getUsername() + getPassword() + lt, "1", "2", "3"));
+
+        /*
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @SuppressLint("SetJavaScriptEnabled")
@@ -246,6 +250,7 @@ public class SchoolworkAssist implements Parcelable {
             }
         });
 
+        */
 
         /*
         Pattern pattern = Pattern.compile("input type=\"hidden\" name=\"lt\" value=\"(.*)\"");
@@ -399,7 +404,7 @@ public class SchoolworkAssist implements Parcelable {
 
     public void login() throws IOException, LoginException {
 
-        final boolean[] finished = {false};
+        // final boolean[] finished = {false};
         studentInfo = null;
         selectInfo = null;
 
@@ -425,7 +430,7 @@ public class SchoolworkAssist implements Parcelable {
             if (doc.getElementById("frmbody") == null) {
                 Element msg = doc.getElementById("msg");
                 if (msg == null) {
-                    finished[0] = true;
+                    // finished[0] = true;
                     throw new LoginException("登录错误");
                 } else {
                     String msgText = msg.text();
@@ -433,15 +438,16 @@ public class SchoolworkAssist implements Parcelable {
                     if ("登陆失败".contentEquals(msgText)) {
                         msgText = "用户名密码错误";
                     }
-                    finished[0] = true;
+                    // finished[0] = true;
                     throw new LoginException(msgText);
                 }
 
             }
             everSucceed = false;
-            finished[0] = true;
+            // finished[0] = true;
         });
 
+        /*
         while (!finished[0])
         {
             try {
@@ -450,6 +456,7 @@ public class SchoolworkAssist implements Parcelable {
                 e.printStackTrace();
             }
         }
+        */
     }
 
     public ArrayList<PlanCourse> getPlanCourses(boolean showAll) throws IOException, NeedLoginException, JSONException {
@@ -1079,6 +1086,25 @@ public class SchoolworkAssist implements Parcelable {
     }
 
     public ArrayList<ExamScore> getExamScores(int year, int term, boolean major) throws IOException, NeedLoginException {
+
+
+        Connection.Response res = Jsoup.connect("http://zyfw.bnu.edu.cn/frame/menus/js/SetTokenkey.jsp")
+                .timeout(getTimeout())
+                .cookies(getCookies())
+                .header(HEADER_CONTENT_TYPE, CONTENT_TYPE)
+                .header(HEADER_REFERER, "http://zyfw.bnu.edu.cn/student/xscj.stuckcj.jsp?menucode=JW130706")
+                .header(USER_AGENT_HEADER, USER_AGENT)
+                .data("menucode", "xscj.stuckcj.my.jsp")
+                .ignoreContentType(true)
+                .method(Connection.Method.POST)
+                .execute();
+
+        if (!isLogin(res.body())) {
+            throw new NeedLoginException();
+        }
+
+        String token = res.body();
+
         Connection conn = Jsoup.connect(EXAM_SCORE_URL)
                 .timeout(getTimeout())
                 .cookies(getCookies())
@@ -1088,6 +1114,7 @@ public class SchoolworkAssist implements Parcelable {
                 .data("ysyx", "yscj")
                 .data("userCode", getStudentInfo().getId())
                 .data("zfx", major ? "0" : "1")
+                .data("t", token)
                 .data("ysyxS", "on")
                 .data("sjxzS", "on")
                 .data("zfxS", "on");
